@@ -1,0 +1,15 @@
+---
+description: Versioned API client and OpenAPI snapshot
+globs: packages/client/**,scripts/**,openapi.json
+alwaysApply: false
+---
+
+# API client
+
+Read [`docs/adr/0007-ci-and-client.md`](../../docs/adr/0007-ci-and-client.md).
+
+- `packages/client/src/index.ts` is the committed TypeScript contract.
+- After a public API change: update the client, bump its version, and tell
+  `ElWarsha-web` to pin the new version.
+- `yarn openapi:export` writes `openapi.json`. `yarn client:build` copies the
+  client to `packages/client/dist`. Do not treat those outputs as source.

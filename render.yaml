@@ -1,0 +1,79 @@
+services:
+  - type: web
+    name: elwarsha-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    preDeployCommand: ./node_modules/.bin/prisma migrate deploy
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elwarsha-postgres
+          property: connectionString
+      - key: WEB_ORIGIN
+        sync: false
+      - key: API_ORIGIN
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: GITHUB_WEBHOOK_SECRET
+        generateValue: true
+      - key: IDENTITY_PROVIDER
+        value: auth0
+      - key: AUTH0_DOMAIN
+        sync: false
+      - key: AUTH0_CLIENT_ID
+        sync: false
+      - key: AUTH0_CLIENT_SECRET
+        sync: false
+      - key: AUTH0_AUDIENCE
+        sync: false
+
+  - type: worker
+    name: elwarsha-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: node dist/worker.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elwarsha-postgres
+          property: connectionString
+      - key: WEB_ORIGIN
+        value: https://example.com
+      - key: API_ORIGIN
+        value: https://example.com
+      - key: SESSION_SECRET
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+      - key: IDENTITY_PROVIDER
+        value: fake
+
+  - type: cron
+    name: elwarsha-reconcile
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    schedule: "0 * * * *"
+    dockerCommand: node dist/reconcile.js
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elwarsha-postgres
+          property: connectionString
+      - key: WEB_ORIGIN
+        value: https://example.com
+      - key: API_ORIGIN
+        value: https://example.com
+      - key: SESSION_SECRET
+        value: reconcile-placeholder-secret
+      - key: GITHUB_WEBHOOK_SECRET
+        value: reconcile-placeholder-secret
+
+databases:
+  - name: elwarsha-postgres
+    plan: basic-256mb

@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: elwarsha
+          POSTGRES_PASSWORD: elwarsha
+          POSTGRES_DB: elwarsha
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U elwarsha"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://elwarsha:elwarsha@localhost:5432/elwarsha
+      WEB_ORIGIN: http://localhost:5173
+      SESSION_SECRET: ci-session-secret-value
+      GITHUB_WEBHOOK_SECRET: ci-webhook-secret
+      IDENTITY_PROVIDER: fake
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --immutable
+      - run: yarn validate:ci

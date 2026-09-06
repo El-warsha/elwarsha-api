@@ -1,0 +1,23 @@
+---
+description: Route ElWarsha API work to AGENTS, ADRs, and learning docs
+alwaysApply: true
+---
+
+# ElWarsha API
+
+Read [`AGENTS.md`](../../AGENTS.md) first.
+
+Precedence: `docs/adr/*` > `AGENTS.md` > routed docs
+([`docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md),
+[`docs/MODULE_MAP.md`](../../docs/MODULE_MAP.md),
+[`docs/LEARNING.md`](../../docs/LEARNING.md),
+[`docs/CURRICULUM.md`](../../docs/CURRICULUM.md)).
+
+Do not invent Prisma, Auth0, GitHub, or OpenAPI fields. Contracts live in
+`prisma/schema.prisma`, `packages/client/src/index.ts`, and `.env.example`.
+
+If system shape changes, update `docs/ARCHITECTURE.md`. If the reason changes,
+add or update an ADR and a `docs/history/` entry.
+
+Cohort assignments follow Coach then Pair in `docs/LEARNING.md`. Explicit
+maintainer implementation requests use normal Ship mode.

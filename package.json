@@ -1,0 +1,65 @@
+{
+  "name": "elwarsha-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "yarn@4.13.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "dev:worker": "nest start --watch --entryFile worker",
+    "start": "node dist/main.js",
+    "start:dev": "nest start --watch",
+    "start:dev:worker": "nest start --watch --entryFile worker",
+    "start:worker": "node dist/worker.js",
+    "lint": "oxlint src/ test/",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "openapi:export": "tsx scripts/export-openapi.ts",
+    "client:build": "tsx scripts/build-client.ts",
+    "validate": "yarn format:check && yarn lint && yarn typecheck && yarn prisma:generate && yarn test && yarn build",
+    "validate:ci": "yarn format:check && yarn lint && yarn typecheck && yarn prisma:generate && yarn prisma:deploy && yarn prisma:seed && yarn test && yarn test:e2e && yarn build && yarn client:build"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.0.1",
+    "@nestjs/core": "^12.0.1",
+    "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/swagger": "^12.0.1",
+    "@prisma/client": "^6.16.2",
+    "cookie-parser": "^1.4.7",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^12.0.0",
+    "@nestjs/schematics": "^12.0.0",
+    "@nestjs/testing": "^12.0.1",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.5.2",
+    "@types/supertest": "^6.0.3",
+    "oxlint": "^1.58.0",
+    "prettier": "^3.6.2",
+    "prisma": "^6.16.2",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.5",
+    "typescript": "^6.0.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.1.2"
+  }
+}

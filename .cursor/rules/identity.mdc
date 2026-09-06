@@ -1,0 +1,17 @@
+---
+description: Identity, sessions, and authorization pointers
+globs: src/modules/identity/**
+alwaysApply: false
+---
+
+# Identity
+
+Read [`docs/adr/0003-auth0-opaque-sessions.md`](../../docs/adr/0003-auth0-opaque-sessions.md)
+and [`docs/adr/0004-fixed-roles.md`](../../docs/adr/0004-fixed-roles.md).
+
+- Browser gets only an opaque HttpOnly session cookie.
+- Roles and capabilities live in `src/domain/roles.ts`. Capability sets are
+  currently identical; do not invent per-role differences.
+- Other modules may import only `AuthGuard` and `RequireCapability` from
+  `auth.guard.ts`.
+- Tests use the fake identity adapter, not Auth0.

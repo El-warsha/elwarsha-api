@@ -1,0 +1,21 @@
+---
+description: Coach-pair increments, concise takeaways, no repetition
+alwaysApply: true
+---
+
+# Learning work
+
+For cohort assignments, follow [`docs/LEARNING.md`](../../docs/LEARNING.md).
+
+- Propose one small increment: one objective, one observable behavior, expected
+  files, one focused check. Wait for agreement.
+- Shortest useful explanation first. More depth only if asked or a gap appears.
+- If `.learning/index.md` exists, read it and skip already-covered explanations
+  and links. Record only the learning delta.
+- After a verified increment, write `.learning/YYYY-MM-DD-task-slug.md` from
+  [`docs/templates/LEARNING_TAKEAWAY.md`](../../docs/templates/LEARNING_TAKEAWAY.md)
+  and update `.learning/index.md`. Do not commit `.learning/`.
+- Do not silently complete assessed work. Human review and `yarn validate:ci`
+  remain authoritative.
+
+Maintainer requests to implement, fix, or document use Ship mode.

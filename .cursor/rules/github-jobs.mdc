@@ -1,0 +1,17 @@
+---
+description: GitHub webhook and PostgreSQL job pointers
+globs: src/modules/github/**,src/infrastructure/jobs/**,src/worker.ts,src/reconcile.ts
+alwaysApply: false
+---
+
+# GitHub and jobs
+
+Read [`docs/adr/0005-github-source-of-truth.md`](../../docs/adr/0005-github-source-of-truth.md)
+and [`docs/adr/0006-postgres-jobs.md`](../../docs/adr/0006-postgres-jobs.md).
+
+- Verify webhook signatures before any write.
+- GitHub is authoritative for reviews and checks. Do not invent in-app scoring.
+- Jobs live in PostgreSQL via `src/infrastructure/jobs`. Do not add Redis.
+- `processDelivery` currently marks a delivery processed. Full PR/review/check
+  sync is not implemented yet.
+- Worker loop: `src/worker.ts`. One-shot enqueue: `src/reconcile.ts`.

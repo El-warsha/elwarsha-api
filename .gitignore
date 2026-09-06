@@ -1,0 +1,14 @@
+node_modules
+dist
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+.pnp.*
+.env
+.env.local
+*.log
+*.tsbuildinfo
+coverage
+.DS_Store
+*.csv
+.learning/

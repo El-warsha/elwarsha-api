@@ -1,0 +1,288 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Locale {
+  ar
+  en
+}
+
+enum ProductStatus {
+  draft
+  active
+  archived
+}
+
+enum EngagementStatus {
+  planned
+  active
+  completed
+}
+
+enum MembershipRole {
+  participant
+  mentor
+  maintainer
+  admin
+}
+
+enum AssignmentStatus {
+  draft
+  published
+  closed
+}
+
+enum SubmissionStatus {
+  draft
+  submitted
+  in_review
+  eligible
+  merged
+  withdrawn
+}
+
+enum PullRequestState {
+  open
+  closed
+  merged
+}
+
+enum ReviewState {
+  approved
+  changes_requested
+  commented
+  dismissed
+}
+
+enum CheckConclusion {
+  pending
+  success
+  failure
+  cancelled
+  skipped
+  timed_out
+  action_required
+}
+
+enum WebhookProcessingStatus {
+  received
+  queued
+  processed
+  failed
+}
+
+enum JobType {
+  process_github_webhook
+  reconcile_pull_requests
+}
+
+enum JobStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  displayName String
+  email       String   @unique
+  locale      Locale   @default(ar)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  identities  ExternalIdentity[]
+  sessions    Session[]
+  memberships Membership[]
+  submissions Submission[]
+}
+
+model ExternalIdentity {
+  id              String  @id @default(uuid()) @db.Uuid
+  userId          String  @db.Uuid
+  provider        String
+  providerSubject String
+  githubUserId    BigInt?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerSubject])
+  @@unique([githubUserId])
+}
+
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id        String        @id @default(uuid()) @db.Uuid
+  slug      String        @unique
+  name      String
+  status    ProductStatus @default(draft)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  repository  ProductRepository?
+  engagements CohortProductEngagement[]
+}
+
+model ProductRepository {
+  id             String @id @default(uuid()) @db.Uuid
+  productId      String @unique @db.Uuid
+  githubOwner    String
+  githubRepo     String
+  installationId BigInt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([githubOwner, githubRepo])
+}
+
+model Cohort {
+  id        String   @id @default(uuid()) @db.Uuid
+  slug      String   @unique
+  name      String
+  startsOn  DateTime @db.Date
+  endsOn    DateTime @db.Date
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  engagements CohortProductEngagement[]
+}
+
+model CohortProductEngagement {
+  id        String           @id @default(uuid()) @db.Uuid
+  cohortId  String           @db.Uuid
+  productId String           @db.Uuid
+  status    EngagementStatus @default(planned)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  cohort      Cohort       @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  memberships Membership[]
+  assignments Assignment[]
+
+  @@unique([cohortId, productId])
+}
+
+model Membership {
+  id           String         @id @default(uuid()) @db.Uuid
+  userId       String         @db.Uuid
+  engagementId String         @db.Uuid
+  role         MembershipRole
+  createdAt    DateTime       @default(now())
+
+  user       User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  engagement CohortProductEngagement  @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, engagementId])
+}
+
+model Assignment {
+  id           String           @id @default(uuid()) @db.Uuid
+  engagementId String           @db.Uuid
+  weekNumber   Int
+  title        String
+  status       AssignmentStatus @default(draft)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  engagement  CohortProductEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@unique([engagementId, weekNumber])
+}
+
+model Submission {
+  id           String           @id @default(uuid()) @db.Uuid
+  assignmentId String           @db.Uuid
+  authorUserId String           @db.Uuid
+  status       SubmissionStatus @default(draft)
+  prUrl        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  assignment  Assignment        @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  author      User              @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+  pullRequest GithubPullRequest?
+
+  @@unique([assignmentId, authorUserId])
+}
+
+model GithubPullRequest {
+  id            String           @id @default(uuid()) @db.Uuid
+  submissionId  String           @unique @db.Uuid
+  githubPrId    BigInt           @unique
+  number        Int
+  state         PullRequestState
+  approvalCount Int              @default(0)
+  checksPassed  Boolean          @default(false)
+  updatedAt     DateTime         @updatedAt
+
+  submission Submission       @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  reviews    GithubReview[]
+  checkRuns  GithubCheckRun[]
+}
+
+model GithubReview {
+  id                   String      @id @default(uuid()) @db.Uuid
+  pullRequestId        String      @db.Uuid
+  githubReviewId       BigInt      @unique
+  reviewerGithubUserId BigInt
+  state                ReviewState
+  submittedAt          DateTime
+
+  pullRequest GithubPullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+}
+
+model GithubCheckRun {
+  id            String          @id @default(uuid()) @db.Uuid
+  pullRequestId String          @db.Uuid
+  name          String
+  conclusion    CheckConclusion
+  updatedAt     DateTime        @updatedAt
+
+  pullRequest GithubPullRequest @relation(fields: [pullRequestId], references: [id], onDelete: Cascade)
+
+  @@unique([pullRequestId, name])
+}
+
+model GithubWebhookDelivery {
+  id               String                   @id @default(uuid()) @db.Uuid
+  deliveryId       String                   @unique
+  eventType        String
+  processingStatus WebhookProcessingStatus  @default(received)
+  payload          Json
+  createdAt        DateTime                 @default(now())
+
+  jobs Job[]
+}
+
+model Job {
+  id            String    @id @default(uuid()) @db.Uuid
+  type          JobType
+  status        JobStatus @default(pending)
+  payload       Json
+  attemptCount  Int       @default(0)
+  availableAt   DateTime  @default(now())
+  lockedAt      DateTime?
+  webhookId     String?   @db.Uuid
+  lastError     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  webhook GithubWebhookDelivery? @relation(fields: [webhookId], references: [id])
+}

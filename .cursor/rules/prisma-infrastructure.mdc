@@ -1,0 +1,15 @@
+---
+description: Prisma contract and infrastructure boundary
+globs: src/infrastructure/**,prisma/**
+alwaysApply: false
+---
+
+# Prisma and infrastructure
+
+Read [`docs/adr/0002-prisma-behind-repositories.md`](../../docs/adr/0002-prisma-behind-repositories.md).
+The schema in `prisma/schema.prisma` is the database contract.
+
+- Never import `@prisma/client` types outside `src/infrastructure`.
+- New persistence belongs behind repository ports. Do not add Prisma calls in
+  controllers.
+- Seed and migrations stay under `prisma/`.
