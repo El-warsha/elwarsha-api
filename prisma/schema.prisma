@@ -202,8 +202,27 @@ model Assignment {
 
   engagement  CohortProductEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
   submissions Submission[]
+  labels      AssignmentLabel[]
 
   @@unique([engagementId, weekNumber])
+}
+
+model Label {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  assignments AssignmentLabel[]
+}
+
+model AssignmentLabel {
+  assignmentId String @db.Uuid
+  labelId      String @db.Uuid
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  label      Label      @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([assignmentId, labelId])
 }
 
 model Submission {

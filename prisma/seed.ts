@@ -78,7 +78,7 @@ async function main(): Promise<void> {
     },
   });
 
-  await prisma.assignment.upsert({
+  const assignment = await prisma.assignment.upsert({
     where: {
       engagementId_weekNumber: {
         engagementId: engagement.id,
@@ -93,6 +93,28 @@ async function main(): Promise<void> {
       status: "published",
     },
   });
+
+  for (const name of ["frontend", "backend", "review"]) {
+    const label = await prisma.label.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+
+    await prisma.assignmentLabel.upsert({
+      where: {
+        assignmentId_labelId: {
+          assignmentId: assignment.id,
+          labelId: label.id,
+        },
+      },
+      update: {},
+      create: {
+        assignmentId: assignment.id,
+        labelId: label.id,
+      },
+    });
+  }
 }
 
 main()

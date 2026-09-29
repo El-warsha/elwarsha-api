@@ -11,8 +11,9 @@ The API is a modular monolith with three process entry points:
 | Reconcile | `src/reconcile.ts` | One-shot enqueue of `reconcile_pull_requests`    |
 
 Auth0 proves identity. NestJS issues opaque sessions. PostgreSQL stores users,
-memberships, products, cohorts, engagements, assignments, submissions, and
-GitHub snapshots. A GitHub App posts signed webhooks; the worker processes them.
+memberships, products, cohorts, engagements, assignments, labels, submissions,
+and GitHub snapshots. A GitHub App posts signed webhooks; the worker processes
+them.
 
 Default local identity is the fake adapter (`IDENTITY_PROVIDER=fake`).
 
@@ -47,6 +48,8 @@ Domain models live in `src/domain`. `@prisma/client` types stay in
 Current foundation shortcuts:
 
 - Catalog is controller → `CatalogRepository` (no application service).
+- Tasks is controller → `TasksService` → `TasksRepository`. `TasksModule`
+  exports `TasksService`. Assignment reads do not include labels.
 - Identity repositories and `GithubService` inject `PrismaService` from feature
   modules. New persistence should move behind infrastructure ports.
 - `JobService` is the durable queue; it is the only job writer.
@@ -56,17 +59,19 @@ Current foundation shortcuts:
 Nest modules in `src/app.module.ts`:
 
 - `identity` — OIDC/fake adapter, sessions, capability resolution
-- `catalog` — read-only products, engagements, assignments
+- `catalog` — read-only products and engagements
+- `tasks` — read-only assignments at `GET /api/v1/assignments`
 - `github` — webhook verification, delivery persistence, job enqueue
 - `health` — `healthz` and `readyz`
 - `jobs` — PostgreSQL queue in `src/infrastructure/jobs`
 
-Products, cohorts, engagements, and assignments are domain concepts inside
-`catalog`, not separate Nest modules. Submissions exist in the schema only.
-See [`MODULE_MAP.md`](MODULE_MAP.md).
+Products, cohorts, and engagements are domain concepts inside `catalog`.
+Assignments are served by `src/modules/tasks`. Labels and submissions exist in
+the schema only. See [`MODULE_MAP.md`](MODULE_MAP.md).
 
-Cross-module rule: no internals. Other modules may import only `AuthGuard` and
-`RequireCapability` from `src/modules/identity/auth.guard.ts`.
+Cross-module rule: no internals. From identity, other modules may import only
+`AuthGuard` and `RequireCapability` from `src/modules/identity/auth.guard.ts`.
+`TasksModule` exports `TasksService`.
 
 ## HTTP surface
 

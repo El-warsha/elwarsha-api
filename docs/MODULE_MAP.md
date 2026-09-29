@@ -9,11 +9,14 @@ not the long-term product.
 | Products    | `src/modules/catalog`     | Long-lived products and upstream repos        | `GET /api/v1/products`                                                       |
 | Cohorts     | `src/modules/catalog`     | Time-bounded cohorts                          | Read nested on engagements                                                   |
 | Engagements | `src/modules/catalog`     | Cohort-product pairing                        | `GET /api/v1/engagements`                                                    |
-| Assignments | `src/modules/catalog`     | Weekly work items                             | `GET /api/v1/assignments`                                                    |
+| Assignments | `src/modules/tasks`       | Weekly work items                             | `GET /api/v1/assignments`                                                    |
+| Labels      | schema only               | Tags on assignments                           | `Label` and `AssignmentLabel` in Prisma; no HTTP module                      |
 | Submissions | schema only               | Candidate PRs                                 | `Submission` in Prisma; no HTTP module                                       |
 | GitHub      | `src/modules/github`      | Webhooks and future PR/review/check snapshots | Signature, persist delivery, enqueue. `processDelivery` marks processed only |
 | Jobs        | `src/infrastructure/jobs` | Durable worker queue                          | Enqueue, claim, complete, retry                                              |
 | Health      | `src/modules/health`      | Liveness and readiness                        | `healthz`, `readyz`                                                          |
 
 Shared authorization exports (`AuthGuard`, `RequireCapability`) live in
-identity and are the only allowed cross-module imports.
+identity and are the only identity symbols other modules may import.
+`TasksModule` exports `TasksService`. Do not import `tasks.repository.ts` from
+another module.

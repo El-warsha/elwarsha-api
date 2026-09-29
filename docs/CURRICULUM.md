@@ -24,13 +24,21 @@ from the README.
 | 1.2   | Follow `GET /api/v1/products` through controller and repository         | Can name each file in the path                       | Manual request after `yarn start:dev` |
 | 1.3   | Name one forbidden cross-module import and the allowed identity exports | Correct example of `AuthGuard` / `RequireCapability` | Code-reading check                    |
 
-**Core increment for the weekly PR:** 1.2 plus a short architecture note in the
-PR reflection. Do not refactor module boundaries this week.
+**Learn stage:** 1.1–1.3. These tasks map the codebase. They are not the
+qualifying pull request.
+
+**Qualifying slice:** the program Week 1 gist. `Label` and `AssignmentLabel`
+already exist; this week adds no schema. Expose those labels through
+`src/modules/tasks` (inject a labels module into the exported `TasksService`)
+and, in elwarsha-web, through `src/features/tasks` and `useTasks`. Task means
+the existing Assignment: `GET /api/v1/assignments`, route `portal/assignments`.
+Do not add a Task model.
 
 **Stretch:** Sketch where a future submissions module would sit without
 implementing it.
 
-**Evidence:** PR reflection names the request path and the owning module.
+**Evidence:** extend the assignments assertion in `test/app.e2e-spec.ts`. The
+web PR extends `src/features/tasks/TasksPage.test.tsx`.
 
 **Reflection:** Which boundary would you be most likely to break, and why?
 

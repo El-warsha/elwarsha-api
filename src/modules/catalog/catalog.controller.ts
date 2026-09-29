@@ -21,10 +21,4 @@ export class CatalogController {
   listEngagements() {
     return this.catalog.listEngagements();
   }
-
-  @Get("assignments")
-  @RequireCapability("assignments.read")
-  listAssignments() {
-    return this.catalog.listAssignments();
-  }
 }
