@@ -50,6 +50,13 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     if (existingIdentity) {
+      if (existingIdentity.user.displayName !== profile.displayName) {
+        const updated = await this.prisma.user.update({
+          where: { id: existingIdentity.user.id },
+          data: { displayName: profile.displayName },
+        });
+        return toUser(updated);
+      }
       return toUser(existingIdentity.user);
     }
 

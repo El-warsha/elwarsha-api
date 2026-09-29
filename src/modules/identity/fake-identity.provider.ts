@@ -13,7 +13,7 @@ export class FakeIdentityProvider implements IdentityProvider {
       provider: "fake",
       providerSubject: "fake-user-1",
       email: "participant@elwarsha.dev",
-      displayName: "Mariam Participant",
+      displayName: "Test Participant",
       githubUserId: "1001",
     };
   }

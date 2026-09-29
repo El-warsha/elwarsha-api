@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 
+import type { User } from "../../domain/models.js";
 import type { AppEnv } from "../../config/env.js";
 import type { IdentityProvider, UserRepository } from "./identity.ports.js";
 import { APP_ENV } from "../../config/tokens.js";
@@ -18,14 +19,18 @@ export class AuthService {
     return this.identity.authorizationUrl(state, redirectUri);
   }
 
-  async completeLogin(code: string, redirectUri: string): Promise<string> {
+  async completeLogin(
+    code: string,
+    redirectUri: string,
+  ): Promise<{ token: string; user: User }> {
     const profile = await this.identity.exchangeCode(code, redirectUri);
     const user = await this.users.upsertFromIdentity(profile);
-    return this.sessions.issue(user.id);
+    const token = await this.sessions.issue(user.id);
+    return { token, user };
   }
 
-  callbackRedirect(tokenIssued: boolean): string {
-    const url = new URL("/ar/portal/", this.env.WEB_ORIGIN);
+  callbackRedirect(tokenIssued: boolean, locale: "ar" | "en" = "ar"): string {
+    const url = new URL(`/${locale}/portal/`, this.env.WEB_ORIGIN);
     if (!tokenIssued) {
       url.searchParams.set("auth", "failed");
     }

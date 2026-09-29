@@ -109,7 +109,10 @@ export function createElWarshaClient(options: ElWarshaClientOptions) {
     version: "0.1.0",
     health: () => request<{ status: string }>("/healthz"),
     ready: () => request<{ status: string }>("/readyz"),
-    loginUrl: () => `${options.baseUrl}/api/v1/auth/login`,
+    loginUrl: (params?: { locale?: Locale }) =>
+      params?.locale
+        ? `${options.baseUrl}/api/v1/auth/login?locale=${params.locale}`
+        : `${options.baseUrl}/api/v1/auth/login`,
     me: () => request<SessionResponse>("/api/v1/auth/me"),
     logout: () => request<{ ok: boolean }>("/api/v1/auth/logout", { method: "POST" }),
     listProducts: () => request<Product[]>("/api/v1/products"),

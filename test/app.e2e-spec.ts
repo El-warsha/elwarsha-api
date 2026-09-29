@@ -108,6 +108,27 @@ describe("Foundation API (e2e)", () => {
     await agent.get("/api/v1/products").expect(401);
   });
 
+  it("preserves requested locale when logging in from English portal", async () => {
+    const agent = request.agent(app.getHttpServer());
+
+    const login = await agent
+      .get("/api/v1/auth/login?locale=en")
+      .redirects(0)
+      .expect(302)
+      .expect("Location", /\/api\/v1\/auth\/callback\?code=fake-code/);
+
+    const callbackLocation = login.headers.location as string;
+    const callbackUrl = new URL(callbackLocation);
+    await agent
+      .get(`${callbackUrl.pathname}${callbackUrl.search}`)
+      .redirects(0)
+      .expect(302)
+      .expect("Location", "http://localhost:5173/en/portal/");
+
+    const me = await agent.get("/api/v1/auth/me").expect(200);
+    expect(me.body.user.email).toBe("participant@elwarsha.dev");
+  });
+
   it("rejects an unsigned GitHub webhook", () => {
     return request(app.getHttpServer())
       .post("/api/v1/github/webhooks")

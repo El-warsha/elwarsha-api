@@ -1,3 +1,9 @@
+## Title
+
+Prefix the pull request title with `[@discordhandle][week#]`.
+
+Example: `[@ahmad][1] Expose assignment labels`
+
 ## Summary
 
 ## Assignment increment

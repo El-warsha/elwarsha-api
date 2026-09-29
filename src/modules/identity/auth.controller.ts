@@ -31,13 +31,19 @@ export class AuthController {
   ) {}
 
   @Get("login")
-  login(@Res() response: Response): void {
+  login(@Query("locale") locale: string | undefined, @Res() response: Response): void {
     const state = randomToken();
     const redirectUri = this.callbackUrl(response);
     response.cookie(this.oauthStateCookieName(), state, {
       ...this.cookieOptions("/api/v1/auth/callback"),
       maxAge: OAUTH_STATE_TTL_MS,
     });
+    if (locale === "ar" || locale === "en") {
+      response.cookie(this.oauthLocaleCookieName(), locale, {
+        ...this.cookieOptions("/api/v1/auth/callback"),
+        maxAge: OAUTH_STATE_TTL_MS,
+      });
+    }
     const url = this.auth.loginUrl(state, redirectUri);
     response.redirect(url.toString());
   }
@@ -51,25 +57,38 @@ export class AuthController {
   ): Promise<void> {
     const expectedState = request.cookies?.[this.oauthStateCookieName()] as
       string | undefined;
+    const requestedLocale = request.cookies?.[this.oauthLocaleCookieName()] as
+      "ar" | "en" | undefined;
+
     response.clearCookie(
       this.oauthStateCookieName(),
       this.cookieOptions("/api/v1/auth/callback"),
     );
+    response.clearCookie(
+      this.oauthLocaleCookieName(),
+      this.cookieOptions("/api/v1/auth/callback"),
+    );
+
+    const fallbackLocale = requestedLocale ?? "ar";
 
     if (!code || !state || !expectedState || !safeEqual(state, expectedState)) {
-      response.redirect(this.auth.callbackRedirect(false));
+      response.redirect(this.auth.callbackRedirect(false, fallbackLocale));
       return;
     }
 
     try {
-      const token = await this.auth.completeLogin(code, this.callbackUrl(response));
+      const { token, user } = await this.auth.completeLogin(
+        code,
+        this.callbackUrl(response),
+      );
       response.cookie(this.env.SESSION_COOKIE_NAME, token, {
         ...this.cookieOptions("/"),
         maxAge: this.env.SESSION_TTL_SECONDS * 1000,
       });
-      response.redirect(this.auth.callbackRedirect(true));
+      const targetLocale = requestedLocale ?? user.locale ?? "ar";
+      response.redirect(this.auth.callbackRedirect(true, targetLocale));
     } catch {
-      response.redirect(this.auth.callbackRedirect(false));
+      response.redirect(this.auth.callbackRedirect(false, fallbackLocale));
     }
   }
 
@@ -110,6 +129,10 @@ export class AuthController {
 
   private oauthStateCookieName(): string {
     return `${this.env.SESSION_COOKIE_NAME}_oauth_state`;
+  }
+
+  private oauthLocaleCookieName(): string {
+    return `${this.env.SESSION_COOKIE_NAME}_oauth_locale`;
   }
 
   private requestOrigin(response: Response): string {
