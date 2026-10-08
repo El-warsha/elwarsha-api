@@ -94,6 +94,9 @@ describe("Foundation API (e2e)", () => {
       expect.arrayContaining([expect.objectContaining({ slug: "elwarsha-web" })]),
     );
 
+    const labels = await agent.get("/api/v1/labels").expect(200);
+    expect(labels.body).toEqual(expect.any(Array));
+
     const engagements = await agent.get("/api/v1/engagements").expect(200);
     expect(engagements.body).toHaveLength(1);
 
