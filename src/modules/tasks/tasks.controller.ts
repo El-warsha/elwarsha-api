@@ -1,5 +1,5 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
 
 import { AuthGuard, RequireCapability } from "../identity/auth.guard.js";
 import { TasksService } from "./tasks.service.js";
@@ -12,7 +12,8 @@ export class TasksController {
 
   @Get("assignments")
   @RequireCapability("assignments.read")
-  listAssignments() {
-    return this.tasks.listAssignments();
+  @ApiQuery({ name: "label", required: false, description: "Filter assignments by label name" })
+  listAssignments(@Query("label") label?: string) {
+    return this.tasks.listAssignments(label);
   }
 }
