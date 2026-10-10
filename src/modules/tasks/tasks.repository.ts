@@ -15,7 +15,7 @@ export class TasksRepository {
           include: {
             label: true,
           },
-        }
+        },
       },
     });
     return records.map((record) => ({

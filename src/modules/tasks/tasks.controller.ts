@@ -13,7 +13,7 @@ export class TasksController {
 
   @Get("assignments")
   @RequireCapability("assignments.read")
-  listAssignments() : Promise<Assignment[]> {
+  listAssignments(): Promise<Assignment[]> {
     return this.tasks.listAssignments();
   }
 }
