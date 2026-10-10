@@ -97,9 +97,28 @@ describe("Foundation API (e2e)", () => {
     const engagements = await agent.get("/api/v1/engagements").expect(200);
     expect(engagements.body).toHaveLength(1);
 
+    // const assignments = await agent.get("/api/v1/assignments").expect(200);
+    // expect(assignments.body).toEqual(
+    //   expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
+    // );
+
+    const labels = await agent.get("/api/v1/labels").expect(200);
+    expect(labels.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(String),
+          name: expect.any(String),
+        }),
+      ]),
+    );
+
     const assignments = await agent.get("/api/v1/assignments").expect(200);
     expect(assignments.body).toEqual(
-      expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
+      expect.arrayContaining([
+        expect.objectContaining({
+          weekNumber: 1,
+        }),
+      ]),
     );
 
     await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
