@@ -141,6 +141,44 @@ describe("Foundation API (e2e)", () => {
       });
   });
 
+  it("/api/v1/labels without a session (GET)", () => {
+    return request(app.getHttpServer())
+      .get("/api/v1/labels")
+      .expect(401)
+      .expect((response) => {
+        expect(response.body.error.code).toBe("unauthorized");
+      });
+  });
+
+  it("lists labels for an authenticated participant", async () => {
+    const agent = request.agent(app.getHttpServer());
+
+    const login = await agent
+      .get("/api/v1/auth/login")
+      .redirects(0)
+      .expect(302)
+      .expect("Location", /\/api\/v1\/auth\/callback\?code=fake-code/);
+
+    const callbackUrl = new URL(login.headers.location as string);
+    await agent
+      .get(`${callbackUrl.pathname}${callbackUrl.search}`)
+      .redirects(0)
+      .expect(302)
+      .expect("Location", "http://localhost:5173/ar/portal/");
+
+    const labels = await agent.get("/api/v1/labels").expect(200);
+    expect(labels.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "backend" }),
+        expect.objectContaining({ name: "frontend" }),
+        expect.objectContaining({ name: "review" }),
+      ]),
+    );
+    for (const label of labels.body) {
+      expect(Object.keys(label).sort()).toEqual(["id", "name"]);
+    }
+  });
+
   it("accepts a signed GitHub webhook once", async () => {
     const body = '{"action":"opened"}';
     const signature = `sha256=${hmacSha256(

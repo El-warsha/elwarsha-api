@@ -18,6 +18,7 @@ export class TasksRepository {
       title: record.title,
       status: record.status,
       engagementId: record.engagementId,
+      labels: [],
     }));
   }
 }
