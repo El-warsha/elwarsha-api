@@ -55,7 +55,18 @@ export type Assignment = {
   status: "draft" | "published" | "closed";
   engagementId: string;
 };
+export type Label = {
+  id: string;
+  name: string;
+};
+export type AssignmentLabel = {
+  assignmentId: string;
+  label: Label;
+};
 
+export type AssignmentWithLabels = Assignment & {
+  labels: Label[];
+};
 export type Submission = {
   id: string;
   assignmentId: string;
