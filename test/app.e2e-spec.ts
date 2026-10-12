@@ -99,7 +99,16 @@ describe("Foundation API (e2e)", () => {
 
     const assignments = await agent.get("/api/v1/assignments").expect(200);
     expect(assignments.body).toEqual(
-      expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
+      expect.arrayContaining([
+        expect.objectContaining({
+          weekNumber: 1,
+          labels: expect.arrayContaining([
+            expect.objectContaining({ name: "frontend" }),
+            expect.objectContaining({ name: "backend" }),
+            expect.objectContaining({ name: "review" }),
+          ]),
+        }),
+      ]),
     );
 
     await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
