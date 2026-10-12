@@ -11,6 +11,7 @@ import { AppModule } from "./app.module.js";
 import { HttpExceptionFilter } from "./common/http-exception.filter.js";
 import { ConsoleLogger } from "./common/logger.js";
 import { loadEnv } from "./config/env.js";
+import { UnprocessableEntityException, ValidationPipe } from "@nestjs/common";
 
 if (existsSync(".env")) {
   process.loadEnvFile(".env");
@@ -23,9 +24,28 @@ async function bootstrap(): Promise<void> {
     logger: ["error", "warn"],
     rawBody: true,
   });
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    exceptionFactory: (errors) => {
+      const invalidParams = errors.map((error) => ({
+        name: error.property,
+        reason: Object.values(error.constraints ?? {}).join(", "),
+      }));
+
+      return new UnprocessableEntityException({
+        status: 422,
+        title: "Validation Failed",
+        invalidParams,
+      });
+    },
+  }),
+);
 
   app.use(cookieParser());
-  app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
     origin: env.WEB_ORIGIN,
     credentials: true,
