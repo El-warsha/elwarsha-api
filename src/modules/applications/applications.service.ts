@@ -2,8 +2,9 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { ApplyCohortDto } from './dto/apply-cohort.dto.js';
 
 type StoredApplication = ApplyCohortDto & {
+ id: string;
  cohortSlug: string;
- createdAt: Date 
+ createdAt: Date; 
 }
 
 @Injectable()
@@ -31,6 +32,7 @@ export class ApplicationService {
     }
     
     const application: StoredApplication = {
+      id : 'app_' + this.applications.length,
       ...dto,
       email,
       githubHandle,
@@ -41,7 +43,7 @@ export class ApplicationService {
     this.applications.push(application);
 
     return {
-      id : 'app_' + this.applications.length,
+      id : application.id,
       cohortSlug: slug,
       email: dto.email,
       status: 'received',
