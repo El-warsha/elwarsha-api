@@ -5,6 +5,6 @@ import { ApplyCohortDto } from './dto/apply-cohort.dto.js';
 
 @Module({
   controllers: [ApplicationController],
-  providers: [ApplicationService, ApplyCohortDto],
+  providers: [ApplicationService],
 })
 export class ApplicationModule {}
