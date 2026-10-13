@@ -59,11 +59,47 @@ export type Assignment = {
 };
 
 export type ApiError = {
-  error: {
+  type?: string;
+  title?: string;
+  status?: number;
+  detail?: string;
+  instance?: string;
+  invalidParams?: Array<{ name: string; reason: string }>;
+  error?: {
     code: string;
     message: string;
     requestId: string | null;
   };
+};
+
+export type ApplyCohortInput = {
+  fullName: string;
+  email: string;
+  whatsappNumber: string;
+  githubHandle: string;
+  discordHandle: string;
+  currentStatus:
+    | "student"
+    | "recent_graduate"
+    | "employed_tech"
+    | "career_switcher"
+    | "other";
+  collegeMajor: string;
+  programmingExperience: string;
+  technologies: string;
+  gitExperience: "none" | "basics" | "comfortable";
+  personalPageUrl: string;
+  githubRepoUrl: string;
+  aiUsage: string;
+  motivation: string;
+};
+
+export type CohortApplicationResponse = {
+  id: string;
+  cohortSlug: string;
+  email: string;
+  status: string;
+  createdAt: string;
 };
 
 export type ElWarshaClientOptions = {
@@ -76,7 +112,11 @@ export class ElWarshaApiError extends Error {
     readonly status: number,
     readonly body: ApiError | null,
   ) {
-    super(body?.error.message ?? `Request failed with ${status}`);
+    super(
+      body?.detail ??
+        body?.error?.message ??
+        `Request failed with ${status}`,
+    );
   }
 }
 
@@ -118,6 +158,15 @@ export function createElWarshaClient(options: ElWarshaClientOptions) {
     listProducts: () => request<Product[]>("/api/v1/products"),
     listEngagements: () => request<Engagement[]>("/api/v1/engagements"),
     listAssignments: () => request<Assignment[]>("/api/v1/assignments"),
+    applyCohort: (cohortSlug: string, input: ApplyCohortInput) =>
+      request<CohortApplicationResponse>(
+        `/api/v1/cohorts/${cohortSlug}/applications`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(input),
+        },
+      ),
   };
 }
 
