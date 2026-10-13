@@ -32,27 +32,37 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (exception instanceof UnprocessableEntityException) {
       const body = exception.getResponse() as {
+        type: string;
         title?: string;
         invalidParams?: { name: string; reason: string }[];
+        detail?: string;
+        instance?: string;
       };
       response.status(HttpStatus.UNPROCESSABLE_ENTITY).json({
-        type: "https://elwarsha.dev/errors/validation-failed",
-        title: "Validation Failed",
-        status: 422,
-        detail: "Some fields have invalid values",
-        instance: "/api/v1/cohorts/" + request.params.slug + "/applications",
+        type: body.type,
+        title: body.title,
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        detail: body.detail,
+        instance: body.instance,
         invalidParams: body.invalidParams
       });
       return;
     }
 
     if (exception instanceof ConflictException) {
+      const body = exception.getResponse() as {
+        type: string;
+        title?: string;
+        invalidParams?: { name: string; reason: string }[];
+        detail?: string;
+        instance?: string;
+      };
       response.status(HttpStatus.CONFLICT).json({
-        type: "https://elwarsha.dev/errors/duplicate-application",
-        title: "Application Already Submitted",
-        status: 409,
-        "detail": "An application with this email or GitHub handle already exists for " + request.params.slug.toString().replace('-', " ").charAt(0).toUpperCase() + request.params.slug.toString().replace('-', " ").slice(1),
-        instance: '/api/v1/cohorts/' + request.params.slug + '/applications',
+        type: body.type,
+        title: body.title,
+        status: HttpStatus.CONFLICT,
+        detail: body.detail,
+        instance: body.instance,
       })
       return;
     }

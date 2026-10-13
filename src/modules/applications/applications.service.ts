@@ -25,7 +25,7 @@ export class ApplicationService {
         title: 'Application Already Submitted',
         status: 409,
         detail:
-          'An application with this email or GitHub handle already exists for ' + slug,
+          'An application with this email or GitHub handle already exists for ' + slug.replace('-', " ").charAt(0).toUpperCase() + slug.replace('-', " ").slice(1),
         instance: '/api/v1/cohorts/' + slug + '/applications',
       });
     }
