@@ -32,6 +32,8 @@ export class ApplicationService {
     
     const application: StoredApplication = {
       ...dto,
+      email,
+      githubHandle,
       cohortSlug: slug,
       createdAt: new Date(),
     }

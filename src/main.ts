@@ -24,7 +24,7 @@ async function bootstrap(): Promise<void> {
     logger: ["error", "warn"],
     rawBody: true,
   });
-  
+
   app.use(cookieParser());
   app.useGlobalPipes(validationPipe);
   app.useGlobalFilters(new HttpExceptionFilter());
