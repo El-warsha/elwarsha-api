@@ -11,6 +11,7 @@ import { AppModule } from "./app.module.js";
 import { HttpExceptionFilter } from "./common/http-exception.filter.js";
 import { ConsoleLogger } from "./common/logger.js";
 import { loadEnv } from "./config/env.js";
+import { UnprocessableEntityException, ValidationPipe } from "@nestjs/common";
 
 if (existsSync(".env")) {
   process.loadEnvFile(".env");
@@ -46,7 +47,33 @@ async function bootstrap(): Promise<void> {
   const document = SwaggerModule.createDocument(app, swagger);
   SwaggerModule.setup("api/docs", app, document);
 
-  await app.listen(env.PORT);
+  
+
+  app.useGlobalPipes(
+  new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    errorHttpStatusCode: 422,
+
+    exceptionFactory: (errors) => {
+      return new UnprocessableEntityException({
+        type: "https://elwarsha.dev/errors/validation-failed",
+        title: "Validation Failed",
+        status: 422,
+        detail: "Some fields have invalid values",
+        invalidParams: errors.map((error) => ({
+          name: error.property,
+          reason:
+            Object.values(error.constraints ?? {})[0] ??
+            "Invalid value",
+        })),
+      });
+    },
+  }),
+);
+
+await app.listen(env.PORT);
   logger.info("API started", { port: env.PORT });
 }
 
