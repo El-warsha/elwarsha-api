@@ -97,9 +97,48 @@ describe("Foundation API (e2e)", () => {
     const engagements = await agent.get("/api/v1/engagements").expect(200);
     expect(engagements.body).toHaveLength(1);
 
-    const assignments = await agent.get("/api/v1/assignments").expect(200);
-    expect(assignments.body).toEqual(
-      expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
+    const assignmentsResponse = await agent.get("/api/v1/assignments").expect(200);
+
+    expect(assignmentsResponse.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          weekNumber: 1,
+          labels: expect.any(Array),
+        }),
+      ]),
+    );
+
+    type AssignmentResponse = {
+      weekNumber: number;
+      labels: { id: string; name: string }[];
+    };
+
+    const assignments = assignmentsResponse.body as AssignmentResponse[];
+
+    const assignment = assignments.find((item) => item.weekNumber === 1);
+
+    expect(assignment).toBeDefined();
+    expect(assignment!.labels.length).toBeGreaterThan(0);
+
+    const labelsResponse = await agent.get("/api/v1/labels").expect(200);
+    expect(labelsResponse.body).toEqual(
+  expect.arrayContaining([
+    expect.objectContaining({ name: "frontend" }),
+    expect.objectContaining({ name: "backend" }),
+    expect.objectContaining({ name: "review" }),
+  ]),
+);
+
+expect(assignment).toBeDefined();
+    expect(labelsResponse.body).toEqual(
+      expect.arrayContaining(
+        assignment!.labels.map((label: { id: string; name: string }) =>
+          expect.objectContaining({
+            id: label.id,
+            name: label.name,
+          }),
+        ),
+      ),
     );
 
     await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
