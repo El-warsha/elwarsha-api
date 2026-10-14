@@ -31,4 +31,15 @@ export class ConflictError extends AppError {
   constructor(message = "The request conflicts with current state") {
     super(409, "conflict", message);
   }
+
+}
+
+ export class DuplicateApplicationError extends AppError {
+  constructor() {
+    super(
+      409,
+      "duplicate_application",
+      "An application with this email or GitHub handle already exists for Cohort 2",
+    );
+  }
 }

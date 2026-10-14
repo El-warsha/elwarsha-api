@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 
-import { AppError } from "./errors.js";
+import { AppError, DuplicateApplicationError } from "./errors.js";
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -15,6 +15,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
     const request = context.getRequest<Request>();
+
+    if (exception instanceof DuplicateApplicationError) {
+      response.status(409).json({
+        type: "https://elwarsha.dev/errors/duplicate-application",
+        title: "Application Already Submitted",
+        status: 409,
+        detail:
+          "An application with this email or GitHub handle already exists for Cohort 2",
+        instance: request.originalUrl,
+      });
+      return;
+    }
 
     if (exception instanceof AppError) {
       response.status(exception.statusCode).json({
@@ -28,7 +40,25 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof HttpException) {
-      response.status(exception.getStatus()).json({
+      const status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+
+      if (
+        status === 422 &&
+        typeof exceptionResponse === "object" &&
+        exceptionResponse !== null &&
+        "type" in exceptionResponse &&
+        exceptionResponse.type ===
+        "https://elwarsha.dev/errors/validation-failed"
+      ) {
+        response.status(status).json({
+          ...exceptionResponse,
+          instance: request.originalUrl,
+        });
+        return;
+      }
+
+      response.status(status).json({
         error: {
           code: "http_error",
           message: exception.message,
