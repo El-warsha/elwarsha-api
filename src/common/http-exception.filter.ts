@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 
-import { AppError } from "./errors.js";
+import { AppError, ValidationFailedError, DuplicateApplicationError } from "./errors.js";
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -15,7 +15,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
     const request = context.getRequest<Request>();
-
+    if (exception instanceof ValidationFailedError) {
+      response.status(exception.statusCode).json({
+        type: exception.type,
+        title: exception.title,
+        status: exception.statusCode,
+        detail: exception.message,
+        instance: request.originalUrl,
+        invalidParams: exception.invalidParams,
+      });
+      return;
+    }
+    if (exception instanceof DuplicateApplicationError) {
+      response.status(exception.statusCode).json({
+        type: exception.type,
+        title: exception.title,
+        status: exception.statusCode,
+        detail: exception.message,
+        instance: request.originalUrl,
+      });
+      return;
+    }
     if (exception instanceof AppError) {
       response.status(exception.statusCode).json({
         error: {

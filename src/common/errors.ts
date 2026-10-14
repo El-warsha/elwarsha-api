@@ -31,4 +31,29 @@ export class ConflictError extends AppError {
   constructor(message = "The request conflicts with current state") {
     super(409, "conflict", message);
   }
+
 }
+
+export class ValidationFailedError extends AppError {
+  readonly title = "Validation Failed";
+  readonly type = "https://elwarsha.dev/errors/validation-failed";
+  constructor(
+    readonly invalidParams: { name: string; reason: string }[],
+  ) {
+    super(422, "validation_failed", "Some fields have invalid values");
+  }
+}
+
+export class DuplicateApplicationError extends AppError {
+  readonly title = "Application Already Submitted";
+  readonly type = "https://elwarsha.dev/errors/duplicate-application";
+
+  constructor() {
+    super(
+      409,
+      "duplicate_application",
+      "An application with this email or GitHub handle already exists for Cohort 2",
+    );
+  }
+}
+

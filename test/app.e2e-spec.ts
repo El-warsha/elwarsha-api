@@ -9,10 +9,31 @@ import { AppModule } from "../src/app.module.js";
 import { JobService } from "../src/infrastructure/jobs/job.service.js";
 import { PrismaService } from "../src/infrastructure/prisma/prisma.service.js";
 
+import { appValidationPipe } from "../src/common/validation.pipe.js";
+import { ApplicationsModule } from "../src/modules/applications/applications.module.js";
+
 process.env.DATABASE_URL ??= "postgresql://elwarsha:elwarsha@localhost:5432/elwarsha";
 process.env.WEB_ORIGIN ??= "http://localhost:5173";
 process.env.SESSION_SECRET ??= "replace-with-32-byte-secret";
 process.env.GITHUB_WEBHOOK_SECRET ??= "replace-webhook-secret";
+
+const validApplication = {
+  fullName: "Sara Ahmed",
+  email: "sara@example.com",
+  whatsappNumber: "+201001234567",
+  githubHandle: "sara-ahmed",
+  discordHandle: "sara#1234",
+  currentStatus: "student",
+  collegeMajor: "Computer Engineering",
+  programmingExperience: "Experience with C#",
+  technologies: "C#, ASP.NET Core",
+  gitExperience: "comfortable",
+  personalPageUrl: "https://example.com",
+  githubRepoUrl: "https://github.com/sara-ahmed/test-project",
+  aiUsage: "I use AI to understand concepts",
+  motivation:
+    "I want to improve my backend development skills and build practical projects.",
+};
 
 describe("Foundation API (e2e)", () => {
   let app: INestApplication;
@@ -25,6 +46,7 @@ describe("Foundation API (e2e)", () => {
     app = moduleFixture.createNestApplication({ rawBody: true });
     app.use(cookieParser());
     app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalPipes(appValidationPipe);
     await app.init();
     const prisma = app.get(PrismaService);
     await prisma.job.deleteMany();
@@ -194,6 +216,101 @@ describe("Foundation API (e2e)", () => {
     expect(reclaimed?.id).toBe(enqueued.id);
     expect(reclaimed?.attemptCount).toBe(2);
   });
+
+  it("creates a cohort application successfully", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(validApplication)
+      .expect(201);
+
+    expect(response.body).toMatchObject({
+      cohortSlug: "cohort-2",
+      email: validApplication.email,
+      status: "received",
+    });
+
+    expect(response.body.id).toMatch(/^app_/);
+    expect(Number.isNaN(Date.parse(response.body.createdAt))).toBe(false);
+  });
+
+  it("rejects an invalid email", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send({
+        ...validApplication,
+        email: "sara.test",
+      })
+      .expect(422);
+
+    expect(response.body).toMatchObject({
+      title: "Validation Failed",
+      status: 422,
+      instance: "/api/v1/cohorts/cohort-2/applications",
+    });
+
+    expect(response.body.invalidParams).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "email",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects an invalid WhatsApp number", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send({
+        ...validApplication,
+        whatsappNumber: "12345",
+      })
+      .expect(422);
+
+    expect(response.body.invalidParams).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "whatsappNumber",
+        }),
+      ]),
+    );
+  });
+
+  it("rejects an application with a duplicate email", async () => {
+    await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(validApplication)
+      .expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send({
+        ...validApplication,
+        githubHandle: "another-user",
+      })
+      .expect(409);
+
+    expect(response.body).toMatchObject({
+      title: "Application Already Submitted",
+      status: 409,
+      instance: "/api/v1/cohorts/cohort-2/applications",
+    });
+  });
+
+  it("rejects an application with a duplicate GitHub username", async () => {
+    await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(validApplication)
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send({
+        ...validApplication,
+        email: "another@example.com",
+      })
+      .expect(409);
+  });
+
 
   afterEach(async () => {
     await app.close();
