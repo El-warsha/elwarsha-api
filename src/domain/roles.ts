@@ -8,7 +8,8 @@ export type Capability =
   | "cohorts.read"
   | "assignments.read"
   | "submissions.read"
-  | "reviews.read";
+  | "reviews.read"
+  | "labels.read";
 
 const roleCapabilities: Record<MembershipRole, Capability[]> = {
   participant: [
@@ -16,6 +17,7 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "products.read",
     "cohorts.read",
     "assignments.read",
+      "labels.read",
     "submissions.read",
     "reviews.read",
   ],
@@ -24,6 +26,7 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "products.read",
     "cohorts.read",
     "assignments.read",
+      "labels.read",
     "submissions.read",
     "reviews.read",
   ],
@@ -32,6 +35,7 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "products.read",
     "cohorts.read",
     "assignments.read",
+      "labels.read",
     "submissions.read",
     "reviews.read",
   ],
@@ -40,6 +44,7 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "products.read",
     "cohorts.read",
     "assignments.read",
+      "labels.read",
     "submissions.read",
     "reviews.read",
   ],

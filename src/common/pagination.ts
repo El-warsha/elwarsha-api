@@ -8,6 +8,10 @@ export type Page<T> = {
   nextCursor: string | null;
 };
 
+export type AssignmentQuery = PageQuery & {
+  labelId?: string;
+};
+
 export function resolveLimit(limit?: number, fallback = 20, max = 50): number {
   if (!limit) {
     return fallback;
