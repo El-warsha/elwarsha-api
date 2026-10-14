@@ -7,17 +7,32 @@ import { PrismaService } from "../../infrastructure/prisma/prisma.service.js";
 export class TasksRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listAssignments(): Promise<Assignment[]> {
-    const records = await this.prisma.assignment.findMany({
-      orderBy: [{ engagementId: "asc" }, { weekNumber: "asc" }],
-    });
+ async listAssignments(label?: string): Promise<Assignment[]> {
+  const labelFilter = label ? { label: { name: label } } : undefined;
 
-    return records.map((record) => ({
-      id: record.id,
-      weekNumber: record.weekNumber,
-      title: record.title,
-      status: record.status,
-      engagementId: record.engagementId,
-    }));
-  }
+  const records = await this.prisma.assignment.findMany({
+   
+    where: labelFilter ? { labels: { some: labelFilter } } : undefined,
+    include: {
+      labels: {
+      
+        where: labelFilter,
+        include: { label: true },
+      },
+    },
+    orderBy: [{ engagementId: "asc" }, { weekNumber: "asc" }],
+  });
+
+  return records.map((record) => ({
+    id: record.id,
+    weekNumber: record.weekNumber,
+    title: record.title,
+    status: record.status,
+    engagementId: record.engagementId,
+    labels: record.labels.map((assignmentLabel) => ({
+      id: assignmentLabel.label.id,
+      name: assignmentLabel.label.name,
+    })),
+  }));
+}
 }
