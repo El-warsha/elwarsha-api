@@ -228,7 +228,7 @@ const validApplication = {
   collegeMajor: "Educational Technology",
   programmingExperience: "6 months",
   technologies: "PHP, Laravel, MySQL",
-  gitExperience: "basics only",
+  gitExperience: "basics",
   personalPageUrl: "https://example.com",
   githubRepoUrl: "https://github.com/applicant-user/project",
   aiUsage: "I use AI to learn and debug code.",
