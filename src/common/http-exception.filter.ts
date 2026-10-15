@@ -62,6 +62,25 @@ return;
 //---------------------------------------------------//
 //---------------------------------------------------//
 
+// -----------Handle 409 conflict  exceptions ---------//
+//----------------------------------------------------//
+if (status === 409) {
+ 
+response.status(409).json({
+  type: "https://elwarsha.dev/errors/duplicate-application",
+  title: "Application Already Submitted",
+  status: 409,
+  detail:  "An application with this email or GitHub handle already exists for Cohort 2",
+  instance: request.originalUrl,
+});
+
+return;
+
+
+}
+//---------------------------------------------------//
+//---------------------------------------------------//
+
       response.status(exception.getStatus()).json({
         error: {
           code: "http_error",

@@ -16,9 +16,9 @@ export class CreateApplicationDto {
   @IsNotEmpty({
     message: 'fullName.required',
   })
-  @Matches(/^ (?=(?:.*[a-zA-Z\u0600-\u06FF]){3}).+$/, {
-    message: 'fullName.invalid',
-  })
+@Matches(/^(?=(?:.*[a-zA-Z\u0600-\u06FF]){3,}).+$/, {
+  message: 'fullName.invalid',
+})
   fullName: string;
 
   @IsString({

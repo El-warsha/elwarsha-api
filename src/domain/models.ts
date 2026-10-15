@@ -79,7 +79,8 @@ export type Submission = {
 
 export type Applications = {
   slug: string;
-
+id:string;
+createdAt:string;
   fullName: string;
 
   email: string;
