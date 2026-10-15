@@ -19,20 +19,50 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (exception instanceof AppError) {
       response.status(exception.statusCode).json({
         error: {
-          code: exception.code,
-          message: exception.message,
-          requestId: request.header("x-request-id") ?? null,
+          type: `https://elwarsha.dev/errors/${exception.code ?? "unknown"}`,
+          title: exception.name,
+          status: exception.statusCode,
+          detail: exception.message,
+          instance: request.url,
+          invalidParams: exception.details || [],
         },
       });
       return;
     }
 
     if (exception instanceof HttpException) {
+      const resDetails = exception.getResponse() as {
+        type?: string;
+        title?: string;
+        message: string | string[];
+        error?: string;
+        statusCode: number;
+        invalidParams?: any[];
+        retryAfter?: number;
+      };
+
+      const spacedName = exception.name
+        .replace(/Exception$/, "")
+        .replace(/([a-z])([A-Z])/g, "$1 $2");
+
+      const fallbackTitle = spacedName;
+
+      const fallbackType = spacedName.toLowerCase().replace(/ /g, "-");
+
+      if (resDetails.retryAfter) {
+        response.setHeader("Retry-After", String(resDetails.retryAfter));
+      }
+
       response.status(exception.getStatus()).json({
         error: {
-          code: "http_error",
-          message: exception.message,
-          requestId: request.header("x-request-id") ?? null,
+          type: `https://elwarsha.dev/errors/${resDetails.type ?? fallbackType ?? "unknown"}`,
+          title: resDetails.title || fallbackTitle || "Error",
+          status: resDetails.statusCode || exception.getStatus(),
+          detail: Array.isArray(resDetails.message)
+            ? resDetails.message[0]
+            : resDetails.message || exception.message,
+          instance: request.url,
+          invalidParams: resDetails.invalidParams,
         },
       });
       return;
@@ -40,9 +70,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       error: {
-        code: "internal_error",
-        message: "An unexpected error occurred",
-        requestId: request.header("x-request-id") ?? null,
+        type: "internal_error",
+        title: "Internal Server Error",
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        detail: "An unexpected error occurred",
+        instance: request.url,
+        invalidParams: [],
       },
     });
   }

@@ -50,7 +50,7 @@ describe("Foundation API (e2e)", () => {
       .get("/api/v1/auth/me")
       .expect(401)
       .expect((response) => {
-        expect(response.body.error.code).toBe("unauthorized");
+        expect(response.body.error.type).toBe("https://elwarsha.dev/errors/unauthorized");
       });
   });
 
@@ -137,7 +137,7 @@ describe("Foundation API (e2e)", () => {
       .send({ zen: "ok" })
       .expect(401)
       .expect((response) => {
-        expect(response.body.error.code).toBe("unauthorized");
+        expect(response.body.error.type).toBe("https://elwarsha.dev/errors/unauthorized");
       });
   });
 
@@ -193,6 +193,33 @@ describe("Foundation API (e2e)", () => {
     const reclaimed = await jobs.claimNext();
     expect(reclaimed?.id).toBe(enqueued.id);
     expect(reclaimed?.attemptCount).toBe(2);
+  });
+
+  it("returns 429 Too Many Requests on the 6th rapid request", async () => {
+    const applyApplicationsEndpoint = "/api/v1/cohorts/fake-cohort/applications";
+
+    for (let i = 0; i < 5; i++) {
+      await request(app.getHttpServer()).post(applyApplicationsEndpoint).send({
+        name: "test",
+        email: "test@example.com",
+      });
+    }
+
+    const response = await request(app.getHttpServer())
+      .post(applyApplicationsEndpoint)
+      .send({
+        name: "test",
+        email: "test@example.com",
+      })
+      .expect(429);
+
+    expect(response.body.error).toEqual(
+      expect.objectContaining({
+        type: "https://elwarsha.dev/errors/too-many-requests",
+        status: 429,
+        instance: applyApplicationsEndpoint,
+      }),
+    );
   });
 
   afterEach(async () => {

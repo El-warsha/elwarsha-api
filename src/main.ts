@@ -1,5 +1,7 @@
 import "reflect-metadata";
 
+import { UnprocessableEntityException, ValidationPipe } from "@nestjs/common";
+
 import { existsSync } from "node:fs";
 
 import { NestFactory } from "@nestjs/core";
@@ -24,6 +26,29 @@ async function bootstrap(): Promise<void> {
     rawBody: true,
   });
 
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      stopAtFirstError: true,
+      errorHttpStatusCode: 422,
+      exceptionFactory: (errors) => {
+        const invalidParams = errors.map((error) => {
+          return {
+            name: error.property,
+            reason: Object.values(error.constraints ?? {}).join(", "),
+          };
+        });
+        return new UnprocessableEntityException({
+          type: "validation-failed",
+          title: "Validation Failed",
+          message: "Some fields have invalid values",
+          statusCode: 422,
+          invalidParams,
+        });
+      },
+    }),
+  );
   app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
