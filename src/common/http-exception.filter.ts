@@ -8,6 +8,7 @@ import {
 import type { Request, Response } from "express";
 
 import { AppError } from "./errors.js";
+import { messageMapper } from "./messageMapper.js";
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -15,7 +16,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
     const request = context.getRequest<Request>();
-
+    const language=request.header('accept-language')
     if (exception instanceof AppError) {
       response.status(exception.statusCode).json({
         error: {
@@ -28,6 +29,39 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof HttpException) {
+      const status = exception.getStatus();
+const exceptionResponse = exception.getResponse();
+// ---Handle 422 Unprocessable Entity exceptions by translating validation errors---------//
+//---- into localized messages and returning the standardized validation error response.-----//
+if (status === 422) {
+  if (
+  typeof exceptionResponse === "object" &&
+  exceptionResponse !== null &&
+  "invalidParams" in exceptionResponse
+) 
+{
+    const invalidParams = exceptionResponse.invalidParams as {
+      name: string;
+      reason: string;
+    }[];
+  
+const translatedInvalidParams= messageMapper(invalidParams,language)
+response.status(422).json({
+  type: "https://elwarsha.dev/errors/validation-failed",
+  title: "Validation Failed",
+  status: 422,
+  detail: "Some fields have invalid values",
+  instance: request.originalUrl,
+  invalidParams: translatedInvalidParams,
+});
+
+return;
+}
+
+}
+//---------------------------------------------------//
+//---------------------------------------------------//
+
       response.status(exception.getStatus()).json({
         error: {
           code: "http_error",
