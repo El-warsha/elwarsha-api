@@ -6,7 +6,7 @@ import { TasksService } from "./tasks.service.js";
 
 @ApiTags("tasks")
 @Controller("api/v1")
-@UseGuards(AuthGuard)
+// @UseGuards(AuthGuard)
 export class TasksController {
   constructor(private readonly tasks: TasksService) {}
 

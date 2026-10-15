@@ -11,6 +11,7 @@ import { AppModule } from "./app.module.js";
 import { HttpExceptionFilter } from "./common/http-exception.filter.js";
 import { ConsoleLogger } from "./common/logger.js";
 import { loadEnv } from "./config/env.js";
+import { validationPipe } from "./common/validation-pipe.js";
 
 if (existsSync(".env")) {
   process.loadEnvFile(".env");
@@ -25,7 +26,9 @@ async function bootstrap(): Promise<void> {
   });
 
   app.use(cookieParser());
+  app.useGlobalPipes(validationPipe);
   app.useGlobalFilters(new HttpExceptionFilter());
+  
   app.enableCors({
     origin: [env.WEB_ORIGIN, "http://localhost:5173", "http://127.0.0.1:5173"],
     credentials: true,

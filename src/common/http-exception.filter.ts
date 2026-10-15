@@ -1,9 +1,12 @@
 import {
   ArgumentsHost,
+  Body,
   Catch,
+  ConflictException,
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  UnprocessableEntityException,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 
@@ -27,6 +30,43 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return;
     }
 
+    if (exception instanceof UnprocessableEntityException) {
+      const body = exception.getResponse() as {
+        type: string;
+        title?: string;
+        invalidParams?: { name: string; reason: string }[];
+        detail?: string;
+        instance?: string;
+      };
+      response.status(HttpStatus.UNPROCESSABLE_ENTITY).json({
+        type: body.type,
+        title: body.title,
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        detail: body.detail,
+        instance: body.instance,
+        invalidParams: body.invalidParams
+      });
+      return;
+    }
+
+    if (exception instanceof ConflictException) {
+      const body = exception.getResponse() as {
+        type: string;
+        title?: string;
+        invalidParams?: { name: string; reason: string }[];
+        detail?: string;
+        instance?: string;
+      };
+      response.status(HttpStatus.CONFLICT).json({
+        type: body.type,
+        title: body.title,
+        status: HttpStatus.CONFLICT,
+        detail: body.detail,
+        instance: body.instance,
+      })
+      return;
+    }
+
     if (exception instanceof HttpException) {
       response.status(exception.getStatus()).json({
         error: {
@@ -37,6 +77,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
       return;
     }
+
+
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       error: {
