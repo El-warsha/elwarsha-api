@@ -1,25 +1,25 @@
 import { IsEmail, IsIn, IsNotEmpty, IsString, IsUrl, Matches, MaxLength, MinLength } from 'class-validator';
 
 export class ApplyCohortDto {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   @MinLength(3)
   @MaxLength(100)
   fullName: string;
 
-  @IsEmail()
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   @Matches(/^\+?[0-9]{10,15}$/, {
     message: 'Phone must contain 10 to 15 digits and may start with +',
   })
   whatsappNumber: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   @Matches(/^(?!-)(?!.*--)[a-zA-Z0-9-]{1,39}(?<!-)$/, {
     message: 'githubHandle must be a valid GitHub username',
   })
@@ -27,8 +27,8 @@ export class ApplyCohortDto {
   @MaxLength(40)
   githubHandle:string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   @MinLength(2)
   @MaxLength(32)
   @Matches(/^[a-z0-9._]+$/, {
@@ -36,11 +36,9 @@ export class ApplyCohortDto {
   })
   discordHandle:string;
   
-  @IsString()
   @IsNotEmpty()
-  @Matches(/^(student|graduate|working in tech|switching career|other)$/, {
-    message: 'currentStatus must be one of the following: student, graduate, working in tech, switching career, other',
-  })
+  @IsString()
+  @IsIn(["student", "recent_graduate", "employed_tech", "career_switcher", "other"])
   currentStatus:string;
 
   @IsString()
@@ -60,16 +58,21 @@ export class ApplyCohortDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsIn(["never", "basics only", "comfortable"])
+  @IsIn(["never", "basics", "comfortable"])
   gitExperience: string;
 
-  @IsString()
   @IsNotEmpty()
-  @IsUrl()
+  @IsString()
+  @IsUrl(
+    {
+      protocols: ["https", "http"]
+    },
+    { message: "Personal page URL is not valid" },
+  )
   personalPageUrl: string;
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   aiUsage: string;
 
   @IsString()
