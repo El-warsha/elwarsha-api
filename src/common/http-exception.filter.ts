@@ -6,7 +6,6 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
-
 import { AppError } from "./errors.js";
 
 @Catch()
@@ -28,7 +27,34 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     if (exception instanceof HttpException) {
-      response.status(exception.getStatus()).json({
+      const status = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+
+       if (status === HttpStatus.BAD_REQUEST) {
+        const errorPayload = exceptionResponse as any;
+        const messages = Array.isArray(errorPayload.message)
+          ? errorPayload.message
+          : [errorPayload.message];
+
+        const invalidParams = messages.map((msg: string) => ({
+          name: "field",
+          reason: msg,
+        }));
+
+        response.status(422).json({
+          title: "Validation Failed",
+          status: 422,
+          invalidParams,
+        });
+        return;
+      }
+
+      if (typeof exceptionResponse === "object" && exceptionResponse !== null) {
+        response.status(status).json(exceptionResponse);
+        return;
+      }
+
+      response.status(status).json({
         error: {
           code: "http_error",
           message: exception.message,

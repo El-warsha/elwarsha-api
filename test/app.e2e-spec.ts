@@ -97,9 +97,28 @@ describe("Foundation API (e2e)", () => {
     const engagements = await agent.get("/api/v1/engagements").expect(200);
     expect(engagements.body).toHaveLength(1);
 
+    // const assignments = await agent.get("/api/v1/assignments").expect(200);
+    // expect(assignments.body).toEqual(
+    //   expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
+    // );
+
+    const labels = await agent.get("/api/v1/labels").expect(200);
+    expect(labels.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(String),
+          name: expect.any(String),
+        }),
+      ]),
+    );
+
     const assignments = await agent.get("/api/v1/assignments").expect(200);
     expect(assignments.body).toEqual(
-      expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
+      expect.arrayContaining([
+        expect.objectContaining({
+          weekNumber: 1,
+        }),
+      ]),
     );
 
     await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
@@ -197,5 +216,74 @@ describe("Foundation API (e2e)", () => {
 
   afterEach(async () => {
     await app.close();
+  });
+  describe("Cohort 2 Applications (e2e)", () => {
+    const validPayload = {
+      fullName: "Razan Azizieh",
+      email: "razan.student@example.com",
+      whatsappNumber: "+963999999999",
+      githubHandle: "razan-dev",
+      discordHandle: "razan.0000",
+      currentStatus: "student",
+      collegeMajor: "Applied Mathematics",
+      programmingExperience: "1 year",
+      technologies: "React, NestJS, TypeScript",
+      gitExperience: "comfortable",
+      personalPageUrl: "https://example.com",
+      githubRepoUrl: "https://github.com/razan/repo",
+      aiUsage: "Used for debugging and testing",
+      motivation:
+        "I want to master full-stack development and build real production systems with high reliability and efficiency.",
+    };
+
+    it("/api/v1/cohorts/cohort-2/applications (POST) - successfully creates application and returns 201", async () => {
+      const response = await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send(validPayload)
+        .expect(201);
+
+      expect(response.body).toHaveProperty("id");
+      expect(response.body.email).toEqual(validPayload.email);
+      expect(response.body.status).toEqual("received");
+    });
+
+    it("/api/v1/cohorts/cohort-2/applications (POST) - returns 422 when required fields are missing or invalid", async () => {
+      const invalidPayload = {
+        ...validPayload,
+        email: "not-a-valid-email",
+        motivation: "Short",
+      };
+
+      const response = await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send(invalidPayload)
+        .expect(422);
+
+      expect(response.body).toHaveProperty("invalidParams");
+      expect(response.body.status).toEqual(422);
+    });
+
+    it("/api/v1/cohorts/cohort-2/applications (POST) - returns 409 Conflict on duplicate email or github handle", async () => {
+      await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send({
+          ...validPayload,
+          email: "unique.student@elwarsha.dev",
+          githubHandle: "unique-user",
+        })
+        .expect(201);
+
+      const response = await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send({
+          ...validPayload,
+          email: "unique.student@elwarsha.dev",
+          githubHandle: "another-user",
+        })
+        .expect(409);
+
+      expect(response.body.title).toEqual("Application Already Submitted");
+      expect(response.body.status).toEqual(409);
+    });
   });
 });

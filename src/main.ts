@@ -11,6 +11,7 @@ import { AppModule } from "./app.module.js";
 import { HttpExceptionFilter } from "./common/http-exception.filter.js";
 import { ConsoleLogger } from "./common/logger.js";
 import { loadEnv } from "./config/env.js";
+import { ValidationPipe } from "@nestjs/common/pipes/index.js";
 
 if (existsSync(".env")) {
   process.loadEnvFile(".env");
@@ -36,7 +37,8 @@ async function bootstrap(): Promise<void> {
     }
     next();
   });
-
+  // app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   const swagger = new DocumentBuilder()
     .setTitle("ElWarsha API")
     .setDescription("Foundation API for the ElWarsha platform")
