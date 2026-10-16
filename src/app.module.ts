@@ -8,6 +8,8 @@ import { GithubModule } from "./modules/github/github.module.js";
 import { HealthModule } from "./modules/health/health.module.js";
 import { IdentityModule } from "./modules/identity/identity.module.js";
 import { TasksModule } from "./modules/tasks/tasks.module.js";
+import { LabelsModule } from './modules/labels/labels.module.js';
+import { ApplicationsModule } from './modules/applications/applications.module.js';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { TasksModule } from "./modules/tasks/tasks.module.js";
     CatalogModule,
     TasksModule,
     GithubModule,
+    LabelsModule,
+    ApplicationsModule,
   ],
 })
 export class AppModule {}

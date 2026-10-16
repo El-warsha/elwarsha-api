@@ -48,12 +48,19 @@ export type Engagement = {
   product: Product;
 };
 
+export type Label = {
+  id: string;
+  name: string;
+  createdAt: Date;
+};
+
 export type Assignment = {
   id: string;
   weekNumber: number;
   title: string;
   status: "draft" | "published" | "closed";
   engagementId: string;
+  labels: Label[];
 };
 
 export type Submission = {
@@ -68,4 +75,37 @@ export type Submission = {
     approvalCount: number;
     checksPassed: boolean;
   } | null;
+};
+
+export type Applications = {
+  slug: string;
+id:string;
+createdAt:string;
+  fullName: string;
+
+  email: string;
+
+  whatsappNumber: string;
+
+  githubHandle: string;
+
+  discordHandle: string;
+
+  currentStatus: string;
+
+  collegeMajor: string;
+
+  programmingExperience: string;
+
+  technologies: string;
+
+  gitExperience: string;
+
+  personalPageUrl: string;
+
+  githubRepoUrl: string;
+
+  aiUsage: string;
+
+  motivation: string;
 };

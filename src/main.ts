@@ -1,16 +1,15 @@
 import "reflect-metadata";
-
-import { existsSync } from "node:fs";
-
+import { existsSync, read } from "node:fs";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import cookieParser from "cookie-parser";
 import type { Request } from "express";
-
 import { AppModule } from "./app.module.js";
 import { HttpExceptionFilter } from "./common/http-exception.filter.js";
 import { ConsoleLogger } from "./common/logger.js";
 import { loadEnv } from "./config/env.js";
+import { UnprocessableEntityException, ValidationPipe } from "@nestjs/common";
+import type { ValidationError } from "class-validator";
 
 if (existsSync(".env")) {
   process.loadEnvFile(".env");
@@ -23,6 +22,24 @@ async function bootstrap(): Promise<void> {
     logger: ["error", "warn"],
     rawBody: true,
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+
+      exceptionFactory: (errors: ValidationError[]) => {
+        const invalidParams = errors.flatMap((error) =>
+          Object.values(error.constraints ?? {}).map((value) => {
+            return { name: error.property, reason: value };
+          }),
+        );
+
+      return   new UnprocessableEntityException({invalidParams})
+      },
+    }),
+  );
 
   app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());

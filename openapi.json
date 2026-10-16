@@ -1,0 +1,318 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "HealthController_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "get": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/callback": {
+      "get": {
+        "operationId": "AuthController_callback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "CatalogController_listProducts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/api/v1/engagements": {
+      "get": {
+        "operationId": "CatalogController_listEngagements",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/api/v1/assignments": {
+      "get": {
+        "operationId": "TasksController_listAssignments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/labels": {
+      "get": {
+        "operationId": "LabelsController_listLabels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "labels"
+        ]
+      }
+    },
+    "/api/v1/github/webhooks": {
+      "post": {
+        "operationId": "GithubController_accept",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "github"
+        ]
+      }
+    },
+    "/api/v1/cohorts/{slug}/applications": {
+      "post": {
+        "description": "Submit an application to a cohort identified by its slug.",
+        "operationId": "ApplicationsController_create",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "description": "Unique slug of the cohort",
+            "schema": {
+              "example": "cohort-2",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApplicationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Application submitted successfully"
+          },
+          "409": {
+            "description": "Email or GitHub handle already exists in this cohort"
+          },
+          "422": {
+            "description": "Request validation failed"
+          }
+        },
+        "summary": "Submit a cohort application",
+        "tags": [
+          "Applications"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "ElWarsha API",
+    "description": "",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "CreateApplicationDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "description": "Applicant's full name",
+            "example": "Heba Elgohary"
+          },
+          "email": {
+            "type": "string",
+            "description": "Applicant's email address",
+            "example": "heba.elgohary@example.com"
+          },
+          "whatsappNumber": {
+            "type": "string",
+            "description": "Applicant's WhatsApp phone number in international format",
+            "example": "+201012345678"
+          },
+          "githubHandle": {
+            "type": "string",
+            "description": "Applicant's GitHub username",
+            "example": "HebaElgohary"
+          },
+          "discordHandle": {
+            "type": "string",
+            "description": "Applicant's Discord username or handle",
+            "example": "heba_dev"
+          },
+          "currentStatus": {
+            "type": "string",
+            "description": "Applicant's current professional or educational status",
+            "example": "student",
+            "enum": [
+              "student",
+              "graduate",
+              "working in tech",
+              "switching career",
+              "other"
+            ]
+          },
+          "collegeMajor": {
+            "type": "string",
+            "description": "Applicant's college major or field of study",
+            "example": "Computer and Systems Engineering"
+          },
+          "programmingExperience": {
+            "type": "string",
+            "description": "Applicant's programming experience and background",
+            "example": "I have built several projects using React and TypeScript."
+          },
+          "technologies": {
+            "type": "string",
+            "description": "Programming languages, frameworks, and technologies the applicant uses",
+            "example": "JavaScript, TypeScript, React, Next.js, Node.js"
+          },
+          "gitExperience": {
+            "type": "string",
+            "description": "Applicant's level of experience with Git",
+            "example": "basics only",
+            "enum": [
+              "never",
+              "basics only",
+              "comfortable"
+            ]
+          },
+          "personalPageUrl": {
+            "type": "string",
+            "description": "Applicant's personal website or portfolio URL",
+            "example": "https://heba-portfolio.example.com"
+          },
+          "githubRepoUrl": {
+            "type": "string",
+            "description": "GitHub repository URL for the applicant's project",
+            "example": "https://github.com/HebaElgohary/sample-project"
+          },
+          "aiUsage": {
+            "type": "string",
+            "description": "How the applicant uses AI tools during learning or development",
+            "example": "I use AI to understand concepts and review my code."
+          },
+          "motivation": {
+            "type": "string",
+            "description": "Applicant's motivation for joining the cohort (at least 50 characters)",
+            "example": "I want to improve my problem-solving skills, collaborate with other developers, and build production-ready projects.",
+            "minLength": 50
+          }
+        },
+        "required": [
+          "fullName",
+          "email",
+          "whatsappNumber",
+          "githubHandle",
+          "discordHandle",
+          "currentStatus",
+          "collegeMajor",
+          "programmingExperience",
+          "technologies",
+          "gitExperience",
+          "personalPageUrl",
+          "githubRepoUrl",
+          "aiUsage",
+          "motivation"
+        ]
+      }
+    }
+  }
+}

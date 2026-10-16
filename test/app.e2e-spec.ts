@@ -1,4 +1,9 @@
-import { INestApplication } from "@nestjs/common";
+import {
+  INestApplication,
+  ValidationPipe,
+  UnprocessableEntityException,
+} from "@nestjs/common";
+import type { ValidationError } from "class-validator";
 import { Test, TestingModule } from "@nestjs/testing";
 import cookieParser from "cookie-parser";
 import request from "supertest";
@@ -16,6 +21,23 @@ process.env.GITHUB_WEBHOOK_SECRET ??= "replace-webhook-secret";
 
 describe("Foundation API (e2e)", () => {
   let app: INestApplication;
+  const validApplication = {
+    fullName: "Heba Elgohary",
+    email: "heba-e2e-unique@example.com",
+    whatsappNumber: "+201012345678",
+    githubHandle: "heba-e2e-unique",
+    discordHandle: "heba-e2e",
+    currentStatus: "graduate",
+    collegeMajor: "Electronic Engineering",
+    programmingExperience: "I have built several React applications",
+    technologies: "React, TypeScript, Next.js",
+    gitExperience: "comfortable",
+    personalPageUrl: "https://example.com",
+    githubRepoUrl: "https://github.com/example/repo",
+    aiUsage: "I use AI to understand concepts and debug errors",
+    motivation:
+      "I want to join this cohort to improve my skills and build real projects with a team.",
+  };
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -23,8 +45,27 @@ describe("Foundation API (e2e)", () => {
     }).compile();
 
     app = moduleFixture.createNestApplication({ rawBody: true });
+   
     app.use(cookieParser());
     app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+
+    exceptionFactory: (errors: ValidationError[]) => {
+      const invalidParams = errors.flatMap((error) =>
+        Object.values(error.constraints ?? {}).map((value) => ({
+          name: error.property,
+          reason: value,
+        })),
+      );
+
+      return new UnprocessableEntityException({ invalidParams });
+    },
+  }),
+);
     await app.init();
     const prisma = app.get(PrismaService);
     await prisma.job.deleteMany();
@@ -97,9 +138,48 @@ describe("Foundation API (e2e)", () => {
     const engagements = await agent.get("/api/v1/engagements").expect(200);
     expect(engagements.body).toHaveLength(1);
 
-    const assignments = await agent.get("/api/v1/assignments").expect(200);
-    expect(assignments.body).toEqual(
-      expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
+    const assignmentsResponse = await agent.get("/api/v1/assignments").expect(200);
+
+    expect(assignmentsResponse.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          weekNumber: 1,
+          labels: expect.any(Array),
+        }),
+      ]),
+    );
+
+    type AssignmentResponse = {
+      weekNumber: number;
+      labels: { id: string; name: string }[];
+    };
+
+    const assignments = assignmentsResponse.body as AssignmentResponse[];
+
+    const assignment = assignments.find((item) => item.weekNumber === 1);
+
+    expect(assignment).toBeDefined();
+    expect(assignment!.labels.length).toBeGreaterThan(0);
+
+    const labelsResponse = await agent.get("/api/v1/labels").expect(200);
+    expect(labelsResponse.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "frontend" }),
+        expect.objectContaining({ name: "backend" }),
+        expect.objectContaining({ name: "review" }),
+      ]),
+    );
+
+    expect(assignment).toBeDefined();
+    expect(labelsResponse.body).toEqual(
+      expect.arrayContaining(
+        assignment!.labels.map((label: { id: string; name: string }) =>
+          expect.objectContaining({
+            id: label.id,
+            name: label.name,
+          }),
+        ),
+      ),
     );
 
     await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
@@ -194,7 +274,77 @@ describe("Foundation API (e2e)", () => {
     expect(reclaimed?.id).toBe(enqueued.id);
     expect(reclaimed?.attemptCount).toBe(2);
   });
+  it("creates a cohort application", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(validApplication)
+      .expect(201);
 
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        cohortSlug: "cohort-2",
+        email: validApplication.email,
+        status: "received",
+        createdAt: expect.any(String),
+      }),
+    );
+  });
+  it("returns 422 when application data is invalid", async () => {
+    const invalidApplication = {
+      ...validApplication,
+      email: "not-an-email",
+      motivation: "Too short",
+    };
+
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(invalidApplication)
+      .expect(422);
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        type: "https://elwarsha.dev/errors/validation-failed",
+        title: "Validation Failed",
+        status: 422,
+        invalidParams: expect.arrayContaining([
+          expect.objectContaining({ name: "email" }),
+          expect.objectContaining({ name: "motivation" }),
+        ]),
+      }),
+    );
+    expect(response.body.invalidParams).toEqual(
+  expect.arrayContaining([
+    expect.objectContaining({
+      name: "email",
+      reason: expect.any(String),
+    }),
+    expect.objectContaining({
+      name: "motivation",
+      reason: expect.any(String),
+    }),
+  ]),
+);
+  });
+  it("rejects duplicate applications for the same cohort", async () => {
+    const endpoint = "/api/v1/cohorts/cohort-2/applications";
+
+    await request(app.getHttpServer()).post(endpoint).send(validApplication).expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post(endpoint)
+      .send(validApplication)
+      .expect(409);
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        type: "https://elwarsha.dev/errors/duplicate-application",
+        title: "Application Already Submitted",
+        status: 409,
+        instance: endpoint,
+      }),
+    );
+  });
   afterEach(async () => {
     await app.close();
   });
