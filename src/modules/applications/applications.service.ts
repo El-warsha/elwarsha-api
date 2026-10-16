@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from "@nestjs/common";
 import { CreateApplicationDto } from "./dto/apply-cohort.dto.js";
 import { Applications } from "../../domain/models.js";
-
+import { randomUUID } from "node:crypto";
 @Injectable()
 export class ApplicationsService {
   private applications: Applications[] = [];
@@ -17,12 +17,12 @@ export class ApplicationsService {
     if (emailFound || githubFound) {
       throw new ConflictException();
     }
-    const id = crypto.randomUUID();
+    const id =randomUUID();
     const createdAt = Date.now().toLocaleString();
     const newApp = { ...createApplicationDto, slug, id, createdAt };
     this.applications.push(newApp);
 
-    const recipt = {
+    const receipt = {
       id,
     cohortSlug:slug,
       email: createApplicationDto.email,
@@ -30,6 +30,6 @@ export class ApplicationsService {
 
       createdAt,
     };
-    return recipt;
+    return receipt;
   }
 }

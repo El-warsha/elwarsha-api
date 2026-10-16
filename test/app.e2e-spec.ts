@@ -313,6 +313,18 @@ describe("Foundation API (e2e)", () => {
         ]),
       }),
     );
+    expect(response.body.invalidParams).toEqual(
+  expect.arrayContaining([
+    expect.objectContaining({
+      name: "email",
+      reason: expect.any(String),
+    }),
+    expect.objectContaining({
+      name: "motivation",
+      reason: expect.any(String),
+    }),
+  ]),
+);
   });
   it("rejects duplicate applications for the same cohort", async () => {
     const endpoint = "/api/v1/cohorts/cohort-2/applications";
