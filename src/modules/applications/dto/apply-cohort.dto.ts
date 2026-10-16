@@ -10,15 +10,15 @@ import {
 
 export enum CurrentStatus {
   Student = "student",
-  Graduate = "graduate",
-  WorkingInTech = "working in tech",
-  SwitchingCareer = "switching career",
+  Graduate = "recent_graduate",
+  WorkingInTech = "employed_tech",
+  SwitchingCareer = "career_switcher",
   Other = "other",
 }
 
 export enum GitExperience {
-  Never = "never",
-  BasicsOnly = "basics only",
+  Never = "none",
+  BasicsOnly = "basics",
   Comfortable = "comfortable",
 }
 
