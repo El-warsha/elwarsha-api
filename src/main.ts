@@ -37,8 +37,8 @@ async function bootstrap(): Promise<void> {
     }
     next();
   });
-  app.useGlobalPipes(new ValidationPipe());
-
+  // app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   const swagger = new DocumentBuilder()
     .setTitle("ElWarsha API")
     .setDescription("Foundation API for the ElWarsha platform")
