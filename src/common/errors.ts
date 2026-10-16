@@ -32,3 +32,25 @@ export class ConflictError extends AppError {
     super(409, "conflict", message);
   }
 }
+
+export type InvalidParam = {
+  name: string;
+  reason: string;
+};
+
+export class ValidationError extends AppError {
+  constructor(
+    message = "Some fields have invalid values",
+    readonly invalidParams: InvalidParam[] = [],
+  ) {
+    super(422, "validation_error", message, invalidParams);
+  }
+}
+
+export class DuplicateApplicationError extends AppError {
+  constructor(
+    message = "An application with this email or GitHub handle already exists for Cohort 2",
+  ) {
+    super(409, "duplicate_application", message);
+  }
+}

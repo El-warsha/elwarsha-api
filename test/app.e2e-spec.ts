@@ -204,6 +204,114 @@ describe("Foundation API (e2e)", () => {
     expect(reclaimed?.attemptCount).toBe(2);
   });
 
+  it("creates a cohort application (POST 201)", async () => {
+    const payload = {
+      fullName: "Student Applicant",
+      email: "newstudent@example.com",
+      whatsappNumber: "+201012345678",
+      githubHandle: "newstudent",
+      discordHandle: "newstudent",
+      currentStatus: "student",
+      collegeMajor: "Computer Science",
+      programmingExperience: "2 years",
+      technologies: "Node.js, TypeScript",
+      gitExperience: "basics",
+      personalPageUrl: "https://student.example.com",
+      githubRepoUrl: "https://github.com/newstudent/project",
+      aiUsage: "Coding assistant",
+      motivation:
+        "I am very passionate about learning software engineering in ElWarsha and contributing actively.",
+    };
+
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(payload)
+      .expect(201);
+
+    expect(response.body).toEqual({
+      id: expect.stringMatching(/^app_/),
+      cohortSlug: "cohort-2",
+      email: "newstudent@example.com",
+      status: "received",
+      createdAt: expect.any(String),
+    });
+  });
+
+  it("rejects invalid application fields with 422 and structured invalidParams", async () => {
+    const invalidPayload = {
+      fullName: "Jo",
+      email: "invalid-email",
+      whatsappNumber: "123",
+      githubHandle: "invalid/handle",
+      discordHandle: "",
+      currentStatus: "",
+      collegeMajor: "",
+      programmingExperience: "",
+      technologies: "",
+      gitExperience: "",
+      personalPageUrl: "not-a-url",
+      githubRepoUrl: "not-a-github-repo",
+      aiUsage: "",
+      motivation: "Too short",
+    };
+
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(invalidPayload)
+      .expect(422);
+
+    expect(response.body).toMatchObject({
+      type: "https://elwarsha.dev/errors/validation-failed",
+      title: "Validation Failed",
+      status: 422,
+      detail: "Some fields have invalid values",
+      instance: "/api/v1/cohorts/cohort-2/applications",
+      invalidParams: expect.arrayContaining([
+        expect.objectContaining({ name: "email" }),
+        expect.objectContaining({ name: "motivation" }),
+      ]),
+    });
+  });
+
+  it("rejects duplicate application with 409 Conflict", async () => {
+    const payload = {
+      fullName: "Duplicate Applicant",
+      email: "duplicate@example.com",
+      whatsappNumber: "+201098765432",
+      githubHandle: "duplicateuser",
+      discordHandle: "duplicateuser",
+      currentStatus: "student",
+      collegeMajor: "Software Engineering",
+      programmingExperience: "1 year",
+      technologies: "JavaScript",
+      gitExperience: "basics",
+      personalPageUrl: "https://example.com",
+      githubRepoUrl: "https://github.com/duplicateuser/project",
+      aiUsage: "Daily",
+      motivation:
+        "This is a comprehensive motivation statement that exceeds the fifty characters minimum requirement.",
+    };
+
+    await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(payload)
+      .expect(201);
+
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(payload)
+      .expect(409);
+
+    expect(response.body).toEqual({
+      type: "https://elwarsha.dev/errors/duplicate-application",
+      title: "Application Already Submitted",
+      status: 409,
+      detail:
+        "An application with this email or GitHub handle already exists for Cohort 2",
+      instance: "/api/v1/cohorts/cohort-2/applications",
+    });
+  });
+
   afterEach(async () => {
     await app.close();
   });
