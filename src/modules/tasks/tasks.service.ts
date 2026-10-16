@@ -1,13 +1,24 @@
 import { Injectable } from "@nestjs/common";
 
 import type { Assignment } from "../../domain/models.js";
+import { LabelsService } from "../labels/labels.service.js";
 import { TasksRepository } from "./tasks.repository.js";
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly tasks: TasksRepository) {}
+  constructor(
+    private readonly tasks: TasksRepository,
+    private readonly labels: LabelsService,
+  ) {}
 
-  listAssignments(): Promise<Assignment[]> {
-    return this.tasks.listAssignments();
+  async listAssignments(): Promise<Assignment[]> {
+    const assignments = await this.tasks.listAssignments();
+    const assignmentIds = assignments.map((assignment) => assignment.id);
+    const labelsMap = await this.labels.listForAssignments(assignmentIds);
+
+    return assignments.map((assignment) => ({
+      ...assignment,
+      labels: labelsMap.get(assignment.id) ?? [],
+    }));
   }
 }
