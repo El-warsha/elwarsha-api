@@ -1,3 +1,5 @@
+import { HttpException } from "@nestjs/common";
+
 export class AppError extends Error {
   constructor(
     readonly statusCode: number,
@@ -30,5 +32,46 @@ export class NotFoundError extends AppError {
 export class ConflictError extends AppError {
   constructor(message = "The request conflicts with current state") {
     super(409, "conflict", message);
+  }
+}
+
+export type InvalidParam = { name: string; reason: string };
+
+export class ProblemDetailsError extends HttpException {
+  constructor(
+    readonly statusCode: number,
+    readonly body: {
+      type: string;
+      title: string;
+      status: number;
+      detail: string;
+      invalidParams?: InvalidParam[];
+    },
+  ) {
+    super(body, statusCode);
+    this.name = "ProblemDetailsError";
+  }
+}
+
+export class ValidationFailedError extends ProblemDetailsError {
+  constructor(invalidParams: InvalidParam[]) {
+    super(422, {
+      type: "https://elwarsha.dev/errors/validation-failed",
+      title: "Validation Failed",
+      status: 422,
+      detail: "Some fields have invalid values",
+      invalidParams,
+    });
+  }
+}
+
+export class DuplicateApplicationError extends ProblemDetailsError {
+  constructor(cohortSlug: string) {
+    super(409, {
+      type: "https://elwarsha.dev/errors/duplicate-application",
+      title: "Application Already Submitted",
+      status: 409,
+      detail: `An application with this email or GitHub handle already exists for ${cohortSlug}`,
+    });
   }
 }

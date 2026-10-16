@@ -69,3 +69,41 @@ export type Submission = {
     checksPassed: boolean;
   } | null;
 };
+
+export type ApplicationStatus =
+  "received" | "under_review" | "accepted" | "rejected" | "withdrawn";
+
+export type CohortApplication = {
+  id: string;
+  cohortSlug: string;
+  status: ApplicationStatus;
+
+  fullName: string;
+  email: string;
+  whatsappNumber: string;
+  githubHandle: string;
+  discordHandle: string;
+
+  currentStatus: string;
+  collegeMajor: string;
+  programmingExperience: string;
+  technologies: string;
+  gitExperience: string;
+
+  personalPageUrl: string;
+  githubRepoUrl: string;
+  aiUsage: string;
+
+  motivation: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type CohortApplicationReceipt = {
+  id: string;
+  cohortSlug: string;
+  email: string;
+  status: ApplicationStatus;
+  createdAt: Date;
+};

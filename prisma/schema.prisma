@@ -185,8 +185,8 @@ model Membership {
   role         MembershipRole
   createdAt    DateTime       @default(now())
 
-  user       User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  engagement CohortProductEngagement  @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  engagement CohortProductEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
 
   @@unique([userId, engagementId])
 }
@@ -234,8 +234,8 @@ model Submission {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
-  assignment  Assignment        @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  author      User              @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+  assignment  Assignment         @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  author      User               @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
   pullRequest GithubPullRequest?
 
   @@unique([assignmentId, authorUserId])
@@ -280,28 +280,71 @@ model GithubCheckRun {
 }
 
 model GithubWebhookDelivery {
-  id               String                   @id @default(uuid()) @db.Uuid
-  deliveryId       String                   @unique
+  id               String                  @id @default(uuid()) @db.Uuid
+  deliveryId       String                  @unique
   eventType        String
-  processingStatus WebhookProcessingStatus  @default(received)
+  processingStatus WebhookProcessingStatus @default(received)
   payload          Json
-  createdAt        DateTime                 @default(now())
+  createdAt        DateTime                @default(now())
 
   jobs Job[]
 }
 
 model Job {
-  id            String    @id @default(uuid()) @db.Uuid
-  type          JobType
-  status        JobStatus @default(pending)
-  payload       Json
-  attemptCount  Int       @default(0)
-  availableAt   DateTime  @default(now())
-  lockedAt      DateTime?
-  webhookId     String?   @db.Uuid
-  lastError     String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String    @id @default(uuid()) @db.Uuid
+  type         JobType
+  status       JobStatus @default(pending)
+  payload      Json
+  attemptCount Int       @default(0)
+  availableAt  DateTime  @default(now())
+  lockedAt     DateTime?
+  webhookId    String?   @db.Uuid
+  lastError    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   webhook GithubWebhookDelivery? @relation(fields: [webhookId], references: [id])
+}
+
+enum ApplicationStatus {
+  received
+  under_review
+  accepted
+  rejected
+  withdrawn
+}
+
+model CohortApplication {
+  id         String            @id @default(uuid()) @db.Uuid
+  cohortSlug String
+  status     ApplicationStatus @default(received)
+
+  // Section 1: Personal & Contact
+  fullName       String
+  email          String
+  whatsappNumber String
+  githubHandle   String
+  discordHandle  String
+
+  // Section 2: Technical Background
+  currentStatus         String
+  collegeMajor          String
+  programmingExperience String
+  technologies          String
+  gitExperience         String
+
+  // Section 3: Personal Page Task
+  personalPageUrl String
+  githubRepoUrl   String
+  aiUsage         String
+
+  // Section 4: Motivation
+  motivation String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cohortSlug, email])
+  @@unique([cohortSlug, githubHandle])
+  @@index([cohortSlug])
 }

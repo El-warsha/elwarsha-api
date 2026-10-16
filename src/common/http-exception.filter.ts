@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 
-import { AppError } from "./errors.js";
+import { AppError, ProblemDetailsError } from "./errors.js";
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -15,6 +15,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
     const request = context.getRequest<Request>();
+    const instance = request.originalUrl ?? request.url;
+
+    if (exception instanceof ProblemDetailsError) {
+      response.status(exception.statusCode).json({
+        ...exception.body,
+        instance,
+      });
+      return;
+    }
 
     if (exception instanceof AppError) {
       response.status(exception.statusCode).json({
