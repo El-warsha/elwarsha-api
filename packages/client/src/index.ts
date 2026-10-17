@@ -72,22 +72,22 @@ export type ApiError = {
   };
 };
 
+export type CurrentStatus =
+  "student" | "graduate" | "working_in_tech" | "switching_career" | "other";
+
+export type GitExperience = "never" | "basics_only" | "comfortable";
+
 export type ApplyCohortInput = {
   fullName: string;
   email: string;
   whatsappNumber: string;
   githubHandle: string;
   discordHandle: string;
-  currentStatus:
-    | "student"
-    | "recent_graduate"
-    | "employed_tech"
-    | "career_switcher"
-    | "other";
+  currentStatus: CurrentStatus;
   collegeMajor: string;
   programmingExperience: string;
-  technologies: string;
-  gitExperience: "none" | "basics" | "comfortable";
+  technologies: string[];
+  gitExperience: GitExperience;
   personalPageUrl: string;
   githubRepoUrl: string;
   aiUsage: string;
@@ -112,11 +112,7 @@ export class ElWarshaApiError extends Error {
     readonly status: number,
     readonly body: ApiError | null,
   ) {
-    super(
-      body?.detail ??
-        body?.error?.message ??
-        `Request failed with ${status}`,
-    );
+    super(body?.detail ?? body?.error?.message ?? `Request failed with ${status}`);
   }
 }
 
@@ -159,14 +155,11 @@ export function createElWarshaClient(options: ElWarshaClientOptions) {
     listEngagements: () => request<Engagement[]>("/api/v1/engagements"),
     listAssignments: () => request<Assignment[]>("/api/v1/assignments"),
     applyCohort: (cohortSlug: string, input: ApplyCohortInput) =>
-      request<CohortApplicationResponse>(
-        `/api/v1/cohorts/${cohortSlug}/applications`,
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(input),
-        },
-      ),
+      request<CohortApplicationResponse>(`/api/v1/cohorts/${cohortSlug}/applications`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      }),
   };
 }
 
