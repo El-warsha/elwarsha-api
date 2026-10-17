@@ -195,6 +195,92 @@ describe("Foundation API (e2e)", () => {
     expect(reclaimed?.attemptCount).toBe(2);
   });
 
+  describe("POST /api/v1/cohorts/:slug/applications", () => {
+    const validApplication = {
+      fullName: "Mohamed Ali",
+      email: "applicant@example.com",
+      whatsappNumber: "+201012345678",
+      githubHandle: "octocat",
+      discordHandle: "octocat_discord",
+      currentStatus: "student",
+      collegeMajor: "Computer Science",
+      programmingExperience: "1 year",
+      technologies: ["React", "TypeScript", "Node.js"],
+      gitExperience: "comfortable",
+      personalPageUrl: "https://mohamed.dev",
+      githubRepoUrl: "https://github.com/octocat/my-project",
+      aiUsage: "Used GitHub Copilot for code assistance",
+      motivation:
+        "I want to join ElWarsha to learn production engineering and build with a great community.",
+    };
+
+    it("submits a valid application (201 Created)", async () => {
+      const response = await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send(validApplication)
+        .expect(201);
+
+      expect(response.body).toMatchObject({
+        cohortSlug: "cohort-2",
+        email: "applicant@example.com",
+        status: "received",
+      });
+      expect(response.body.id).toMatch(/^app_/);
+      expect(response.body.createdAt).toBeDefined();
+    });
+
+    it("rejects duplicate application with 409 Conflict", async () => {
+      await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send(validApplication)
+        .expect(201);
+
+      const duplicateEmail = await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send({ ...validApplication, githubHandle: "other-handle" })
+        .expect(409);
+
+      expect(duplicateEmail.body).toEqual({
+        type: "https://elwarsha.dev/errors/duplicate-application",
+        title: "Application Already Submitted",
+        status: 409,
+        detail:
+          "An application with this email or GitHub handle already exists for Cohort 2",
+        instance: "/api/v1/cohorts/cohort-2/applications",
+      });
+
+      const duplicateGithub = await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send({ ...validApplication, email: "other@example.com" })
+        .expect(409);
+
+      expect(duplicateGithub.body.status).toBe(409);
+    });
+
+    it("rejects invalid inputs with 422 Unprocessable Entity and structured invalidParams", async () => {
+      const response = await request(app.getHttpServer())
+        .post("/api/v1/cohorts/cohort-2/applications")
+        .send({
+          ...validApplication,
+          email: "not-an-email",
+          motivation: "too short",
+        })
+        .expect(422);
+
+      expect(response.body).toMatchObject({
+        type: "https://elwarsha.dev/errors/validation-failed",
+        title: "Validation Failed",
+        status: 422,
+        detail: "Some fields have invalid values",
+        instance: "/api/v1/cohorts/cohort-2/applications",
+      });
+      expect(Array.isArray(response.body.invalidParams)).toBe(true);
+      const paramNames = response.body.invalidParams.map((p: { name: string }) => p.name);
+      expect(paramNames).toContain("email");
+      expect(paramNames).toContain("motivation");
+    });
+  });
+
   afterEach(async () => {
     await app.close();
   });
