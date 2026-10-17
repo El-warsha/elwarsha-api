@@ -6,7 +6,8 @@ export type Capability =
   | "cohorts.read"
   | "assignments.read"
   | "submissions.read"
-  | "reviews.read";
+  | "reviews.read"
+  | "weeks.read";
 
 export type SessionUser = {
   id: string;
@@ -64,6 +65,66 @@ export type Label = {
   name: string;
 };
 
+export type CohortRef = {
+  id: string;
+  slug: string;
+  name: string;
+  nameAr?: string | null;
+  startsOn: string;
+  endsOn: string;
+};
+
+export type WeekResourceItem = {
+  title: string;
+  url: string;
+  layers: string;
+  format: "Read" | "Watch" | "Listen" | string;
+  time: string;
+  why: string;
+};
+
+export type WeekResources = {
+  required: WeekResourceItem[];
+  assignment: WeekResourceItem[];
+  alternative: WeekResourceItem[];
+};
+
+export type WeekAppliedLayer = {
+  layer: string;
+  details: string;
+};
+
+export type WeekAssignment = {
+  id?: string;
+  title: string;
+  summary: string;
+  status: "draft" | "published" | "closed";
+  labels: string[];
+  detailsMd: string;
+};
+
+export type Week = {
+  weekNumber: number;
+  title: string;
+  tagline?: string;
+  concept: string;
+  guidingQuestion: string;
+  startDate: string;
+  endDate: string;
+  status: "completed" | "active" | "upcoming" | "draft";
+  isCurrent: boolean;
+  isLocked: boolean;
+  cohort: CohortRef;
+  bigIdea: string;
+  outcomes: string[];
+  coreConcepts: string[];
+  appliedThroughTheStack: WeekAppliedLayer[];
+  assignment: WeekAssignment | null;
+  resources: WeekResources;
+  reflectionQuestion: string;
+  prerequisites: string[];
+};
+
 export type ApiError = {
   type?: string;
   title?: string;
@@ -85,11 +146,7 @@ export type ApplyCohortInput = {
   githubHandle: string;
   discordHandle: string;
   currentStatus:
-    | "student"
-    | "recent_graduate"
-    | "employed_tech"
-    | "career_switcher"
-    | "other";
+    "student" | "recent_graduate" | "employed_tech" | "career_switcher" | "other";
   collegeMajor: string;
   programmingExperience: string;
   technologies: string;
@@ -118,11 +175,7 @@ export class ElWarshaApiError extends Error {
     readonly status: number,
     readonly body: ApiError | null,
   ) {
-    super(
-      body?.detail ??
-        body?.error?.message ??
-        `Request failed with ${status}`,
-    );
+    super(body?.detail ?? body?.error?.message ?? `Request failed with ${status}`);
   }
 }
 
@@ -164,15 +217,32 @@ export function createElWarshaClient(options: ElWarshaClientOptions) {
     listProducts: () => request<Product[]>("/api/v1/products"),
     listEngagements: () => request<Engagement[]>("/api/v1/engagements"),
     listAssignments: () => request<Assignment[]>("/api/v1/assignments"),
-    applyCohort: (cohortSlug: string, input: ApplyCohortInput) =>
-      request<CohortApplicationResponse>(
-        `/api/v1/cohorts/${cohortSlug}/applications`,
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(input),
-        },
+    listCohortWeeks: (cohortSlug: string, params?: { locale?: Locale }) =>
+      request<Week[]>(
+        params?.locale
+          ? `/api/v1/cohorts/${cohortSlug}/weeks?locale=${params.locale}`
+          : `/api/v1/cohorts/${cohortSlug}/weeks`,
       ),
+    getCohortWeek: (
+      cohortSlug: string,
+      weekNumber: number,
+      params?: { locale?: Locale },
+    ) =>
+      request<Week>(
+        params?.locale
+          ? `/api/v1/cohorts/${cohortSlug}/weeks/${weekNumber}?locale=${params.locale}`
+          : `/api/v1/cohorts/${cohortSlug}/weeks/${weekNumber}`,
+      ),
+    listWeeks: (params?: { locale?: Locale }) =>
+      request<Week[]>(
+        params?.locale ? `/api/v1/weeks?locale=${params.locale}` : "/api/v1/weeks",
+      ),
+    applyCohort: (cohortSlug: string, input: ApplyCohortInput) =>
+      request<CohortApplicationResponse>(`/api/v1/cohorts/${cohortSlug}/applications`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(input),
+      }),
   };
 }
 
