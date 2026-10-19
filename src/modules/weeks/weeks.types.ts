@@ -1,3 +1,4 @@
+
 export type CohortRef = {
   id: string;
   slug: string;
@@ -5,6 +6,7 @@ export type CohortRef = {
   nameAr?: string | null;
   startsOn: string;
   endsOn: string;
+  currentWeekNumber: number;
 };
 
 export type WeekResourceItem = {
@@ -36,6 +38,8 @@ export type WeekAssignment = {
   detailsMd: string;
 };
 
+export type WeekStatus = "completed" | "active" | "upcoming" | "draft";
+
 export type Week = {
   weekNumber: number;
   title: string;
@@ -44,7 +48,7 @@ export type Week = {
   guidingQuestion: string;
   startDate: string;
   endDate: string;
-  status: "completed" | "active" | "upcoming" | "draft";
+  status: WeekStatus;
   isCurrent: boolean;
   isLocked: boolean;
   cohort: CohortRef;

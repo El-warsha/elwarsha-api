@@ -31,6 +31,8 @@ async function main(): Promise<void> {
       nameAr: "الدفعة الأولى",
       startsOn: new Date("2026-10-01"),
       endsOn: new Date("2026-11-26"),
+      currentWeekNumber: 3,
+
     },
   });
 
