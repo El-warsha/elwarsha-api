@@ -5,6 +5,7 @@ export type CohortRef = {
   nameAr?: string | null;
   startsOn: string;
   endsOn: string;
+  currentWeekNumber: number;
 };
 
 export type WeekResourceItem = {
