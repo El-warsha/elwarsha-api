@@ -24,6 +24,7 @@ async function main(): Promise<void> {
     where: { slug: "cohort-01" },
     update: {
       nameAr: "الدفعة الأولى",
+      currentWeekNumber: 3
     },
     create: {
       slug: "cohort-01",

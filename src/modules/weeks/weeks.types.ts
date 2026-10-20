@@ -1,5 +1,6 @@
 export type CohortRef = {
   id: string;
+  currentWeekNumber: number;
   slug: string;
   name: string;
   nameAr?: string | null;
