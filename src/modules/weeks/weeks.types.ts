@@ -5,6 +5,7 @@ export type CohortRef = {
   nameAr?: string | null;
   startsOn: string;
   endsOn: string;
+   currentWeekNumber : number;
 };
 
 export type WeekResourceItem = {
@@ -56,4 +57,11 @@ export type Week = {
   resources: WeekResources;
   reflectionQuestion: string;
   prerequisites: string[];
+};
+
+export type WeekSchedule = {
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  status: "completed" | "active" | "upcoming" | "draft";
 };
