@@ -22,6 +22,7 @@ describe("WeeksService", () => {
     name: "Cohort 01",
     startsOn: new Date("2026-10-01"),
     endsOn: new Date("2026-11-26"),
+    currentWeekNumber: 3,
     engagements: [
       {
         id: "engagement-1",
