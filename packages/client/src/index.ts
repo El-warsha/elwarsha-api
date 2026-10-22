@@ -164,6 +164,7 @@ export function createElWarshaClient(options: ElWarshaClientOptions) {
     listProducts: () => request<Product[]>("/api/v1/products"),
     listEngagements: () => request<Engagement[]>("/api/v1/engagements"),
     listAssignments: () => request<Assignment[]>("/api/v1/assignments"),
+    listLabels: () => request<Label[]>("/api/v1/labels"),
     applyCohort: (cohortSlug: string, input: ApplyCohortInput) =>
       request<CohortApplicationResponse>(
         `/api/v1/cohorts/${cohortSlug}/applications`,
