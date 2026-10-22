@@ -14,12 +14,12 @@ describe("WeeksService", () => {
     cohortProductEngagement: {
       findFirst: ReturnType<typeof vi.fn>;
     };
-  };
-
+  }
   const sampleCohort = {
     id: "cohort-1",
     slug: "cohort-01",
     name: "Cohort 01",
+    currentWeekNumber: 3,
     startsOn: new Date("2026-10-01"),
     endsOn: new Date("2026-11-26"),
     engagements: [
@@ -113,6 +113,42 @@ describe("WeeksService", () => {
 
       await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(NotFoundError);
     });
+    it("marks the current week as active and includes currentWeekNumber in cohort", async () => {
+  prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
+
+  const weeks = await service.listWeeksForCohort("cohort-01");
+
+  const currentWeek = weeks[2];
+
+  expect(currentWeek).toMatchObject({
+    weekNumber: 3,
+    isCurrent: true,
+    isLocked: false,
+    status: "active",
+    cohort: {
+      currentWeekNumber: 3,
+    },
+  });
+});
+it("locks weeks after currentWeekNumber", async () => {
+  prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
+
+  const weeks = await service.listWeeksForCohort("cohort-01");
+
+  const nextWeek = weeks[3];
+
+  expect(nextWeek).toMatchObject({
+    weekNumber: 4,
+    isCurrent: false,
+    isLocked: true,
+    status: "upcoming",
+    concept: "",
+    assignment: null,
+    cohort: {
+      currentWeekNumber: 3,
+    },
+  });
+});
   });
 
   describe("getWeekForCohort", () => {
@@ -158,6 +194,25 @@ describe("WeeksService", () => {
 
       await expect(service.getWeekForCohort("non-existent", 1)).rejects.toThrow(NotFoundError);
     });
+    it("returns the current week as active in week details", async () => {
+  prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
+
+  const week = await service.getWeekForCohort(
+    "cohort-01",
+    3,
+    "en",
+  );
+
+  expect(week).toMatchObject({
+    weekNumber: 3,
+    isCurrent: true,
+    isLocked: false,
+    status: "active",
+    cohort: {
+      currentWeekNumber: 3,
+    },
+  });
+});
   });
 
   describe("resolveActiveCohortSlug", () => {

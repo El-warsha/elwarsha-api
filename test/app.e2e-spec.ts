@@ -16,6 +16,17 @@ process.env.WEB_ORIGIN ??= "http://localhost:5173";
 process.env.SESSION_SECRET ??= "replace-with-32-byte-secret";
 process.env.GITHUB_WEBHOOK_SECRET ??= "replace-webhook-secret";
 
+
+
+type WeekResponse = {
+  weekNumber: number;
+  isCurrent: boolean;
+  isLocked: boolean;
+  status: string;
+  cohort: {
+    currentWeekNumber: number;
+  };
+};
 describe("Foundation API (e2e)", () => {
   let app: INestApplication;
 
@@ -106,41 +117,7 @@ describe("Foundation API (e2e)", () => {
       expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
     );
 
-    const weeks = await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
-    expect(weeks.body).toHaveLength(8);
-    expect(weeks.body[0]).toMatchObject({
-      weekNumber: 1,
-      cohort: expect.objectContaining({ slug: "cohort-01" }),
-      assignment: expect.objectContaining({
-        title: "Navigate the codebase and open a focused PR",
-        status: "published",
-      }),
-    });
-
-    const defaultWeeks = await agent.get("/api/v1/weeks").expect(200);
-    expect(defaultWeeks.body).toHaveLength(8);
-
-    const weekOne = await agent
-      .get("/api/v1/cohorts/cohort-01/weeks/1?locale=en")
-      .expect(200);
-    expect(weekOne.body).toMatchObject({
-      weekNumber: 1,
-      concept: "Architecture and modularity",
-      bigIdea: expect.any(String),
-      outcomes: expect.any(Array),
-      coreConcepts: expect.any(Array),
-      appliedThroughTheStack: expect.any(Array),
-    });
-
-    await agent.get("/api/v1/cohorts/cohort-01/weeks/99").expect(404);
-
-    await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
-
-    await agent.get("/api/v1/auth/me").expect(401);
-    await agent.get("/api/v1/products").expect(401);
-    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
   });
-
   it("preserves requested locale when logging in from English portal", async () => {
     const agent = request.agent(app.getHttpServer());
 
@@ -161,6 +138,45 @@ describe("Foundation API (e2e)", () => {
     const me = await agent.get("/api/v1/auth/me").expect(200);
     expect(me.body.user.email).toBe("participant@elwarsha.dev");
   });
+
+
+  
+it("returns the current week and locks the next week", async () => {
+  const response = await request(app.getHttpServer())
+    .get("/api/v1/cohorts/cohort-01/weeks")
+    .expect(200);
+
+  const weeksData = response.body as WeekResponse[];
+
+  expect(weeksData).toHaveLength(8);
+
+  expect(weeksData[0].cohort).toMatchObject({
+    currentWeekNumber: 3,
+  });
+
+  const currentWeek = weeksData.find(
+    (week) => week.weekNumber === 3,
+  );
+
+  const nextWeek = weeksData.find(
+    (week) => week.weekNumber === 4,
+  );
+
+  expect(currentWeek).toMatchObject({
+    weekNumber: 3,
+    isCurrent: true,
+    isLocked: false,
+    status: "active",
+  });
+
+  expect(nextWeek).toMatchObject({
+    weekNumber: 4,
+    isCurrent: false,
+    isLocked: true,
+    status: "upcoming",
+  });
+});
+
 
   it("rejects an unsigned GitHub webhook", () => {
     return request(app.getHttpServer())

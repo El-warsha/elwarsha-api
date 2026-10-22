@@ -13,6 +13,7 @@ function formatDate(date: Date): string {
 export class WeeksService {
   constructor(private readonly prisma: PrismaService) {}
 
+
   async resolveActiveCohortSlug(): Promise<string> {
     const activeEngagement = await this.prisma.cohortProductEngagement.findFirst({
       where: { status: "active" },
@@ -63,6 +64,7 @@ export class WeeksService {
       slug: cohort.slug,
       name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
       nameAr: cohort.nameAr,
+      currentWeekNumber:cohort.currentWeekNumber,
       startsOn: formatDate(cohort.startsOn),
       endsOn: formatDate(cohort.endsOn),
     };
@@ -72,19 +74,8 @@ export class WeeksService {
     const now = new Date();
 
     // Determine current active week number based on date schedule
-    let currentWeekNumber: number | null = null;
-    for (const cWeek of curriculumWeeks) {
-      const schedule = this.computeSchedule(
-        cohort.startsOn,
-        cohort.endsOn,
-        cWeek.weekNumber,
-        now,
-      );
-      if (schedule.isCurrent) {
-        currentWeekNumber = cWeek.weekNumber;
-        break;
-      }
-    }
+    const currentWeekNumber: number  = cohort.currentWeekNumber;
+ 
 
     return curriculumWeeks.map((cWeek) => {
       const weekNumber = cWeek.weekNumber;
@@ -150,32 +141,21 @@ export class WeeksService {
       slug: cohort.slug,
       name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
       nameAr: cohort.nameAr,
+      currentWeekNumber:cohort.currentWeekNumber,
       startsOn: formatDate(cohort.startsOn),
       endsOn: formatDate(cohort.endsOn),
     };
 
     const now = new Date();
-    const curriculumWeeks = getAllCurriculumWeeks(locale);
-    let currentWeekNumber: number | null = null;
-    for (const cWeek of curriculumWeeks) {
-      const schedule = this.computeSchedule(
-        cohort.startsOn,
-        cohort.endsOn,
-        cWeek.weekNumber,
-        now,
-      );
-      if (schedule.isCurrent) {
-        currentWeekNumber = cWeek.weekNumber;
-        break;
-      }
-    }
+    const currentWeekNumber: number =cohort.currentWeekNumber;
+
 
     const schedule = this.computeSchedule(
       cohort.startsOn,
       cohort.endsOn,
       weekNumber,
       now,
-    );
+    );  
 
     const isLocked =
       currentWeekNumber !== null
@@ -195,6 +175,7 @@ export class WeeksService {
       endDate: string;
       isCurrent: boolean;
       status: "completed" | "active" | "upcoming" | "draft";
+    
     },
     isLocked: boolean,
     dbAssignment?: {
@@ -202,6 +183,7 @@ export class WeeksService {
       title: string;
       status: "draft" | "published" | "closed";
       labels: { label: { name: string } }[];
+      weekNumber:number
     } | null,
   ): Week {
     if (isLocked) {
@@ -240,9 +222,14 @@ export class WeeksService {
       labels: dbAssignment ? dbAssignment.labels.map((l) => l.label.name) : ["core"],
       detailsMd: cWeek.assignment.detailsMd,
     };
+const isCurrent = cWeek.weekNumber === cohortRef.currentWeekNumber;
 
-    const effectiveStatus = dbAssignment?.status === "closed" ? "completed" : schedule.status;
-
+const effectiveStatus = isCurrent
+  ? "active"
+  : dbAssignment?.status === "closed"
+    ? "completed"
+    : schedule.status;
+ 
     return {
       weekNumber: cWeek.weekNumber,
       title: cWeek.title,
@@ -251,7 +238,7 @@ export class WeeksService {
       guidingQuestion: cWeek.guidingQuestion,
       startDate: schedule.startDate,
       endDate: schedule.endDate,
-      isCurrent: schedule.isCurrent,
+      isCurrent,
       status: effectiveStatus,
       isLocked: false,
       cohort: cohortRef,
