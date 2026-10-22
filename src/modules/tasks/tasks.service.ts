@@ -6,8 +6,9 @@ import { LabelsService } from "../labels/labels.service.js";
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly tasks: TasksRepository,
-              private readonly labels: LabelsService,
+  constructor(
+    private readonly tasks: TasksRepository,
+    private readonly labels: LabelsService,
   ) {}
 
   async listAssignments(): Promise<Assignment[]> {
