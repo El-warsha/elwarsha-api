@@ -112,7 +112,7 @@ export function createElWarshaClient(options: ElWarshaClientOptions) {
   }
 
   return {
-    version: "0.1.0",
+    version: "0.2.0",
     health: () => request<{ status: string }>("/healthz"),
     ready: () => request<{ status: string }>("/readyz"),
     loginUrl: (params?: { locale?: Locale }) =>
@@ -124,6 +124,7 @@ export function createElWarshaClient(options: ElWarshaClientOptions) {
     listProducts: () => request<Product[]>("/api/v1/products"),
     listEngagements: () => request<Engagement[]>("/api/v1/engagements"),
     listAssignments: () => request<Assignment[]>("/api/v1/assignments"),
+    listLabels: () => request<Label[]>("/api/v1/labels"),
   };
 }
 
