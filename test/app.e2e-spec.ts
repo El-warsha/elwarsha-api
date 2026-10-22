@@ -102,6 +102,22 @@ describe("Foundation API (e2e)", () => {
       expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
     );
 
+    const weekOne = assignments.body.find(
+      (assignment: { weekNumber: number }) => assignment.weekNumber === 1,
+    );
+    expect(weekOne.labels.map((label: { name: string }) => label.name).sort()).toEqual([
+      "backend",
+      "frontend",
+      "review",
+    ]);
+
+    const labels = await agent.get("/api/v1/labels").expect(200);
+    expect(labels.body.map((label: { name: string }) => label.name)).toEqual([
+      "backend",
+      "frontend",
+      "review",
+    ]);
+
     await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
 
     await agent.get("/api/v1/auth/me").expect(401);
