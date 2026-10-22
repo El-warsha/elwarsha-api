@@ -153,6 +153,7 @@ model ProductRepository {
 model Cohort {
   id        String   @id @default(uuid()) @db.Uuid
   slug      String   @unique
+  currentWeekNumber Int @default(1)
   name      String
   nameAr    String?
   startsOn  DateTime @db.Date
