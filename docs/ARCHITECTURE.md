@@ -101,7 +101,7 @@ the foundation, all four roles share the same capability list.
 ## Contracts
 
 - Database: `prisma/schema.prisma`
-- TypeScript client `@elwarsha/api-client@0.1.0`: `packages/client/src/index.ts`
+- TypeScript client `@elwarsha/api-client@0.2.0`: `packages/client/src/index.ts`
 - Env: `.env.example` and `src/config/env.ts`
 
 Production auth callbacks use `API_ORIGIN`; browser redirects and CORS use

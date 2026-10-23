@@ -8,4 +8,4 @@ const targetDir = resolve(root, "packages/client/dist");
 
 mkdirSync(targetDir, { recursive: true });
 copyFileSync(source, resolve(targetDir, "index.ts"));
-console.log("Published @elwarsha/api-client 0.1.0 snapshot");
+console.log("Published @elwarsha/api-client 0.2.0 snapshot");
