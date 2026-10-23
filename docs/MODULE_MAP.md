@@ -3,14 +3,14 @@
 Domain concepts map to Nest modules. Status is what the foundation implements,
 not the long-term product.
 
-| Domain      | Nest path                 | Owns                                          | Foundation status                                                            |
+| Domain      | Nest path                 | Owns                                          | GET /api/v1/labels.                                                          |
 | ----------- | ------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------- |
 | Identity    | `src/modules/identity`    | Users, identities, sessions, memberships      | Login, session, `/me`, logout                                                |
 | Products    | `src/modules/catalog`     | Long-lived products and upstream repos        | `GET /api/v1/products`                                                       |
 | Cohorts     | `src/modules/catalog`     | Time-bounded cohorts                          | Read nested on engagements                                                   |
 | Engagements | `src/modules/catalog`     | Cohort-product pairing                        | `GET /api/v1/engagements`                                                    |
 | Assignments | `src/modules/tasks`       | Weekly work items                             | `GET /api/v1/assignments`                                                    |
-| Labels      | schema only               | Tags on assignments                           | `Label` and `AssignmentLabel` in Prisma; no HTTP module                      |
+| Labels      | src/modules/labels               | Tags on assignments                           | `Label` and `AssignmentLabel` in Prisma; no HTTP module                      |
 | Submissions | schema only               | Candidate PRs                                 | `Submission` in Prisma; no HTTP module                                       |
 | GitHub      | `src/modules/github`      | Webhooks and future PR/review/check snapshots | Signature, persist delivery, enqueue. `processDelivery` marks processed only |
 | Jobs        | `src/infrastructure/jobs` | Durable worker queue                          | Enqueue, claim, complete, retry                                              |
@@ -19,4 +19,6 @@ not the long-term product.
 Shared authorization exports (`AuthGuard`, `RequireCapability`) live in
 identity and are the only identity symbols other modules may import.
 `TasksModule` exports `TasksService`. Do not import `tasks.repository.ts` from
+another module.
+`LabelsModule` exports `LabelsService`. Do not import `labels.repository.ts` from
 another module.

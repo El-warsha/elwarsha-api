@@ -48,8 +48,7 @@ Domain models live in `src/domain`. `@prisma/client` types stay in
 Current foundation shortcuts:
 
 - Catalog is controller → `CatalogRepository` (no application service).
-- Tasks is controller → `TasksService` → `TasksRepository`. `TasksModule`
-  exports `TasksService`. Assignment reads do not include labels.
+- Tasks is controller → `TasksService` → `TasksRepository`.   `TasksModule` exports `TasksService`, which composes labels through `LabelsService`.
 - Identity repositories and `GithubService` inject `PrismaService` from feature
   modules. New persistence should move behind infrastructure ports.
 - `JobService` is the durable queue; it is the only job writer.
@@ -58,6 +57,7 @@ Current foundation shortcuts:
 
 Nest modules in `src/app.module.ts`:
 
+- `labels` — read-only labels at `GET /api/v1/labels`; exports `LabelsService`
 - `identity` — OIDC/fake adapter, sessions, capability resolution
 - `catalog` — read-only products and engagements
 - `tasks` — read-only assignments at `GET /api/v1/assignments`
@@ -86,7 +86,9 @@ Cross-module rule: no internals. From identity, other modules may import only
 | GET    | `/api/v1/assignments`     | `assignments.read`            |
 | POST   | `/api/v1/github/webhooks` | Signature required            |
 | GET    | `/healthz`                | Liveness                      |
-| GET    | `/readyz`                 | Database ping                 |
+| GET    | `/readyz`                 | 
+| GET    | `/api/v1/labels`          | `assignments.read`            |
+Database ping                 |
 
 Errors: `{ error: { code, message, requestId } }`.
 
