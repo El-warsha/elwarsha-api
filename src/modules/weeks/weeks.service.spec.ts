@@ -20,8 +20,10 @@ describe("WeeksService", () => {
     id: "cohort-1",
     slug: "cohort-01",
     name: "Cohort 01",
+    nameAr: null,
     startsOn: new Date("2026-10-01"),
     endsOn: new Date("2026-11-26"),
+    currentWeekNumber: 3,
     engagements: [
       {
         id: "engagement-1",
@@ -31,10 +33,7 @@ describe("WeeksService", () => {
             weekNumber: 1,
             title: "Navigate the codebase and open a focused PR",
             status: "published" as const,
-            labels: [
-              { label: { name: "frontend" } },
-              { label: { name: "backend" } },
-            ],
+            labels: [{ label: { name: "frontend" } }, { label: { name: "backend" } }],
           },
         ],
       },
@@ -56,22 +55,22 @@ describe("WeeksService", () => {
   });
 
   describe("listWeeksForCohort", () => {
-    it("returns all 8 weeks with merged DB assignment data in Arabic by default", async () => {
+    it("returns all 8 weeks with cohortRef including currentWeekNumber", async () => {
       prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
 
       const weeks = await service.listWeeksForCohort("cohort-01");
 
       expect(weeks).toHaveLength(8);
+      expect(weeks[0].cohort.currentWeekNumber).toBe(3);
       expect(weeks[0]).toMatchObject({
         weekNumber: 1,
         title: "المعمارية وفهم الكود القائم",
         concept: "المعمارية والوحدات",
         startDate: "2026-10-01",
         endDate: "2026-10-07",
-        cohort: {
-          slug: "cohort-01",
-          name: "Cohort 01",
-        },
+        status: "completed",
+        isCurrent: false,
+        isLocked: false,
         assignment: {
           id: "assignment-1",
           title: "Navigate the codebase and open a focused PR",
@@ -80,9 +79,6 @@ describe("WeeksService", () => {
           detailsMd: expect.any(String),
         },
       });
-
-      expect(weeks[7].weekNumber).toBe(8);
-      expect(weeks[7].assignment).toBeNull();
     });
 
     it("returns English curriculum content when locale is en", async () => {
@@ -94,11 +90,34 @@ describe("WeeksService", () => {
       expect(weeks[0].title).toBe("Modularity & Codebase Understanding");
     });
 
-    it("locks weeks after current week with upcoming status and empty concept/assignment", async () => {
+    it("marks the week matching currentWeekNumber as active and isCurrent", async () => {
+      prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
+
+      const weeks = await service.listWeeksForCohort("cohort-01");
+      const week3 = weeks[2];
+
+      expect(week3.weekNumber).toBe(3);
+      expect(week3.status).toBe("active");
+      expect(week3.isCurrent).toBe(true);
+      expect(week3.isLocked).toBe(false);
+    });
+
+    it("marks weeks before currentWeekNumber as completed", async () => {
+      prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
+
+      const weeks = await service.listWeeksForCohort("cohort-01");
+
+      expect(weeks[0].status).toBe("completed");
+      expect(weeks[1].status).toBe("completed");
+      expect(weeks[2].status).toBe("active");
+    });
+
+    it("locks weeks after currentWeekNumber with upcoming status and empty concept/assignment", async () => {
       prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
 
       const weeks = await service.listWeeksForCohort("cohort-01");
       const week4 = weeks[3];
+
       expect(week4.weekNumber).toBe(4);
       expect(week4.status).toBe("upcoming");
       expect(week4.isLocked).toBe(true);
@@ -108,10 +127,25 @@ describe("WeeksService", () => {
       expect(week4.coreConcepts).toEqual([]);
     });
 
+    it("reflects updated currentWeekNumber immediately", async () => {
+      prismaMock.cohort.findUnique.mockResolvedValue({
+        ...sampleCohort,
+        currentWeekNumber: 5,
+      });
+
+      const weeks = await service.listWeeksForCohort("cohort-01");
+
+      expect(weeks[0].cohort.currentWeekNumber).toBe(5);
+      const active = weeks.find((w) => w.isCurrent);
+      expect(active?.weekNumber).toBe(5);
+    });
+
     it("throws NotFoundError when cohort does not exist", async () => {
       prismaMock.cohort.findUnique.mockResolvedValue(null);
 
-      await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(NotFoundError);
+      await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(
+        NotFoundError,
+      );
     });
   });
 
@@ -133,7 +167,7 @@ describe("WeeksService", () => {
       expect(week.resources.required.length).toBeGreaterThan(0);
     });
 
-    it("returns locked week with empty outcomes, concepts, and resources for week after current week", async () => {
+    it("returns locked week for week after currentWeekNumber", async () => {
       prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
 
       const week = await service.getWeekForCohort("cohort-01", 4, "en");
@@ -145,18 +179,28 @@ describe("WeeksService", () => {
       expect(week.coreConcepts).toEqual([]);
       expect(week.appliedThroughTheStack).toEqual([]);
       expect(week.assignment).toBeNull();
-      expect(week.resources).toEqual({ required: [], assignment: [], alternative: [] });
+      expect(week.resources).toEqual({
+        required: [],
+        assignment: [],
+        alternative: [],
+      });
     });
 
     it("throws NotFoundError for week number out of 1-8 bounds", async () => {
-      await expect(service.getWeekForCohort("cohort-01", 0)).rejects.toThrow(NotFoundError);
-      await expect(service.getWeekForCohort("cohort-01", 9)).rejects.toThrow(NotFoundError);
+      await expect(service.getWeekForCohort("cohort-01", 0)).rejects.toThrow(
+        NotFoundError,
+      );
+      await expect(service.getWeekForCohort("cohort-01", 9)).rejects.toThrow(
+        NotFoundError,
+      );
     });
 
     it("throws NotFoundError when cohort does not exist", async () => {
       prismaMock.cohort.findUnique.mockResolvedValue(null);
 
-      await expect(service.getWeekForCohort("non-existent", 1)).rejects.toThrow(NotFoundError);
+      await expect(service.getWeekForCohort("non-existent", 1)).rejects.toThrow(
+        NotFoundError,
+      );
     });
   });
 

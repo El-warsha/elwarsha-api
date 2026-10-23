@@ -45,6 +45,7 @@ export class CatalogRepository {
         name: record.cohort.name,
         startsOn: record.cohort.startsOn.toISOString().slice(0, 10),
         endsOn: record.cohort.endsOn.toISOString().slice(0, 10),
+        currentWeekNumber: record.cohort.currentWeekNumber,
       },
       product: {
         id: record.product.id,

@@ -37,6 +37,7 @@ export type Cohort = {
   id: string;
   slug: string;
   name: string;
+  currentWeekNumber: number;
   startsOn: string;
   endsOn: string;
 };

@@ -29,6 +29,7 @@ async function main(): Promise<void> {
       slug: "cohort-01",
       name: "Cohort 01",
       nameAr: "الدفعة الأولى",
+      currentWeekNumber: 3,
       startsOn: new Date("2026-10-01"),
       endsOn: new Date("2026-11-26"),
     },
