@@ -5,7 +5,7 @@ of truth for identity sessions, authorization, catalog reads, GitHub webhook
 ingestion, and PostgreSQL-backed jobs.
 
 The frontend lives in the sibling [`ElWarsha-web`](../ElWarsha-web) repository
-and pins `@elwarsha/api-client@0.1.0`.
+and pins `@elwarsha/api-client@0.2.0`.
 
 This repo is also the eight-week backend training product. AI coaches first,
 then pair-programs in small increments. See [`docs/LEARNING.md`](docs/LEARNING.md).
