@@ -151,14 +151,15 @@ model ProductRepository {
 }
 
 model Cohort {
-  id        String   @id @default(uuid()) @db.Uuid
-  slug      String   @unique
-  name      String
-  nameAr    String?
-  startsOn  DateTime @db.Date
-  endsOn    DateTime @db.Date
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String   @id @default(uuid()) @db.Uuid
+  slug              String   @unique
+  name              String
+  nameAr            String?
+  startsOn          DateTime @db.Date
+  endsOn            DateTime @db.Date
+  currentWeekNumber Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   engagements CohortProductEngagement[]
 }
@@ -186,8 +187,8 @@ model Membership {
   role         MembershipRole
   createdAt    DateTime       @default(now())
 
-  user       User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  engagement CohortProductEngagement  @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  engagement CohortProductEngagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
 
   @@unique([userId, engagementId])
 }
@@ -235,8 +236,8 @@ model Submission {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
-  assignment  Assignment        @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  author      User              @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+  assignment  Assignment         @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  author      User               @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
   pullRequest GithubPullRequest?
 
   @@unique([assignmentId, authorUserId])
@@ -281,28 +282,28 @@ model GithubCheckRun {
 }
 
 model GithubWebhookDelivery {
-  id               String                   @id @default(uuid()) @db.Uuid
-  deliveryId       String                   @unique
+  id               String                  @id @default(uuid()) @db.Uuid
+  deliveryId       String                  @unique
   eventType        String
-  processingStatus WebhookProcessingStatus  @default(received)
+  processingStatus WebhookProcessingStatus @default(received)
   payload          Json
-  createdAt        DateTime                 @default(now())
+  createdAt        DateTime                @default(now())
 
   jobs Job[]
 }
 
 model Job {
-  id            String    @id @default(uuid()) @db.Uuid
-  type          JobType
-  status        JobStatus @default(pending)
-  payload       Json
-  attemptCount  Int       @default(0)
-  availableAt   DateTime  @default(now())
-  lockedAt      DateTime?
-  webhookId     String?   @db.Uuid
-  lastError     String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String    @id @default(uuid()) @db.Uuid
+  type         JobType
+  status       JobStatus @default(pending)
+  payload      Json
+  attemptCount Int       @default(0)
+  availableAt  DateTime  @default(now())
+  lockedAt     DateTime?
+  webhookId    String?   @db.Uuid
+  lastError    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   webhook GithubWebhookDelivery? @relation(fields: [webhookId], references: [id])
 }

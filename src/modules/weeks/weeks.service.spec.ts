@@ -20,6 +20,7 @@ describe("WeeksService", () => {
     id: "cohort-1",
     slug: "cohort-01",
     name: "Cohort 01",
+    currentWeekNumber: 3,
     startsOn: new Date("2026-10-01"),
     endsOn: new Date("2026-11-26"),
     engagements: [
@@ -119,6 +120,37 @@ describe("WeeksService", () => {
         NotFoundError,
       );
     });
+    it("exposes currentWeekNumber in cohortRef", async () => {
+  prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
+
+  const weeks = await service.listWeeksForCohort("cohort-01");
+
+  expect(weeks[0].cohort.currentWeekNumber).toBe(3);
+});
+
+it("unlocks weeks up to currentWeekNumber and marks the current one active", async () => {
+  prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
+
+  const weeks = await service.listWeeksForCohort("cohort-01");
+
+  expect(weeks[1]).toMatchObject({ weekNumber: 2, isLocked: false, isCurrent: false });
+  expect(weeks[2]).toMatchObject({
+    weekNumber: 3,
+    isLocked: false,
+    isCurrent: true,
+    status: "active",
+  });
+  expect(weeks[3]).toMatchObject({ weekNumber: 4, isLocked: true, status: "upcoming" });
+});
+
+it("locks everything after week 1 when currentWeekNumber is 1", async () => {
+  prismaMock.cohort.findUnique.mockResolvedValue({ ...sampleCohort, currentWeekNumber: 1 });
+
+  const weeks = await service.listWeeksForCohort("cohort-01");
+
+  expect(weeks[0]).toMatchObject({ isCurrent: true, isLocked: false });
+  expect(weeks.slice(1).every((w) => w.isLocked)).toBe(true);
+});
   });
 
   describe("getWeekForCohort", () => {
