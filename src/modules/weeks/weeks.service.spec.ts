@@ -20,6 +20,8 @@ describe("WeeksService", () => {
     id: "cohort-1",
     slug: "cohort-01",
     name: "Cohort 01",
+    nameAr: null,
+    currentWeekNumber: 1,
     startsOn: new Date("2026-10-01"),
     endsOn: new Date("2026-11-26"),
     engagements: [
@@ -32,7 +34,7 @@ describe("WeeksService", () => {
             title: "Navigate the codebase and open a focused PR",
             status: "published" as const,
             labels: [
-              { label: { name: "frontend" } },
+              { label: { name: "frontend" } }, 
               { label: { name: "backend" } },
             ],
           },
@@ -111,7 +113,7 @@ describe("WeeksService", () => {
     it("throws NotFoundError when cohort does not exist", async () => {
       prismaMock.cohort.findUnique.mockResolvedValue(null);
 
-      await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(NotFoundError);
+            await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(NotFoundError);
     });
   });
 
