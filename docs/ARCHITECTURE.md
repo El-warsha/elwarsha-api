@@ -48,8 +48,8 @@ Domain models live in `src/domain`. `@prisma/client` types stay in
 Current foundation shortcuts:
 
 - Catalog is controller → `CatalogRepository` (no application service).
-- Tasks is controller → `TasksService` → `TasksRepository`. `TasksModule`
-  exports `TasksService`. Assignment reads do not include labels.
+- Tasks reads assignments through `TasksRepository`, then composes labels through
+  the exported `LabelsService`. Label persistence stays in its infrastructure adapter.
 - Identity repositories and `GithubService` inject `PrismaService` from feature
   modules. New persistence should move behind infrastructure ports.
 - `JobService` is the durable queue; it is the only job writer.
@@ -61,6 +61,7 @@ Nest modules in `src/app.module.ts`:
 - `identity` — OIDC/fake adapter, sessions, capability resolution
 - `catalog` — read-only products and engagements
 - `tasks` — read-only assignments at `GET /api/v1/assignments`
+- `labels` — labels and assignment-label joins at `GET /api/v1/labels`
 - `github` — webhook verification, delivery persistence, job enqueue
 - `health` — `healthz` and `readyz`
 - `jobs` — PostgreSQL queue in `src/infrastructure/jobs`
@@ -72,6 +73,28 @@ the schema only. See [`MODULE_MAP.md`](MODULE_MAP.md).
 Cross-module rule: no internals. From identity, other modules may import only
 `AuthGuard` and `RequireCapability` from `src/modules/identity/auth.guard.ts`.
 `TasksModule` exports `TasksService`.
+`LabelsModule` exports `LabelsService`; feature modules use that public service,
+not the labels repository.
+
+## Week 1 assignment request flow
+
+The assignments page gets each assignment and its labels through the existing
+API client. `TasksService` coordinates the assignment repository and the public
+labels service, while the labels infrastructure adapter owns the join query.
+
+```mermaid
+flowchart LR
+  page["React: TasksPage"] --> hook["useTasks"]
+  hook --> client["core api: listAssignments"]
+  client -->|GET /api/v1/assignments| controller["TasksController"]
+  controller --> tasksService["TasksService"]
+  tasksService --> tasksRepository["TasksRepository"]
+  tasksRepository -->|Assignment rows| postgres[(PostgreSQL)]
+  tasksService --> labelsService["LabelsService"]
+  labelsService --> labelsPort["LabelsRepository port"]
+  labelsPort --> labelsAdapter["PrismaLabelsRepository"]
+  labelsAdapter -->|AssignmentLabel + Label rows| postgres
+```
 
 ## HTTP surface
 
@@ -84,6 +107,7 @@ Cross-module rule: no internals. From identity, other modules may import only
 | GET    | `/api/v1/products`        | `products.read`               |
 | GET    | `/api/v1/engagements`     | `cohorts.read`                |
 | GET    | `/api/v1/assignments`     | `assignments.read`            |
+| GET    | `/api/v1/labels`          | `assignments.read`            |
 | POST   | `/api/v1/github/webhooks` | Signature required            |
 | GET    | `/healthz`                | Liveness                      |
 | GET    | `/readyz`                 | Database ping                 |
