@@ -20,19 +20,21 @@ async function main(): Promise<void> {
     },
   });
 
-  const cohort = await prisma.cohort.upsert({
-    where: { slug: "cohort-01" },
-    update: {
-      nameAr: "الدفعة الأولى",
-    },
-    create: {
-      slug: "cohort-01",
-      name: "Cohort 01",
-      nameAr: "الدفعة الأولى",
-      startsOn: new Date("2026-10-01"),
-      endsOn: new Date("2026-11-26"),
-    },
-  });
+const cohort = await prisma.cohort.upsert({
+  where: { slug: "cohort-01" },
+  update: {
+    nameAr: "الدفعة الأولى",
+    currentWeekNumber: 3, 
+  },
+  create: {
+    slug: "cohort-01",
+    name: "Cohort 01",
+    nameAr: "الدفعة الأولى",
+    startsOn: new Date("2026-10-01"),
+    endsOn: new Date("2026-11-26"), 
+    currentWeekNumber: 3,          
+  },
+});
 
   const engagement = await prisma.cohortProductEngagement.upsert({
     where: {
