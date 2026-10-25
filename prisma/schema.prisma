@@ -154,6 +154,7 @@ model Cohort {
   id        String   @id @default(uuid()) @db.Uuid
   slug      String   @unique
   name      String
+  nameAr    String?
   startsOn  DateTime @db.Date
   endsOn    DateTime @db.Date
   createdAt DateTime @default(now())

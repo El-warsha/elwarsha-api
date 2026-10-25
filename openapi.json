@@ -1,0 +1,230 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "HealthController_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "get": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/callback": {
+      "get": {
+        "operationId": "AuthController_callback",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "CatalogController_listProducts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/api/v1/engagements": {
+      "get": {
+        "operationId": "CatalogController_listEngagements",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/api/v1/assignments": {
+      "get": {
+        "operationId": "TasksController_listAssignments",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "tasks"
+        ]
+      }
+    },
+    "/api/v1/labels": {
+      "get": {
+        "operationId": "LabelsController_listLabels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "labels"
+        ]
+      }
+    },
+    "/api/v1/cohorts/{slug}/applications": {
+      "post": {
+        "operationId": "ApplicationsController_apply",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "description": "The cohort slug (e.g. cohort-2)",
+            "schema": {
+              "example": "cohort-2"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Application successfully received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "app_7b2f1e9a"
+                    },
+                    "cohortSlug": {
+                      "type": "string",
+                      "example": "cohort-2"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "ahmed@example.com"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "received"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Application already submitted with this email or GitHub handle"
+          },
+          "422": {
+            "description": "Validation failed with structured invalidParams list"
+          }
+        },
+        "summary": "Submit an application to join a cohort",
+        "tags": [
+          "cohorts"
+        ]
+      }
+    },
+    "/api/v1/github/webhooks": {
+      "post": {
+        "operationId": "GithubController_accept",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "github"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "ElWarsha API",
+    "description": "",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {}
+  }
+}

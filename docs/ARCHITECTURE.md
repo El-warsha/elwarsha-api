@@ -104,3 +104,14 @@ the foundation, all four roles share the same capability list.
 
 Production auth callbacks use `API_ORIGIN`; browser redirects and CORS use
 `WEB_ORIGIN`.
+
+## Deployment and CD
+
+The production container co-locates the HTTP API and the worker process in a single
+process container (`node dist/worker.js & node dist/main.js`). Database persistence
+is powered by Neon serverless PostgreSQL.
+
+CD triggers on push to `main` (and `cd-setup`):
+1. Verifies code quality and unit/e2e test suites (`yarn validate:ci`).
+2. Deploys pending Prisma database migrations (`yarn prisma:deploy`).
+3. Notifies the container host via an authenticated Deploy Hook.

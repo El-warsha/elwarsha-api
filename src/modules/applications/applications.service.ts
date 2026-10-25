@@ -1,41 +1,70 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { ApplyCohortDto } from './dto/apply-cohort.dto.js';
+import { Injectable } from "@nestjs/common";
+import { ConflictError } from "../../common/errors.js";
+import { ApplyCohortDto } from "./dto/apply-cohort.dto.js";
 
-export interface ApplicationRecord extends ApplyCohortDto {
+export interface CohortApplicationRecord extends ApplyCohortDto {
   id: string;
   cohortSlug: string;
-  status: string;
+  status: "received" | "in_review" | "accepted";
   createdAt: string;
 }
 
 @Injectable()
 export class ApplicationsService {
-  private applications: ApplicationRecord[] = [];
+  private readonly applications: CohortApplicationRecord[] = [];
 
-  async apply(cohortSlug: string, dto: ApplyCohortDto): Promise<ApplicationRecord> {
-    // التحقق من وجود الطلب سابقاً بنفس الإيميل أو اسم GitHub
-    const duplicate = this.applications.find(
+  async apply(
+    cohortSlug: string,
+    dto: ApplyCohortDto,
+  ): Promise<{
+    id: string;
+    cohortSlug: string;
+    email: string;
+    status: string;
+    createdAt: string;
+  }> {
+    const normalizedEmail = dto.email.toLowerCase().trim();
+    const normalizedGithub = dto.githubHandle.toLowerCase().trim();
+
+    const existing = this.applications.find(
       (app) =>
         app.cohortSlug === cohortSlug &&
-        (app.email.toLowerCase() === dto.email.toLowerCase() ||
-          app.githubHandle.toLowerCase() === dto.githubHandle.toLowerCase()),
+        (app.email.toLowerCase().trim() === normalizedEmail ||
+          app.githubHandle.toLowerCase().trim() === normalizedGithub),
     );
 
-    if (duplicate) {
-      throw new ConflictException(
-        'An application with this email or GitHub handle already exists for Cohort 2',
+    if (existing) {
+      throw new ConflictError(
+        `An application with this email or GitHub handle already exists for ${cohortSlug}`,
       );
     }
 
-    const newApplication: ApplicationRecord = {
-      id: `app_${Date.now()}`,
-      cohortSlug,
+    const record: CohortApplicationRecord = {
       ...dto,
-      status: 'received',
+      id: `app_${crypto.randomUUID().slice(0, 8)}`,
+      cohortSlug,
+      email: normalizedEmail,
+      githubHandle: normalizedGithub,
+      status: "received",
       createdAt: new Date().toISOString(),
     };
 
-    this.applications.push(newApplication);
-    return newApplication;
+    this.applications.push(record);
+
+    return {
+      id: record.id,
+      cohortSlug: record.cohortSlug,
+      email: record.email,
+      status: record.status,
+      createdAt: record.createdAt,
+    };
+  }
+
+  async findByCohort(cohortSlug: string): Promise<CohortApplicationRecord[]> {
+    return this.applications.filter((app) => app.cohortSlug === cohortSlug);
+  }
+
+  reset(): void {
+    this.applications.length = 0;
   }
 }
