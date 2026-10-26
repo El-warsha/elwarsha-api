@@ -35,7 +35,7 @@ export class WeeksService {
     return latestCohort?.slug ?? "cohort-01";
   }
 
-async listWeeksForCohort(
+  async listWeeksForCohort(
     cohortSlug: string,
     locale: "ar" | "en" = "ar",
   ): Promise<Week[]> {
@@ -96,7 +96,7 @@ async listWeeksForCohort(
       return this.buildWeek(cweek, cohortRef, schedule, isLocked, dbAssignment);
     });
   }
-async getWeekForCohort(
+  async getWeekForCohort(
     cohortSlug: string,
     weekNumber: number,
     locale: "ar" | "en" = "ar",

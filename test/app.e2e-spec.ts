@@ -101,7 +101,7 @@ describe("Foundation API (e2e)", () => {
     const engagements = await agent.get("/api/v1/engagements").expect(200);
     expect(engagements.body).toHaveLength(1);
 
-// 1️⃣ استدعاء المهام والتأكد أنها ترجع مع الـ labels الخاصة بها
+    // 1️⃣ استدعاء المهام والتأكد أنها ترجع مع الـ labels الخاصة بها
     const assignments = await agent.get("/api/v1/assignments").expect(200);
     expect(assignments.body).toEqual(
       expect.arrayContaining([

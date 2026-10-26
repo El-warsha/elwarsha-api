@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { LabelsRepository } from './labels.repository.js';
+import { Injectable } from "@nestjs/common";
+import { LabelsRepository } from "./labels.repository.js";
 
 @Injectable()
 export class LabelsService {

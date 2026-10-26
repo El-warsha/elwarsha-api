@@ -11,12 +11,12 @@ export class TasksRepository {
     const records = await this.prisma.assignment.findMany({
       orderBy: [{ engagementId: "asc" }, { weekNumber: "asc" }],
       include: {
-      labels: {
-        include: {
-          label: true,
+        labels: {
+          include: {
+            label: true,
+          },
         },
       },
-    },
     });
 
     return records.map((record) => ({
