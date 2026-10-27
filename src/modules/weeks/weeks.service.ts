@@ -62,33 +62,10 @@ export class WeeksService {
       throw new NotFoundError(`Cohort "${cohortSlug}" not found`);
     }
 
-    const cohortRef: CohortRef = {
-      id: cohort.id,
-      slug: cohort.slug,
-      name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
-      nameAr: cohort.nameAr,
-      startsOn: formatDate(cohort.startsOn),
-      endsOn: formatDate(cohort.endsOn),
-    };
-
+    const cohortRef = this.createCohortRef(cohort, locale);
     const assignments = cohort.engagements.flatMap((e) => e.assignments);
     const curriculumWeeks = getAllCurriculumWeeks(locale);
-    const now = new Date();
-
-    // Determine current active week number based on date schedule
-    let currentWeekNumber: number | null = null;
-    for (const cWeek of curriculumWeeks) {
-      const schedule = this.computeSchedule(
-        cohort.startsOn,
-        cohort.endsOn,
-        cWeek.weekNumber,
-        now,
-      );
-      if (schedule.isCurrent) {
-        currentWeekNumber = cWeek.weekNumber;
-        break;
-      }
-    }
+    const currentWeekNumber = cohort.currentWeekNumber;
 
     return curriculumWeeks.map((cWeek) => {
       const weekNumber = cWeek.weekNumber;
@@ -96,14 +73,10 @@ export class WeeksService {
         cohort.startsOn,
         cohort.endsOn,
         weekNumber,
-        now,
+        currentWeekNumber,
       );
 
-      // All weeks after the current week are locked with upcoming status
-      const isLocked =
-        currentWeekNumber !== null
-          ? weekNumber > currentWeekNumber
-          : schedule.status === "upcoming";
+      const isLocked = currentWeekNumber < weekNumber;
 
       const dbAssignment = assignments.find((a) => a.weekNumber === weekNumber);
 
@@ -149,42 +122,17 @@ export class WeeksService {
       throw new NotFoundError(`Curriculum for week ${weekNumber} not found`);
     }
 
-    const cohortRef: CohortRef = {
-      id: cohort.id,
-      slug: cohort.slug,
-      name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
-      nameAr: cohort.nameAr,
-      startsOn: formatDate(cohort.startsOn),
-      endsOn: formatDate(cohort.endsOn),
-    };
-
-    const now = new Date();
-    const curriculumWeeks = getAllCurriculumWeeks(locale);
-    let currentWeekNumber: number | null = null;
-    for (const cWeek of curriculumWeeks) {
-      const schedule = this.computeSchedule(
-        cohort.startsOn,
-        cohort.endsOn,
-        cWeek.weekNumber,
-        now,
-      );
-      if (schedule.isCurrent) {
-        currentWeekNumber = cWeek.weekNumber;
-        break;
-      }
-    }
+    const cohortRef = this.createCohortRef(cohort, locale);
+    const currentWeekNumber = cohort.currentWeekNumber;
 
     const schedule = this.computeSchedule(
       cohort.startsOn,
       cohort.endsOn,
       weekNumber,
-      now,
+      currentWeekNumber,
     );
 
-    const isLocked =
-      currentWeekNumber !== null
-        ? weekNumber > currentWeekNumber
-        : schedule.status === "upcoming";
+    const isLocked = currentWeekNumber < weekNumber;
 
     const dbAssignment = cohort.engagements.flatMap((e) => e.assignments)[0] ?? null;
 
@@ -271,11 +219,35 @@ export class WeeksService {
     };
   }
 
+  private createCohortRef(
+    cohort: {
+      id: string;
+      slug: string;
+      name: string;
+      nameAr: string | null;
+      startsOn: Date;
+      endsOn: Date;
+      currentWeekNumber: number;
+    },
+    locale: "ar" | "en",
+  ): CohortRef {
+    return {
+      id: cohort.id,
+      slug: cohort.slug,
+      name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
+      nameAr: cohort.nameAr,
+      startsOn: formatDate(cohort.startsOn),
+      endsOn: formatDate(cohort.endsOn),
+      currentWeekNumber: cohort.currentWeekNumber,
+    };
+  }
+
+
   private computeSchedule(
     startsOn: Date,
     endsOn: Date,
     weekNumber: number,
-    now: Date,
+    currentWeekNumber: number,
   ): {
     startDate: string;
     endDate: string;
@@ -288,11 +260,10 @@ export class WeeksService {
     const startDateObj = new Date(startMs);
     const endDateObj = new Date(endMs);
 
-    const nowTime = now.getTime();
-    const isCurrent = nowTime >= startMs && nowTime <= endMs + 86_399_999;
+    const isCurrent = currentWeekNumber === weekNumber;
 
     let status: "completed" | "active" | "upcoming" | "draft" = "upcoming";
-    if (nowTime > endMs + 86_399_999) {
+    if (currentWeekNumber > weekNumber) {
       status = "completed";
     } else if (isCurrent) {
       status = "active";
