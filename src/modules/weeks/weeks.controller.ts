@@ -28,10 +28,11 @@ export class WeeksController {
   getWeek(
     @Param("cohortSlug") cohortSlug: string,
     @Param("weekNumber", ParseIntPipe) weekNumber: number,
+    @Req() req: Request & { actor: AuthenticatedActor },
     @Query("locale") locale?: string,
   ): Promise<Week> {
     const loc = locale === "en" ? "en" : "ar";
-    return this.weeks.getWeekForCohort(cohortSlug, weekNumber, loc);
+    return this.weeks.getWeekForCohort(cohortSlug, weekNumber, loc, req.actor);
   }
 
   @Get("weeks")

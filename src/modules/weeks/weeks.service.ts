@@ -93,7 +93,19 @@ export class WeeksService {
     cohortSlug: string,
     weekNumber: number,
     locale: "ar" | "en" = "ar",
+    actor?: AuthenticatedActor,
   ): Promise<Week> {
+
+    if (actor) {
+      const membership = await this.weeksRepository.findMembershipByCohortSlug(
+        actor.user.id,
+        cohortSlug,
+      );
+      if (!membership) {
+        throw new ForbiddenError();
+      }
+    }
+
     if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 8) {
       throw new NotFoundError(`Week ${weekNumber} not found. Must be between 1 and 8.`);
     }
