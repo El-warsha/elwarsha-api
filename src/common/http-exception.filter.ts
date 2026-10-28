@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 
-import { AppError, ConflictError } from "./errors.js";
+import { AppError, ConflictError, NotFoundError } from "./errors.js";
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {

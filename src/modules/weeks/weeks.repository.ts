@@ -63,4 +63,23 @@ export class WeeksRepository {
   });
 }
 
+async findMembershipByCohortSlug(
+  userId: string,
+  cohortSlug: string,
+) {
+  return this.prisma.membership.findFirst({
+    where: {
+      userId,
+      engagement: {
+        cohort: { slug: cohortSlug },
+      },
+    },
+    include: {
+      engagement: {
+        include: { cohort: true },
+      },
+    },
+  });
+}
+
 }

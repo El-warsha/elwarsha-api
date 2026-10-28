@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 
-import { NotFoundError } from "../../common/errors.js";
+import { ForbiddenError, NotFoundError } from "../../common/errors.js";
 import { WeeksRepository } from "./weeks.repository.js";
 import { getAllCurriculumWeeks, getCurriculumWeek, type CurriculumWeek } from "./weeks.curriculum.js";
 import type { CohortRef, Week, WeekAssignment } from "./weeks.types.js";
+import { AuthenticatedActor } from "../identity/identity.ports.js";
 
 function formatDate(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -28,7 +29,19 @@ export class WeeksService {
   async listWeeksForCohort(
     cohortSlug: string,
     locale: "ar" | "en" = "ar",
+    actor?: AuthenticatedActor,
   ): Promise<Week[]> {
+
+    if (actor) {
+      const membership = await this.weeksRepository.findMembershipByCohortSlug(
+        actor.user.id,
+        cohortSlug,
+      );
+      if (!membership) {
+        throw new ForbiddenError();
+      }
+    }
+
     const cohort = await this.weeksRepository.findBySlug(cohortSlug)
 
     if (!cohort) {
