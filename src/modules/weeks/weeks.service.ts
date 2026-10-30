@@ -2,7 +2,11 @@ import { Injectable } from "@nestjs/common";
 
 import { NotFoundError } from "../../common/errors.js";
 import { PrismaService } from "../../infrastructure/prisma/prisma.service.js";
-import { getAllCurriculumWeeks, getCurriculumWeek, type CurriculumWeek } from "./weeks.curriculum.js";
+import {
+  getAllCurriculumWeeks,
+  getCurriculumWeek,
+  type CurriculumWeek,
+} from "./weeks.curriculum.js";
 import type { CohortRef, Week, WeekAssignment } from "./weeks.types.js";
 
 function formatDate(date: Date): string {
@@ -241,7 +245,8 @@ export class WeeksService {
       detailsMd: cWeek.assignment.detailsMd,
     };
 
-    const effectiveStatus = dbAssignment?.status === "closed" ? "completed" : schedule.status;
+    const effectiveStatus =
+      dbAssignment?.status === "closed" ? "completed" : schedule.status;
 
     return {
       weekNumber: cWeek.weekNumber,

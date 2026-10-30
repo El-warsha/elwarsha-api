@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach } from "vitest";
 
 import { NotFoundError } from "../../common/errors.js";
 import type { PrismaService } from "../../infrastructure/prisma/prisma.service.js";
@@ -31,10 +32,7 @@ describe("WeeksService", () => {
             weekNumber: 1,
             title: "Navigate the codebase and open a focused PR",
             status: "published" as const,
-            labels: [
-              { label: { name: "frontend" } },
-              { label: { name: "backend" } },
-            ],
+            labels: [{ label: { name: "frontend" } }, { label: { name: "backend" } }],
           },
         ],
       },
@@ -42,6 +40,10 @@ describe("WeeksService", () => {
   };
 
   beforeEach(() => {
+    //NEW  I add      vi.useFakeTimers();  vi.setSystemTime(new Date("2026-10-01T00:00:00.000Z"));
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-01T00:00:00.000Z"));
+
     prismaMock = {
       cohort: {
         findUnique: vi.fn(),
@@ -53,6 +55,10 @@ describe("WeeksService", () => {
     };
 
     service = new WeeksService(prismaMock as unknown as PrismaService);
+  });
+  // add afterEach
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe("listWeeksForCohort", () => {
@@ -111,7 +117,9 @@ describe("WeeksService", () => {
     it("throws NotFoundError when cohort does not exist", async () => {
       prismaMock.cohort.findUnique.mockResolvedValue(null);
 
-      await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(NotFoundError);
+      await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(
+        NotFoundError,
+      );
     });
   });
 
@@ -149,14 +157,20 @@ describe("WeeksService", () => {
     });
 
     it("throws NotFoundError for week number out of 1-8 bounds", async () => {
-      await expect(service.getWeekForCohort("cohort-01", 0)).rejects.toThrow(NotFoundError);
-      await expect(service.getWeekForCohort("cohort-01", 9)).rejects.toThrow(NotFoundError);
+      await expect(service.getWeekForCohort("cohort-01", 0)).rejects.toThrow(
+        NotFoundError,
+      );
+      await expect(service.getWeekForCohort("cohort-01", 9)).rejects.toThrow(
+        NotFoundError,
+      );
     });
 
     it("throws NotFoundError when cohort does not exist", async () => {
       prismaMock.cohort.findUnique.mockResolvedValue(null);
 
-      await expect(service.getWeekForCohort("non-existent", 1)).rejects.toThrow(NotFoundError);
+      await expect(service.getWeekForCohort("non-existent", 1)).rejects.toThrow(
+        NotFoundError,
+      );
     });
   });
 
