@@ -91,6 +91,7 @@ describe("Foundation API (e2e)", () => {
     expect(me.body.user.email).toBe("participant@elwarsha.dev");
     expect(me.body.roles).toEqual(["participant"]);
     expect(me.body.capabilities).toContain("portal.view");
+    expect(me.body.capabilities).toContain("weeks.read");
     expect(me.body.memberships).toHaveLength(1);
 
     const products = await agent.get("/api/v1/products").expect(200);
@@ -138,7 +139,9 @@ describe("Foundation API (e2e)", () => {
 
     await agent.get("/api/v1/auth/me").expect(401);
     await agent.get("/api/v1/products").expect(401);
-    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
+
+    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(401);
+    await agent.get("/api/v1/weeks").expect(401);
   });
 
   it("preserves requested locale when logging in from English portal", async () => {
@@ -307,5 +310,100 @@ describe("Foundation API (e2e)", () => {
 
   afterEach(async () => {
     await app.close();
+  });
+});
+
+describe("Week authorization (e2e)", () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
+  const enrolledCohort = "cohort-01";
+  const unenrolledCohort = "cohort-02";
+
+  beforeEach(async () => {
+    const moduleFixture = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication({ rawBody: true });
+    app.use(cookieParser());
+    app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalPipes(createValidationPipe());
+    await app.init();
+
+    prisma = app.get(PrismaService);
+
+    await prisma.cohort.upsert({
+      where: { slug: enrolledCohort },
+      update: {},
+      create: {
+        slug: enrolledCohort,
+        name: "Cohort 01",
+        startsOn: new Date("2026-10-01"),
+        endsOn: new Date("2026-11-26"),
+        currentWeekNumber: 3,
+      },
+    });
+    await prisma.cohort.upsert({
+      where: { slug: unenrolledCohort },
+      update: {},
+      create: {
+        slug: unenrolledCohort,
+        name: "Cohort 02",
+        startsOn: new Date("2026-12-01"),
+        endsOn: new Date("2027-01-26"),
+        currentWeekNumber: 1,
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await app.close();
+  });
+
+  it("returns 401 for weeks without a session", async () => {
+    await request(app.getHttpServer())
+      .get(`/api/v1/cohorts/${enrolledCohort}/weeks`)
+      .expect(401);
+
+    await request(app.getHttpServer())
+      .get(`/api/v1/cohorts/${enrolledCohort}/weeks/1`)
+      .expect(401);
+
+    await request(app.getHttpServer()).get("/api/v1/weeks").expect(401);
+  });
+
+  it("returns 403 when the user is authenticated but not enrolled in the cohort", async () => {
+    const agent = request.agent(app.getHttpServer());
+
+    const login = await agent.get("/api/v1/auth/login").redirects(0).expect(302);
+    const callbackUrl = new URL(login.headers.location as string);
+    await agent
+      .get(`${callbackUrl.pathname}${callbackUrl.search}`)
+      .redirects(0)
+      .expect(302);
+
+    await agent.get("/api/v1/auth/me").expect(200);
+
+    await agent.get(`/api/v1/cohorts/${unenrolledCohort}/weeks`).expect(403);
+    await agent.get(`/api/v1/cohorts/${unenrolledCohort}/weeks/1`).expect(403);
+  });
+
+  it("returns 200 for an enrolled member", async () => {
+    const agent = request.agent(app.getHttpServer());
+
+    const login = await agent.get("/api/v1/auth/login").redirects(0).expect(302);
+    const callbackUrl = new URL(login.headers.location as string);
+    await agent
+      .get(`${callbackUrl.pathname}${callbackUrl.search}`)
+      .redirects(0)
+      .expect(302);
+
+    const res = await agent.get(`/api/v1/cohorts/${enrolledCohort}/weeks`).expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body[0].cohort.currentWeekNumber).toBeDefined();
+
+    await agent.get("/api/v1/weeks").expect(200);
   });
 });

@@ -1,15 +1,20 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from "@nestjs/common";
+import { Controller, Get, Param, ParseIntPipe, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
+import { AuthGuard, RequireCapability } from "../identity/auth.guard.js";
+import { CohortMembershipGuard } from "../identity/cohort-membership.guard.js";
 import { WeeksService } from "./weeks.service.js";
 import type { Week } from "./weeks.types.js";
 
 @ApiTags("weeks")
 @Controller("api/v1")
+@UseGuards(AuthGuard)
+@RequireCapability("weeks.read")
 export class WeeksController {
   constructor(private readonly weeks: WeeksService) {}
 
   @Get("cohorts/:cohortSlug/weeks")
+  @UseGuards(CohortMembershipGuard)
   listWeeks(
     @Param("cohortSlug") cohortSlug: string,
     @Query("locale") locale?: string,
@@ -19,6 +24,7 @@ export class WeeksController {
   }
 
   @Get("cohorts/:cohortSlug/weeks/:weekNumber")
+  @UseGuards(CohortMembershipGuard)
   getWeek(
     @Param("cohortSlug") cohortSlug: string,
     @Param("weekNumber", ParseIntPipe) weekNumber: number,
