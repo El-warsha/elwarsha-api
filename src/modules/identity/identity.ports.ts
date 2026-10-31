@@ -36,4 +36,16 @@ export interface SessionRepository {
 
 export interface MembershipRepository {
   listByUser(userId: string): Promise<Membership[]>;
+    listCohortsByUser(userId: string): Promise<{
+    id: string;
+    name: string;
+    slug: string;
+   role: MembershipRole;
+
+  }[]>;
+
+  findRolesByUserAndCohort(
+  userId: string,
+  cohortSlug: string,
+): Promise<MembershipRole[]>;
 }

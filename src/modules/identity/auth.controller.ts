@@ -50,8 +50,8 @@ export class AuthController {
 
   @Get("callback")
   async callback(
-    @Query("code") code: string | undefined,
-    @Query("state") state: string | undefined,
+    @Query("code") code: string | undefined,     //Authorization code
+    @Query("state") state: string | undefined,  //state 
     @Req() request: Request,
     @Res() response: Response,
   ): Promise<void> {

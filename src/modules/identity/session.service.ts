@@ -14,6 +14,7 @@ import type { MembershipRepository } from "./identity.ports.js";
 
 @Injectable()
 export class SessionService {
+
   constructor(
     @Inject(APP_ENV) private readonly env: AppEnv,
     @Inject("UserRepository") private readonly users: UserRepository,
