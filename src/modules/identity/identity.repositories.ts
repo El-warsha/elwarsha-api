@@ -9,7 +9,7 @@ import type {
   SessionRepository,
   UserRepository,
 } from "./identity.ports.js";
-
+// Convert a database record to a User object
 function toUser(record: {
   id: string;
   displayName: string;
@@ -27,7 +27,7 @@ function toUser(record: {
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
-
+// Find a user by their email address
   async findByEmail(email: string): Promise<User | null> {
     const record = await this.prisma.user.findUnique({ where: { email } });
     return record ? toUser(record) : null;
@@ -37,7 +37,7 @@ export class PrismaUserRepository implements UserRepository {
     const record = await this.prisma.user.findUnique({ where: { id } });
     return record ? toUser(record) : null;
   }
-
+ // Find or create a user from an external identity
   async upsertFromIdentity(profile: IdentityProfile): Promise<User> {
     const existingIdentity = await this.prisma.externalIdentity.findUnique({
       where: {
@@ -75,7 +75,7 @@ export class PrismaUserRepository implements UserRepository {
       });
       return toUser(existingUser);
     }
-
+  // Create a new session
     const created = await this.prisma.user.create({
       data: {
         displayName: profile.displayName,
@@ -103,7 +103,7 @@ export class PrismaSessionRepository implements SessionRepository {
       data: { userId, tokenHash, expiresAt },
     });
   }
-
+// Find a valid, active session
   async findActiveByTokenHash(tokenHash: string): Promise<Session | null> {
     const session = await this.prisma.session.findUnique({ where: { tokenHash } });
     if (!session || session.revokedAt || session.expiresAt <= new Date()) {
@@ -111,7 +111,7 @@ export class PrismaSessionRepository implements SessionRepository {
     }
     return session;
   }
-
+ //cancel a session by marking it as revoked
   async revoke(id: string): Promise<void> {
     await this.prisma.session.update({
       where: { id },
@@ -123,7 +123,7 @@ export class PrismaSessionRepository implements SessionRepository {
 @Injectable()
 export class PrismaMembershipRepository implements MembershipRepository {
   constructor(private readonly prisma: PrismaService) {}
-
+// // List a user's memberships
   async listByUser(userId: string): Promise<Membership[]> {
     const records = await this.prisma.membership.findMany({ where: { userId } });
     return records.map((record) => ({

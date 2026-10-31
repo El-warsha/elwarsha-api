@@ -107,6 +107,7 @@ describe("Foundation API (e2e)", () => {
     );
 
     const weeks = await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
+    await agent.get("/api/v1/cohorts/cohort-non-member/weeks").expect(403);
     expect(weeks.body).toHaveLength(8);
     expect(weeks.body[0]).toMatchObject({
       weekNumber: 1,
@@ -138,7 +139,7 @@ describe("Foundation API (e2e)", () => {
 
     await agent.get("/api/v1/auth/me").expect(401);
     await agent.get("/api/v1/products").expect(401);
-    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
+    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(401);
   });
 
   it("preserves requested locale when logging in from English portal", async () => {

@@ -49,11 +49,12 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "weeks.read",
   ],
 };
-
+// flat map --> Go through each role and identify what its permissions are
+// set --> remove duplicate
 export function capabilitiesForRoles(roles: MembershipRole[]): Capability[] {
   return [...new Set(roles.flatMap((role) => roleCapabilities[role]))];
 }
-
+// to ensure user has a specific required permission.
 export function hasCapability(capabilities: Capability[], required: Capability): boolean {
   return capabilities.includes(required);
 }

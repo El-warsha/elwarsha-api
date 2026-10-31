@@ -120,9 +120,13 @@ export class AuthController {
 
   private cookieOptions(path: string): CookieOptions {
     return {
-      httpOnly: true,
+      httpOnly: true, // prevent client-side scripts from accessing the cookie(xss)
+      // https only in Production 
+      // http in development
       secure: this.env.NODE_ENV === "production",
+      // reduce the risk of cross-site request forgery (CSRF) 
       sameSite: "lax",
+      //path: "/api/v1"
       path,
     };
   }

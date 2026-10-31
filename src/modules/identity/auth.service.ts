@@ -14,7 +14,7 @@ export class AuthService {
     @Inject("UserRepository") private readonly users: UserRepository,
     private readonly sessions: SessionService,
   ) {}
-
+  // generates the login URL  to start login
   loginUrl(state: string, redirectUri: string): URL {
     return this.identity.authorizationUrl(state, redirectUri);
   }
@@ -23,12 +23,16 @@ export class AuthService {
     code: string,
     redirectUri: string,
   ): Promise<{ token: string; user: User }> {
+    // get the user profile from the identity provider using the authorization code and redirect URI
     const profile = await this.identity.exchangeCode(code, redirectUri);
+    // add user to the database if not exists, or update the user if exists
     const user = await this.users.upsertFromIdentity(profile);
+    // issue a session token for the user
     const token = await this.sessions.issue(user.id);
+    // return the session token and user information
     return { token, user };
   }
-
+  //url to portal after login, if login failed, add query param to indicate failure
   callbackRedirect(tokenIssued: boolean, locale: "ar" | "en" = "ar"): string {
     const url = new URL(`/${locale}/portal/`, this.env.WEB_ORIGIN);
     if (!tokenIssued) {

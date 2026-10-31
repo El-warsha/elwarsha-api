@@ -29,7 +29,10 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(createValidationPipe());
   app.enableCors({
-    origin: [env.WEB_ORIGIN, "http://localhost:5173", "http://127.0.0.1:5173"],
+    origin:
+      env.NODE_ENV === "production"
+        ? env.WEB_ORIGIN
+        : [env.WEB_ORIGIN, "http://localhost:5173", "http://127.0.0.1:5173"],
     credentials: true,
   });
   app.use((request: Request, _response: unknown, next: () => void) => {
