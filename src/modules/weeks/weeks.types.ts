@@ -3,6 +3,7 @@ export type CohortRef = {
   slug: string;
   name: string;
   nameAr?: string | null;
+  currentWeekNumber: number; // ← NEW
   startsOn: string;
   endsOn: string;
 };
