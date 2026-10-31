@@ -2,9 +2,10 @@ export type CohortRef = {
   id: string;
   slug: string;
   name: string;
-  nameAr?: string | null;
+  nameAr: string | null;
   startsOn: string;
   endsOn: string;
+  currentWeekNumber: number;
 };
 
 export type WeekResourceItem = {

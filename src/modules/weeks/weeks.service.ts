@@ -69,29 +69,16 @@ export class WeeksService {
       nameAr: cohort.nameAr,
       startsOn: formatDate(cohort.startsOn),
       endsOn: formatDate(cohort.endsOn),
+      currentWeekNumber: cohort.currentWeekNumber,
     };
 
     const assignments = cohort.engagements.flatMap((e) => e.assignments);
     const curriculumWeeks = getAllCurriculumWeeks(locale);
     const now = new Date();
+    const currentWeekNumber = cohort.currentWeekNumber;
 
-    // Determine current active week number based on date schedule
-    let currentWeekNumber: number | null = null;
-    for (const cWeek of curriculumWeeks) {
-      const schedule = this.computeSchedule(
-        cohort.startsOn,
-        cohort.endsOn,
-        cWeek.weekNumber,
-        now,
-      );
-      if (schedule.isCurrent) {
-        currentWeekNumber = cWeek.weekNumber;
-        break;
-      }
-    }
-
-    return curriculumWeeks.map((cWeek) => {
-      const weekNumber = cWeek.weekNumber;
+    return curriculumWeeks.map((cweek) => {
+      const weekNumber = cweek.weekNumber;
       const schedule = this.computeSchedule(
         cohort.startsOn,
         cohort.endsOn,
@@ -99,18 +86,16 @@ export class WeeksService {
         now,
       );
 
-      // All weeks after the current week are locked with upcoming status
       const isLocked =
-        currentWeekNumber !== null
+        currentWeekNumber != null
           ? weekNumber > currentWeekNumber
           : schedule.status === "upcoming";
 
-      const dbAssignment = assignments.find((a) => a.weekNumber === weekNumber);
+      const dbAssignment = assignments.find((a) => a.weekNumber === weekNumber) ?? null;
 
-      return this.buildWeek(cWeek, cohortRef, schedule, isLocked, dbAssignment);
+      return this.buildWeek(cweek, cohortRef, schedule, isLocked, dbAssignment);
     });
   }
-
   async getWeekForCohort(
     cohortSlug: string,
     weekNumber: number,
@@ -156,23 +141,11 @@ export class WeeksService {
       nameAr: cohort.nameAr,
       startsOn: formatDate(cohort.startsOn),
       endsOn: formatDate(cohort.endsOn),
+      currentWeekNumber: cohort.currentWeekNumber, // <--- ستعمل بدون أخطاء بعد تحديث الـ types
     };
 
     const now = new Date();
-    const curriculumWeeks = getAllCurriculumWeeks(locale);
-    let currentWeekNumber: number | null = null;
-    for (const cWeek of curriculumWeeks) {
-      const schedule = this.computeSchedule(
-        cohort.startsOn,
-        cohort.endsOn,
-        cWeek.weekNumber,
-        now,
-      );
-      if (schedule.isCurrent) {
-        currentWeekNumber = cWeek.weekNumber;
-        break;
-      }
-    }
+    const currentWeekNumber = cohort.currentWeekNumber; // <--- جلب القيمة مباشرة من الـ database
 
     const schedule = this.computeSchedule(
       cohort.startsOn,
@@ -182,7 +155,7 @@ export class WeeksService {
     );
 
     const isLocked =
-      currentWeekNumber !== null
+      currentWeekNumber != null
         ? weekNumber > currentWeekNumber
         : schedule.status === "upcoming";
 
