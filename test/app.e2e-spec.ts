@@ -1,3 +1,4 @@
+
 import { INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import cookieParser from "cookie-parser";
@@ -29,6 +30,7 @@ describe("Foundation API (e2e)", () => {
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalPipes(createValidationPipe());
     await app.init();
+
     const prisma = app.get(PrismaService);
     await prisma.job.deleteMany();
     await prisma.githubWebhookDelivery.deleteMany();
@@ -60,13 +62,18 @@ describe("Foundation API (e2e)", () => {
 
   it("rejects an auth callback with mismatched state", async () => {
     const agent = request.agent(app.getHttpServer());
+
     await agent.get("/api/v1/auth/login").redirects(0).expect(302);
 
     await agent
       .get("/api/v1/auth/callback?code=fake-code&state=wrong")
       .redirects(0)
       .expect(302)
-      .expect("Location", "http://localhost:5173/ar/portal/?auth=failed");
+      .expect(
+        "Location",
+        "http://localhost:5173/ar/portal/?auth=failed",
+      );
+
     await agent.get("/api/v1/auth/me").expect(401);
   });
 
@@ -77,10 +84,14 @@ describe("Foundation API (e2e)", () => {
       .get("/api/v1/auth/login")
       .redirects(0)
       .expect(302)
-      .expect("Location", /\/api\/v1\/auth\/callback\?code=fake-code/);
+      .expect(
+        "Location",
+        /\/api\/v1\/auth\/callback\?code=fake-code/,
+      );
 
     const callbackLocation = login.headers.location as string;
     const callbackUrl = new URL(callbackLocation);
+
     await agent
       .get(`${callbackUrl.pathname}${callbackUrl.search}`)
       .redirects(0)
@@ -88,26 +99,37 @@ describe("Foundation API (e2e)", () => {
       .expect("Location", "http://localhost:5173/ar/portal/");
 
     const me = await agent.get("/api/v1/auth/me").expect(200);
+
     expect(me.body.user.email).toBe("participant@elwarsha.dev");
     expect(me.body.roles).toEqual(["participant"]);
     expect(me.body.capabilities).toContain("portal.view");
     expect(me.body.memberships).toHaveLength(1);
 
     const products = await agent.get("/api/v1/products").expect(200);
+
     expect(products.body).toEqual(
-      expect.arrayContaining([expect.objectContaining({ slug: "elwarsha-web" })]),
+      expect.arrayContaining([
+        expect.objectContaining({ slug: "elwarsha-web" }),
+      ]),
     );
 
     const engagements = await agent.get("/api/v1/engagements").expect(200);
     expect(engagements.body).toHaveLength(1);
 
     const assignments = await agent.get("/api/v1/assignments").expect(200);
+
     expect(assignments.body).toEqual(
-      expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
+      expect.arrayContaining([
+        expect.objectContaining({ weekNumber: 1 }),
+      ]),
     );
 
-    const weeks = await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
+    const weeks = await agent
+      .get("/api/v1/cohorts/cohort-01/weeks")
+      .expect(200);
+
     expect(weeks.body).toHaveLength(8);
+
     expect(weeks.body[0]).toMatchObject({
       weekNumber: 1,
       cohort: expect.objectContaining({ slug: "cohort-01" }),
@@ -123,6 +145,7 @@ describe("Foundation API (e2e)", () => {
     const weekOne = await agent
       .get("/api/v1/cohorts/cohort-01/weeks/1?locale=en")
       .expect(200);
+
     expect(weekOne.body).toMatchObject({
       weekNumber: 1,
       concept: "Architecture and modularity",
@@ -134,11 +157,13 @@ describe("Foundation API (e2e)", () => {
 
     await agent.get("/api/v1/cohorts/cohort-01/weeks/99").expect(404);
 
-    await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
+    await agent.post("/api/v1/auth/logout").expect(200);
 
     await agent.get("/api/v1/auth/me").expect(401);
     await agent.get("/api/v1/products").expect(401);
-    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
+
+    // The session is revoked, so protected weeks endpoints must return 401.
+    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(401);
   });
 
   it("preserves requested locale when logging in from English portal", async () => {
@@ -148,10 +173,14 @@ describe("Foundation API (e2e)", () => {
       .get("/api/v1/auth/login?locale=en")
       .redirects(0)
       .expect(302)
-      .expect("Location", /\/api\/v1\/auth\/callback\?code=fake-code/);
+      .expect(
+        "Location",
+        /\/api\/v1\/auth\/callback\?code=fake-code/,
+      );
 
     const callbackLocation = login.headers.location as string;
     const callbackUrl = new URL(callbackLocation);
+
     await agent
       .get(`${callbackUrl.pathname}${callbackUrl.search}`)
       .redirects(0)
@@ -160,6 +189,16 @@ describe("Foundation API (e2e)", () => {
 
     const me = await agent.get("/api/v1/auth/me").expect(200);
     expect(me.body.user.email).toBe("participant@elwarsha.dev");
+  });
+
+  it("rejects protected weeks endpoints without an active session", async () => {
+    await request(app.getHttpServer())
+      .get("/api/v1/cohorts/cohort-01/weeks")
+      .expect(401);
+
+    await request(app.getHttpServer())
+      .get("/api/v1/cohorts/cohort-01/weeks/1")
+      .expect(401);
   });
 
   it("rejects an unsigned GitHub webhook", () => {
@@ -176,10 +215,12 @@ describe("Foundation API (e2e)", () => {
 
   it("accepts a signed GitHub webhook once", async () => {
     const body = '{"action":"opened"}';
+
     const signature = `sha256=${hmacSha256(
       process.env.GITHUB_WEBHOOK_SECRET ?? "replace-webhook-secret",
       body,
     )}`;
+
     const deliveryId = `delivery-${Date.now()}`;
 
     await request(app.getHttpServer())
@@ -206,24 +247,29 @@ describe("Foundation API (e2e)", () => {
       where: { deliveryId },
       include: { jobs: true },
     });
+
     expect(delivery?.jobs).toHaveLength(1);
   });
 
   it("claims a job once and reclaims an abandoned lease", async () => {
     const jobs = app.get(JobService);
     const prisma = app.get(PrismaService);
+
     const enqueued = await jobs.enqueue("reconcile_pull_requests", {
       requestedAt: new Date().toISOString(),
     });
 
     const claims = await Promise.all([jobs.claimNext(), jobs.claimNext()]);
+
     expect(claims.filter((claim) => claim?.id === enqueued.id)).toHaveLength(1);
 
     await prisma.job.update({
       where: { id: enqueued.id },
       data: { lockedAt: new Date(Date.now() - 6 * 60 * 1000) },
     });
+
     const reclaimed = await jobs.claimNext();
+
     expect(reclaimed?.id).toBe(enqueued.id);
     expect(reclaimed?.attemptCount).toBe(2);
   });
@@ -257,6 +303,7 @@ describe("Foundation API (e2e)", () => {
       email: "sara@example.com",
       status: "received",
     });
+
     expect(response.body.id).toMatch(/^app_/);
   });
 
@@ -271,11 +318,15 @@ describe("Foundation API (e2e)", () => {
       })
       .expect(422);
 
-    expect(response.headers["content-type"]).toContain("application/problem+json");
+    expect(response.headers["content-type"]).toContain(
+      "application/problem+json",
+    );
+
     expect(response.body).toMatchObject({
       status: 422,
       title: "Validation Failed",
     });
+
     expect(response.body.invalidParams).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "email" }),
@@ -299,6 +350,7 @@ describe("Foundation API (e2e)", () => {
     expect(duplicateResponse.headers["content-type"]).toContain(
       "application/problem+json",
     );
+
     expect(duplicateResponse.body).toMatchObject({
       type: "https://elwarsha.dev/errors/duplicate-application",
       status: 409,

@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Inject,
   Post,
   Query,
@@ -18,7 +20,7 @@ import type { AuthenticatedActor } from "./identity.ports.js";
 import { AuthGuard } from "./auth.guard.js";
 import { AuthService } from "./auth.service.js";
 import { SessionService } from "./session.service.js";
-
+// مدة صلاحية oauth state cookie 
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
 
 @ApiTags("auth")
@@ -34,6 +36,7 @@ export class AuthController {
   login(@Query("locale") locale: string | undefined, @Res() response: Response): void {
     const state = randomToken();
     const redirectUri = this.callbackUrl(response);
+    //نباصي ليها name, value , options
     response.cookie(this.oauthStateCookieName(), state, {
       ...this.cookieOptions("/api/v1/auth/callback"),
       maxAge: OAUTH_STATE_TTL_MS,
@@ -105,6 +108,7 @@ export class AuthController {
 
   @Post("logout")
   @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
   async logout(
     @Req() request: Request & { actor: AuthenticatedActor },
     @Res({ passthrough: true }) response: Response,

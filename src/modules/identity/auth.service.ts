@@ -10,6 +10,7 @@ import { SessionService } from "./session.service.js";
 export class AuthService {
   constructor(
     @Inject(APP_ENV) private readonly env: AppEnv,
+    // عشان نقدر نتواصل مع /* auth0
     @Inject("IdentityProvider") private readonly identity: IdentityProvider,
     @Inject("UserRepository") private readonly users: UserRepository,
     private readonly sessions: SessionService,
@@ -23,8 +24,11 @@ export class AuthService {
     code: string,
     redirectUri: string,
   ): Promise<{ token: string; user: User }> {
+    // تحقق من اليوزر
     const profile = await this.identity.exchangeCode(code, redirectUri);
+    // add user
     const user = await this.users.upsertFromIdentity(profile);
+    //create session
     const token = await this.sessions.issue(user.id);
     return { token, user };
   }
