@@ -7,12 +7,14 @@ import type {
   SessionRepository,
 } from "../identity/identity.ports.js";
 import { sha256 } from "../../common/crypto.js";
+import { PrismaSessionRepository } from "../identity/identity.repositories.js";
 
 @Injectable()
 export class CohortMembershipGuard implements CanActivate {
   constructor(
     @Inject(APP_ENV) private readonly env: AppEnv,
-    @Inject("SessionRepository") private readonly session: SessionRepository,
+   
+    @Inject('SessionRepository') private readonly session: SessionRepository,
     @Inject("MembershipRepository") private readonly membership: MembershipRepository,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {

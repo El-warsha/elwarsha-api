@@ -4,7 +4,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { WeeksService } from "./weeks.service.js";
 import type { Week } from "./weeks.types.js";
 import { AuthGuard, RequireCapability } from "../identity/auth.guard.js";
-import { CohortMembershipGuard } from "./cohortMembership.guard.js";
+import { CohortMembershipGuard } from "../identity/cohortMembership.guard.js";
 
 @ApiTags("weeks")
 @UseGuards(AuthGuard)

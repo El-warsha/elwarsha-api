@@ -13,7 +13,7 @@ import {
   PrismaUserRepository,
 } from "./identity.repositories.js";
 import { SessionService } from "./session.service.js";
-import { CohortMembershipGuard } from "../weeks/cohortMembership.guard.js";
+import { CohortMembershipGuard } from "./cohortMembership.guard.js";
 
 @Module({
   controllers: [AuthController],
@@ -46,6 +46,13 @@ import { CohortMembershipGuard } from "../weeks/cohortMembership.guard.js";
       inject: [APP_ENV],
     },
   ],
-  exports: [SessionService, AuthGuard,CohortMembershipGuard],
+  exports: [
+    SessionService,
+    AuthGuard,
+    CohortMembershipGuard,
+    "SessionRepository",
+    "MembershipRepository",
+    "IdentityProvider",
+  ],
 })
 export class IdentityModule {}

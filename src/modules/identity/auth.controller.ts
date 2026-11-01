@@ -94,6 +94,7 @@ export class AuthController {
 
   @Get("me")
   @UseGuards(AuthGuard)
+
   me(@Req() request: Request & { actor: AuthenticatedActor }) {
     return {
       user: request.actor.user,
