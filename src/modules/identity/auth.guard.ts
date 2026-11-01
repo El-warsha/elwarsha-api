@@ -17,7 +17,7 @@ export const RequireCapability = (capability: Capability) =>
 export class AuthGuard implements CanActivate {
   constructor(
     @Inject(APP_ENV) private readonly env: AppEnv,
-    private readonly sessions: SessionService,
+   private readonly sessions: SessionService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

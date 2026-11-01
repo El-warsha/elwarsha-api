@@ -50,8 +50,8 @@ export class AuthController {
 
   @Get("callback")
   async callback(
-    @Query("code") code: string | undefined,
-    @Query("state") state: string | undefined,
+    @Query("code") code: string | undefined,     //Authorization code
+    @Query("state") state: string | undefined,  //state 
     @Req() request: Request,
     @Res() response: Response,
   ): Promise<void> {
@@ -94,6 +94,7 @@ export class AuthController {
 
   @Get("me")
   @UseGuards(AuthGuard)
+
   me(@Req() request: Request & { actor: AuthenticatedActor }) {
     return {
       user: request.actor.user,

@@ -133,4 +133,69 @@ export class PrismaMembershipRepository implements MembershipRepository {
       role: record.role as MembershipRole,
     }));
   }
+
+  async listCohortsByUser(
+  userId: string,
+): Promise<
+  {
+    id: string;
+    name: string;
+    slug: string;
+    role: MembershipRole;
+  }[]
+> {
+  const records = await this.prisma.membership.findMany({
+    where: { userId },
+    select: {
+      role: true,
+      engagement: {
+        select: {
+          cohort: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return [
+    ...new Map(
+      records.map((record) => [
+        record.engagement.cohort.id,
+        {
+          ...record.engagement.cohort,
+          role: record.role as MembershipRole,
+        },
+      ]),
+    ).values(),
+  ];
+}
+
+async findRolesByUserAndCohort(
+  userId: string,
+  cohortSlug: string,
+): Promise<MembershipRole[]> {
+  const records = await this.prisma.membership.findMany({
+    where: {
+      userId,
+      engagement: {
+        cohort: {
+          slug: cohortSlug,
+        },
+      },
+    },
+    select: {
+      role: true,
+    },
+  });
+
+  return records.map((record) => record.role as MembershipRole);
+}
+
+
+
 }
