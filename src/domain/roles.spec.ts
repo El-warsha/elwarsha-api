@@ -7,5 +7,6 @@ describe("capabilitiesForRoles", () => {
     const capabilities = capabilitiesForRoles(["participant"]);
     expect(hasCapability(capabilities, "portal.view")).toBe(true);
     expect(hasCapability(capabilities, "assignments.read")).toBe(true);
+    expect(hasCapability(capabilities, "weeks.read")).toBe(true);
   });
 });

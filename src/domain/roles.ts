@@ -8,7 +8,8 @@ export type Capability =
   | "cohorts.read"
   | "assignments.read"
   | "submissions.read"
-  | "reviews.read";
+  | "reviews.read"
+  | "weeks.read";
 
 const roleCapabilities: Record<MembershipRole, Capability[]> = {
   participant: [
@@ -18,6 +19,7 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "assignments.read",
     "submissions.read",
     "reviews.read",
+    "weeks.read",
   ],
   mentor: [
     "portal.view",
@@ -26,6 +28,7 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "assignments.read",
     "submissions.read",
     "reviews.read",
+    "weeks.read",
   ],
   maintainer: [
     "portal.view",
@@ -34,6 +37,7 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "assignments.read",
     "submissions.read",
     "reviews.read",
+    "weeks.read",
   ],
   admin: [
     "portal.view",
@@ -42,6 +46,7 @@ const roleCapabilities: Record<MembershipRole, Capability[]> = {
     "assignments.read",
     "submissions.read",
     "reviews.read",
+    "weeks.read",
   ],
 };
 

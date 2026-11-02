@@ -2,7 +2,6 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 RUN corepack enable
 COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn ./.yarn
 RUN yarn install --immutable
 
 FROM deps AS build
@@ -28,4 +27,4 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
 EXPOSE 3001
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "node dist/worker.js & node dist/main.js"]

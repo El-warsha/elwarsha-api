@@ -5,9 +5,11 @@ import request from "supertest";
 
 import { hmacSha256 } from "../src/common/crypto.js";
 import { HttpExceptionFilter } from "../src/common/http-exception.filter.js";
+import { createValidationPipe } from "../src/common/validation.pipe.js";
 import { AppModule } from "../src/app.module.js";
 import { JobService } from "../src/infrastructure/jobs/job.service.js";
 import { PrismaService } from "../src/infrastructure/prisma/prisma.service.js";
+import { ApplicationsService } from "../src/modules/applications/applications.service.js";
 
 process.env.DATABASE_URL ??= "postgresql://elwarsha:elwarsha@localhost:5432/elwarsha";
 process.env.WEB_ORIGIN ??= "http://localhost:5173";
@@ -25,10 +27,12 @@ describe("Foundation API (e2e)", () => {
     app = moduleFixture.createNestApplication({ rawBody: true });
     app.use(cookieParser());
     app.useGlobalFilters(new HttpExceptionFilter());
+    app.useGlobalPipes(createValidationPipe());
     await app.init();
     const prisma = app.get(PrismaService);
     await prisma.job.deleteMany();
     await prisma.githubWebhookDelivery.deleteMany();
+    app.get(ApplicationsService).reset();
   });
 
   it("/healthz (GET)", () => {
@@ -102,10 +106,39 @@ describe("Foundation API (e2e)", () => {
       expect.arrayContaining([expect.objectContaining({ weekNumber: 1 })]),
     );
 
+    const weeks = await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
+    expect(weeks.body).toHaveLength(8);
+    expect(weeks.body[0]).toMatchObject({
+      weekNumber: 1,
+      cohort: expect.objectContaining({ slug: "cohort-01" }),
+      assignment: expect.objectContaining({
+        title: "Navigate the codebase and open a focused PR",
+        status: "published",
+      }),
+    });
+
+    const defaultWeeks = await agent.get("/api/v1/weeks").expect(200);
+    expect(defaultWeeks.body).toHaveLength(8);
+
+    const weekOne = await agent
+      .get("/api/v1/cohorts/cohort-01/weeks/1?locale=en")
+      .expect(200);
+    expect(weekOne.body).toMatchObject({
+      weekNumber: 1,
+      concept: "Architecture and modularity",
+      bigIdea: expect.any(String),
+      outcomes: expect.any(Array),
+      coreConcepts: expect.any(Array),
+      appliedThroughTheStack: expect.any(Array),
+    });
+
+    await agent.get("/api/v1/cohorts/cohort-01/weeks/99").expect(404);
+
     await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
 
     await agent.get("/api/v1/auth/me").expect(401);
     await agent.get("/api/v1/products").expect(401);
+    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
   });
 
   it("preserves requested locale when logging in from English portal", async () => {
@@ -193,6 +226,83 @@ describe("Foundation API (e2e)", () => {
     const reclaimed = await jobs.claimNext();
     expect(reclaimed?.id).toBe(enqueued.id);
     expect(reclaimed?.attemptCount).toBe(2);
+  });
+
+  const validApplication = {
+    fullName: "Sara Mahmoud",
+    email: "sara@example.com",
+    whatsappNumber: "+201098765432",
+    githubHandle: "sara-mahmoud",
+    discordHandle: "sara_dev",
+    currentStatus: "student",
+    collegeMajor: "Computer Science",
+    programmingExperience: "1 year",
+    technologies: "JavaScript, TypeScript, React",
+    gitExperience: "basics",
+    personalPageUrl: "https://sara.github.io",
+    githubRepoUrl: "https://github.com/sara/personal-page",
+    aiUsage: "Used AI for drafting and learning.",
+    motivation:
+      "I am highly committed to building hands-on full-stack features and contributing to open-source software in ElWarsha Cohort 2.",
+  };
+
+  it("accepts a valid Cohort 2 application with 201 Created", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(validApplication)
+      .expect(201);
+
+    expect(response.body).toMatchObject({
+      cohortSlug: "cohort-2",
+      email: "sara@example.com",
+      status: "received",
+    });
+    expect(response.body.id).toMatch(/^app_/);
+  });
+
+  it("rejects an invalid Cohort 2 application with 422 and structured invalidParams", async () => {
+    const response = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send({
+        ...validApplication,
+        email: "not-an-email",
+        whatsappNumber: "123",
+        motivation: "Too short",
+      })
+      .expect(422);
+
+    expect(response.headers["content-type"]).toContain("application/problem+json");
+    expect(response.body).toMatchObject({
+      status: 422,
+      title: "Validation Failed",
+    });
+    expect(response.body.invalidParams).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "email" }),
+        expect.objectContaining({ name: "whatsappNumber" }),
+        expect.objectContaining({ name: "motivation" }),
+      ]),
+    );
+  });
+
+  it("rejects a duplicate Cohort 2 application with 409 Conflict", async () => {
+    await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(validApplication)
+      .expect(201);
+
+    const duplicateResponse = await request(app.getHttpServer())
+      .post("/api/v1/cohorts/cohort-2/applications")
+      .send(validApplication)
+      .expect(409);
+
+    expect(duplicateResponse.headers["content-type"]).toContain(
+      "application/problem+json",
+    );
+    expect(duplicateResponse.body).toMatchObject({
+      type: "https://elwarsha.dev/errors/duplicate-application",
+      status: 409,
+    });
   });
 
   afterEach(async () => {

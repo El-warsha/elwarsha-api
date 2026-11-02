@@ -22,10 +22,13 @@ async function main(): Promise<void> {
 
   const cohort = await prisma.cohort.upsert({
     where: { slug: "cohort-01" },
-    update: {},
+    update: {
+      nameAr: "الدفعة الأولى",
+    },
     create: {
       slug: "cohort-01",
       name: "Cohort 01",
+      nameAr: "الدفعة الأولى",
       startsOn: new Date("2026-10-01"),
       endsOn: new Date("2026-11-26"),
     },
@@ -78,42 +81,98 @@ async function main(): Promise<void> {
     },
   });
 
-  const assignment = await prisma.assignment.upsert({
-    where: {
-      engagementId_weekNumber: {
-        engagementId: engagement.id,
-        weekNumber: 1,
-      },
-    },
-    update: {},
-    create: {
-      engagementId: engagement.id,
+  const weekAssignments = [
+    {
       weekNumber: 1,
       title: "Navigate the codebase and open a focused PR",
-      status: "published",
+      status: "published" as const,
+      labels: ["frontend", "backend", "review"],
     },
-  });
+    {
+      weekNumber: 2,
+      title: "State and data modeling: extend Prisma and API contract",
+      status: "published" as const,
+      labels: ["backend", "contract"],
+    },
+    {
+      weekNumber: 3,
+      title: "Asynchronous flow: webhook verification and background queue",
+      status: "published" as const,
+      labels: ["backend", "worker"],
+    },
+    {
+      weekNumber: 4,
+      title: "Full-stack login and protected route authorization",
+      status: "draft" as const,
+      labels: ["backend", "frontend", "security"],
+    },
+    {
+      weekNumber: 5,
+      title: "Validation and reliability: request schemas and error envelopes",
+      status: "draft" as const,
+      labels: ["backend", "frontend"],
+    },
+    {
+      weekNumber: 6,
+      title: "Testing: unit tests and isolated regression coverage",
+      status: "draft" as const,
+      labels: ["testing", "quality"],
+    },
+    {
+      weekNumber: 7,
+      title: "Performance: query optimization and payload reduction",
+      status: "draft" as const,
+      labels: ["database", "performance"],
+    },
+    {
+      weekNumber: 8,
+      title: "Delivery: CI parity, packaging, and release verification",
+      status: "draft" as const,
+      labels: ["devops", "release"],
+    },
+  ];
 
-  for (const name of ["frontend", "backend", "review"]) {
-    const label = await prisma.label.upsert({
-      where: { name },
-      update: {},
-      create: { name },
+  for (const item of weekAssignments) {
+    const assignment = await prisma.assignment.upsert({
+      where: {
+        engagementId_weekNumber: {
+          engagementId: engagement.id,
+          weekNumber: item.weekNumber,
+        },
+      },
+      update: {
+        title: item.title,
+        status: item.status,
+      },
+      create: {
+        engagementId: engagement.id,
+        weekNumber: item.weekNumber,
+        title: item.title,
+        status: item.status,
+      },
     });
 
-    await prisma.assignmentLabel.upsert({
-      where: {
-        assignmentId_labelId: {
+    for (const name of item.labels) {
+      const label = await prisma.label.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      });
+
+      await prisma.assignmentLabel.upsert({
+        where: {
+          assignmentId_labelId: {
+            assignmentId: assignment.id,
+            labelId: label.id,
+          },
+        },
+        update: {},
+        create: {
           assignmentId: assignment.id,
           labelId: label.id,
         },
-      },
-      update: {},
-      create: {
-        assignmentId: assignment.id,
-        labelId: label.id,
-      },
-    });
+      });
+    }
   }
 }
 

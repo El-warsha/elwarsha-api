@@ -142,27 +142,31 @@ boundary.
 
 **Reflection:** What must never leak in `error.message`?
 
-## Week 6 — Testing
+## Week 6 — Testing, quality & evaluation loops
 
-**Outcome:** Add the smallest test that would have caught a real regression.
+**Outcome:** Show that a test protects a behavior by breaking that behavior on purpose and watching it fail.
 
-**Prerequisites:** Weeks 4–5. Vitest unit and e2e configs.
+**Prerequisites:** Weeks 4–5. Local Postgres (`docker compose up -d`) for the e2e suite.
 
-**Entry points:** `src/**/*.spec.ts`, `test/app.e2e-spec.ts`, `vitest.config.ts`.
+**Entry points:** `src/modules/applications/`, `test/app.e2e-spec.ts`,
+`vitest.config.ts`, `vitest.config.e2e.ts`, `.github/workflows/ci.yml`. In
+elwarsha-web: `src/features/apply/CohortApplicationForm.test.tsx`, `e2e/`.
 
-| Order | Small task                                                            | Observable behavior                                     | Focused check                          |
-| ----- | --------------------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------- |
-| 6.1   | Choose one untested branch in identity, catalog, or github            | Named missing assertion                                 | Review of the gap                      |
-| 6.2   | Write one unit test for that branch                                   | Spec fails before the fix or documents current behavior | The new spec file                      |
-| 6.3   | Promote a happy-path HTTP check only if the unit test cannot reach it | E2E covers that one path                                | `yarn test:e2e` at the week checkpoint |
+| Order | Small task                                                                                   | Observable behavior                                           | Focused check                                        |
+| ----- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------- |
+| 6.1   | Write a risk-based test matrix for the apply flow and keep only the justified rows           | Matrix in the PR with behavior, risk, level, file, and status | Review of the matrix                                 |
+| 6.2   | Create `applications.service.spec.ts` for duplicate email (any letter case) and handle       | Spec fails when `.toLowerCase()` is removed from the email    | `yarn test`, then the break/restore run              |
+| 6.3   | Harden `CohortApplicationForm.test.tsx`: `user-event`, role queries, accessible descriptions | No `fireEvent`; 422 error linked to its field                 | `yarn test` and `yarn vitest run --sequence.shuffle` |
+| 6.4   | Break one production behavior per repo on purpose, then restore it                           | A named test goes red, then green                             | Red and green runs in the PR                         |
+| 6.5   | Classify your review notes and one AI review as valid, false positive, or uncertain          | A findings table with one reason per row                      | Review of the table                                  |
 
-**Core increment:** 6.2.
+**Core increment:** 6.2 and 6.4 together. Each is one focused change.
 
-**Stretch:** Convert a manual week-1 request into an e2e assertion.
+**Stretch:** Make the weeks locking test independent of today's date.
 
-**Evidence:** The new spec, run in isolation.
+**Evidence:** Red and green test runs for each side, the matrix, and the findings table, all in the PR.
 
-**Reflection:** What would a flaky e2e hide that a unit test would show?
+**Reflection:** What would a flaky end-to-end test hide that a focused unit test would show?
 
 ## Week 7 — Performance
 
