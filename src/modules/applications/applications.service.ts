@@ -25,6 +25,8 @@ export class ApplicationsService {
   }> {
     const normalizedEmail = dto.email.toLowerCase().trim();
     const normalizedGithub = dto.githubHandle.toLowerCase().trim();
+    // const normalizedEmail = dto.email.trim();
+    // const normalizedGithub = dto.githubHandle.trim();
 
     const existing = this.applications.find(
       (app) =>
