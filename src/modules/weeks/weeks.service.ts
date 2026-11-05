@@ -1,10 +1,13 @@
 import { Injectable } from "@nestjs/common";
 
-import { ForbiddenError, NotFoundError } from "../../common/errors.js";
-import { WeeksRepository } from "./weeks.repository.js";
-import { getAllCurriculumWeeks, getCurriculumWeek, type CurriculumWeek } from "./weeks.curriculum.js";
+import { NotFoundError } from "../../common/errors.js";
+import { PrismaService } from "../../infrastructure/prisma/prisma.service.js";
+import {
+  getAllCurriculumWeeks,
+  getCurriculumWeek,
+  type CurriculumWeek,
+} from "./weeks.curriculum.js";
 import type { CohortRef, Week, WeekAssignment } from "./weeks.types.js";
-import { AuthenticatedActor } from "../identity/identity.ports.js";
 
 function formatDate(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -12,16 +15,22 @@ function formatDate(date: Date): string {
 
 @Injectable()
 export class WeeksService {
-  constructor(private readonly weeksRepository: WeeksRepository) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async resolveActiveCohortSlug(): Promise<string> {
-    const activeEngagement = await this.weeksRepository.findActiveEngagement();
+    const activeEngagement = await this.prisma.cohortProductEngagement.findFirst({
+      where: { status: "active" },
+      include: { cohort: true },
+      orderBy: { createdAt: "desc" },
+    });
 
     if (activeEngagement?.cohort) {
       return activeEngagement.cohort.slug;
     }
 
-    const latestCohort = await this.weeksRepository.findLatestCohort();
+    const latestCohort = await this.prisma.cohort.findFirst({
+      orderBy: { startsOn: "desc" },
+    });
 
     return latestCohort?.slug ?? "cohort-01";
   }
@@ -29,20 +38,25 @@ export class WeeksService {
   async listWeeksForCohort(
     cohortSlug: string,
     locale: "ar" | "en" = "ar",
-    actor?: AuthenticatedActor,
   ): Promise<Week[]> {
-
-    if (actor) {
-      const membership = await this.weeksRepository.findMembershipByCohortSlug(
-        actor.user.id,
-        cohortSlug,
-      );
-      if (!membership) {
-        throw new ForbiddenError();
-      }
-    }
-
-    const cohort = await this.weeksRepository.findBySlug(cohortSlug)
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { slug: cohortSlug },
+      include: {
+        engagements: {
+          include: {
+            assignments: {
+              include: {
+                labels: {
+                  include: {
+                    label: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
 
     if (!cohort) {
       throw new NotFoundError(`Cohort "${cohortSlug}" not found`);
@@ -50,10 +64,10 @@ export class WeeksService {
 
     const cohortRef: CohortRef = {
       id: cohort.id,
-      currentWeekNumber: cohort.currentWeekNumber,
       slug: cohort.slug,
       name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
       nameAr: cohort.nameAr,
+      currentWeekNumber: cohort.currentWeekNumber,
       startsOn: formatDate(cohort.startsOn),
       endsOn: formatDate(cohort.endsOn),
     };
@@ -61,8 +75,6 @@ export class WeeksService {
     const assignments = cohort.engagements.flatMap((e) => e.assignments);
     const curriculumWeeks = getAllCurriculumWeeks(locale);
     const now = new Date();
-
-    // Determine current active week number based on date schedule
     const currentWeekNumber = cohort.currentWeekNumber;
 
     return curriculumWeeks.map((cWeek) => {
@@ -74,15 +86,7 @@ export class WeeksService {
         now,
       );
 
-      // All weeks after the current week are locked with upcoming status
       const isLocked = weekNumber > currentWeekNumber;
-      schedule.isCurrent = weekNumber === currentWeekNumber;
-
-      schedule.status =
-        isLocked ? "upcoming"
-          : schedule.isCurrent ? "active"
-            : "completed";  
-
       const dbAssignment = assignments.find((a) => a.weekNumber === weekNumber);
 
       return this.buildWeek(cWeek, cohortRef, schedule, isLocked, dbAssignment);
@@ -93,24 +97,30 @@ export class WeeksService {
     cohortSlug: string,
     weekNumber: number,
     locale: "ar" | "en" = "ar",
-    actor?: AuthenticatedActor,
   ): Promise<Week> {
-
-    if (actor) {
-      const membership = await this.weeksRepository.findMembershipByCohortSlug(
-        actor.user.id,
-        cohortSlug,
-      );
-      if (!membership) {
-        throw new ForbiddenError();
-      }
-    }
-
     if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 8) {
       throw new NotFoundError(`Week ${weekNumber} not found. Must be between 1 and 8.`);
     }
 
-    const cohort = await this.weeksRepository.findBySlugAndWeek(cohortSlug, weekNumber);
+    const cohort = await this.prisma.cohort.findUnique({
+      where: { slug: cohortSlug },
+      include: {
+        engagements: {
+          include: {
+            assignments: {
+              where: { weekNumber },
+              include: {
+                labels: {
+                  include: {
+                    label: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
 
     if (!cohort) {
       throw new NotFoundError(`Cohort "${cohortSlug}" not found`);
@@ -123,17 +133,16 @@ export class WeeksService {
 
     const cohortRef: CohortRef = {
       id: cohort.id,
-      currentWeekNumber: cohort.currentWeekNumber,
       slug: cohort.slug,
       name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
       nameAr: cohort.nameAr,
+      currentWeekNumber: cohort.currentWeekNumber,
       startsOn: formatDate(cohort.startsOn),
       endsOn: formatDate(cohort.endsOn),
     };
 
     const now = new Date();
-    const currentWeekNumber: number = cohort.currentWeekNumber;
-
+    const currentWeekNumber = cohort.currentWeekNumber;
     const schedule = this.computeSchedule(
       cohort.startsOn,
       cohort.endsOn,
@@ -142,12 +151,6 @@ export class WeeksService {
     );
 
     const isLocked = weekNumber > currentWeekNumber;
-    schedule.isCurrent = weekNumber === currentWeekNumber;
-
-    schedule.status =
-      isLocked ? "upcoming"
-        : schedule.isCurrent ? "active"
-          : "completed";
 
     const dbAssignment = cohort.engagements.flatMap((e) => e.assignments)[0] ?? null;
 
@@ -208,7 +211,18 @@ export class WeeksService {
       detailsMd: cWeek.assignment.detailsMd,
     };
 
-    const effectiveStatus = dbAssignment?.status === "closed" ? "completed" : schedule.status;
+    const isCurrent = cWeek.weekNumber === cohortRef.currentWeekNumber;
+    let effectiveStatus: "completed" | "active" | "upcoming" | "draft" = schedule.status;
+    if (
+      dbAssignment?.status === "closed" ||
+      cWeek.weekNumber < cohortRef.currentWeekNumber
+    ) {
+      effectiveStatus = "completed";
+    } else if (cWeek.weekNumber === cohortRef.currentWeekNumber) {
+      effectiveStatus = "active";
+    } else {
+      effectiveStatus = "upcoming";
+    }
 
     return {
       weekNumber: cWeek.weekNumber,
@@ -218,7 +232,7 @@ export class WeeksService {
       guidingQuestion: cWeek.guidingQuestion,
       startDate: schedule.startDate,
       endDate: schedule.endDate,
-      isCurrent: schedule.isCurrent,
+      isCurrent,
       status: effectiveStatus,
       isLocked: false,
       cohort: cohortRef,

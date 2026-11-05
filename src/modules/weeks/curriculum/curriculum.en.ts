@@ -1,52 +1,52 @@
 import type { CurriculumWeek } from "./curriculum.types.js";
 
 export const curriculumEn: Record<number, CurriculumWeek> = {
-    1: {
-      weekNumber: 1,
-      title: "Modularity & Codebase Understanding",
-      tagline: "Find the boundaries before changing the system",
-      concept: "Architecture and modularity",
-      guidingQuestion:
-        "How do we divide a large application so people and agents can change it safely?",
-      bigIdea:
-        "Before making changes to any system, engineers and AI tools must understand where boundaries lie. In this week, we trace a complete vertical slice through the codebase from React presentation components, down through entity models, into NestJS controllers and services, down to persistence, and enforce module boundaries so that teams and autonomous tools can build without breaking the system.",
-      outcomes: [
-        "Trace one user action from React through NestJS to PostgreSQL.",
-        "Explain component, feature, entity, module, service, and repository responsibilities.",
-        "Make a focused change without bypassing established boundaries.",
-        "Decouple presentation code from wire transport contracts using provider-neutral entities.",
-        "Use an AI agent to investigate code and verify its claims against source files.",
-        "Give a peer review that is specific, technical, and respectful.",
-      ],
-      coreConcepts: [
-        "Separation of concerns",
-        "High cohesion and low coupling",
-        "Dependency injection",
-        "A module's public interface versus deep imports",
-        "Anti-corruption layer (Provider-neutral Entity models vs. Wire DTOs)",
-        "Repository navigation and code review",
-      ],
-      appliedThroughTheStack: [
-        {
-          layer: "React",
-          details:
-            "feature folders (`src/features`), entity models (`src/entities`), the component tree as a module boundary, hooks, and one-way data flow.",
-        },
-        {
-          layer: "NestJS",
-          details: "modules, controllers, providers, and dependency injection.",
-        },
-        {
-          layer: "GitHub",
-          details:
-            "small branches, coherent commits, focused pull requests, and a first structured review.",
-        },
-      ],
-      assignment: {
-        title: "Navigate the codebase and open a focused PR",
-        summary:
-          "Map an existing feature end-to-end, then expose the starter's existing task labels through the UI and API as a vertical slice that respects frontend, backend, and persistence boundaries. The database labels table and Prisma model already exist; this week adds no database schema.",
-        detailsMd: `### Frontend deliverable (core)
+  1: {
+    weekNumber: 1,
+    title: "Modularity & Codebase Understanding",
+    tagline: "Find the boundaries before changing the system",
+    concept: "Architecture and modularity",
+    guidingQuestion:
+      "How do we divide a large application so people and agents can change it safely?",
+    bigIdea:
+      "Before making changes to any system, engineers and AI tools must understand where boundaries lie. In this week, we trace a complete vertical slice through the codebase from React presentation components, down through entity models, into NestJS controllers and services, down to persistence, and enforce module boundaries so that teams and autonomous tools can build without breaking the system.",
+    outcomes: [
+      "Trace one user action from React through NestJS to PostgreSQL.",
+      "Explain component, feature, entity, module, service, and repository responsibilities.",
+      "Make a focused change without bypassing established boundaries.",
+      "Decouple presentation code from wire transport contracts using provider-neutral entities.",
+      "Use an AI agent to investigate code and verify its claims against source files.",
+      "Give a peer review that is specific, technical, and respectful.",
+    ],
+    coreConcepts: [
+      "Separation of concerns",
+      "High cohesion and low coupling",
+      "Dependency injection",
+      "A module's public interface versus deep imports",
+      "Anti-corruption layer (Provider-neutral Entity models vs. Wire DTOs)",
+      "Repository navigation and code review",
+    ],
+    appliedThroughTheStack: [
+      {
+        layer: "React",
+        details:
+          "feature folders (`src/features`), entity models (`src/entities`), the component tree as a module boundary, hooks, and one-way data flow.",
+      },
+      {
+        layer: "NestJS",
+        details: "modules, controllers, providers, and dependency injection.",
+      },
+      {
+        layer: "GitHub",
+        details:
+          "small branches, coherent commits, focused pull requests, and a first structured review.",
+      },
+    ],
+    assignment: {
+      title: "Navigate the codebase and open a focused PR",
+      summary:
+        "Map an existing feature end-to-end, then expose the starter's existing task labels through the UI and API as a vertical slice that respects frontend, backend, and persistence boundaries. The database labels table and Prisma model already exist; this week adds no database schema.",
+      detailsMd: `### Frontend deliverable (core)
 
 Implement task label presentation and entity boundaries in \`elwarsha-web\`:
 - **Entity Model** (\`src/entities/assignment.ts\`): Define provider-neutral \`Assignment\` and \`Label\` domain models (utilizing the client contract without duplicating DTOs).
@@ -107,153 +107,152 @@ Every interactive control has an accessible name (\`aria-label\` or \`<label htm
   - **Frontend rules**: \`features/*\` cannot import other \`features/*\`; \`ui/*\` cannot import \`features/*\` or \`entities/*\`; \`entities/*\` cannot import \`features/*\`.
   - **Backend rules**: cross-module imports must only target public service contracts; \`@prisma/client\` is forbidden outside infrastructure/repository files.
   - Add a workspace script (\`yarn arch:check\`) that runs in CI, plus a visual graph generator (\`yarn arch:graph\`) producing a Mermaid or SVG dependency map.`,
-      },
-      resources: {
-        required: [
-          {
-            title: "Thinking in React",
-            url: "https://react.dev/learn/thinking-in-react",
-            layers: "Frontend",
-            format: "Read",
-            time: "25 min",
-            why: "Builds the component hierarchy and data-flow mental model.",
-          },
-          {
-            title: "NestJS Modules",
-            url: "https://docs.nestjs.com/modules",
-            layers: "Backend",
-            format: "Read",
-            time: "20 min",
-            why: "Introduces the application boundary used throughout the backend.",
-          },
-          {
-            title: "Google Engineering Practices: How to do a code review",
-            url: "https://google.github.io/eng-practices/review/reviewer/",
-            layers: "Concept, Delivery",
-            format: "Read",
-            time: "20 min, selected",
-            why: "Read the introduction and 'What to look for'; the peer-review standard for the program.",
-          },
-          {
-            title: "Best practices for coding with agents (Cursor) (pick one)",
-            url: "https://cursor.com/blog/agent-best-practices",
-            layers: "AI",
-            format: "Read",
-            time: "25 min",
-            why: "How to scope work, provide context, and verify agent output.",
-          },
-          {
-            title: "Claude Code overview (pick one)",
-            url: "https://code.claude.com/docs/en/overview",
-            layers: "AI",
-            format: "Read",
-            time: "20 min",
-            why: "The same orientation for the terminal agent; read this or the Cursor guide.",
-          },
-        ],
-        assignment: [
-          {
-            title: "NestJS Providers",
-            url: "https://docs.nestjs.com/providers",
-            layers: "Backend",
-            format: "Read",
-            time: "20 min",
-            why: "Dependency injection details while you build the labels module.",
-          },
-          {
-            title: "Feature-Sliced Design: Entities",
-            url: "https://feature-sliced.design/docs/reference/layers#entities",
-            layers: "Frontend",
-            format: "Read",
-            time: "15 min",
-            why: "Why domain models live in entities rather than raw API clients.",
-          },
-          {
-            title: "Understanding your UI as a tree",
-            url: "https://react.dev/learn/understanding-your-ui-as-a-tree",
-            layers: "Frontend",
-            format: "Read",
-            time: "15 min",
-            why: "Render and module dependency trees, if the feature map is unclear.",
-          },
-        ],
-        alternative: [
-          {
-            title: "Building a platform: NestJS from the ground up",
-            url: "https://www.youtube.com/watch?v=f0qzBkAQ3mk",
-            layers: "Backend",
-            format: "Watch",
-            time: "26 min",
-            why: "Video alternative to the NestJS Modules reading, by the framework's creator.",
-          },
-          {
-            title: "PodRocket: Modularizing the Monolith",
-            url: "https://podrocket.logrocket.com/modularizing-monolith-jimmy-bogard",
-            layers: "Concept",
-            format: "Listen",
-            time: "32 min",
-            why: "Audio alternative to the NDC talk; same speaker, transcript available.",
-          },
-          {
-            title: "Modularizing the Monolith — Jimmy Bogard, NDC Oslo",
-            url: "https://www.youtube.com/watch?v=fc6_NtD9soI",
-            layers: "Concept",
-            format: "Watch",
-            time: "56 min",
-            why: "Finding and enforcing boundaries inside an existing large codebase.",
-          },
-        ],
-      },
-      reflectionQuestion:
-        "Which boundary would you be most likely to break, and why?",
-      prerequisites: ["Node 22", "Corepack/Yarn", "Docker Compose Postgres"],
     },
-    2: {
-      weekNumber: 2,
-      title: "Connecting Frontend & Backend (HTTP & API Contracts)",
-      tagline: "Agree on the contract before writing code",
-      concept: "HTTP & API Contracts",
-      guidingQuestion:
-        "How do the frontend and backend talk to each other without breaking?",
-      bigIdea:
-        "In Week 1, you learned how to organize your code into clean modules. This week, we connect two completely separate worlds:\n\n1. **The Frontend (React):** The visual form running in the student's web browser.\n2. **The Backend (NestJS):** The server running on a computer that receives data, checks it, and saves it.\n\nBecause these two parts run in different places, they must agree on a **Contract**:\n\n- What data does the frontend send?\n- What checks must the backend perform?\n- How does the server reply if the user made a mistake (like typing an invalid email)?",
-      outcomes: [
-        "How HTTP works: How a browser sends data (POST) and how servers answer with status codes (201 Created, 422 Validation Error, 409 Already Exists).",
-        "Input Validation: Checking user inputs on the server so bad or malicious data never enters the database.",
-        "Friendly, Structured Errors: Sending clean JSON error messages so the frontend knows exactly which field had a problem.",
-        "Form UX & States: Making forms feel great in React (disabling the button while submitting, showing error text under wrong fields, showing a celebration receipt on success).",
-        "Accessibility (A11y): Connecting <label> to <input> so everyone, including people using screen readers, can use your form.",
-      ],
-      coreConcepts: [
-        "HTTP request methods & semantics (POST vs GET)",
-        "HTTP status codes (201 Created, 422 Unprocessable Entity, 409 Conflict)",
-        "Server-side validation via class-validator & ValidationPipe",
-        "Structured JSON Problem Details & invalidParams (RFC 7807)",
-        "Form UX states & uncontrolled inputs (React Hook Form)",
-        "Semantic HTML & accessible form notifications (aria-invalid, aria-describedby)",
-      ],
-      appliedThroughTheStack: [
+    resources: {
+      required: [
         {
-          layer: "React",
-          details:
-            "Accessible forms (<fieldset>, <legend>, <label>), React Hook Form integration, field-level error mapping, submit states, and success receipts.",
+          title: "Thinking in React",
+          url: "https://react.dev/learn/thinking-in-react",
+          layers: "Frontend",
+          format: "Read",
+          time: "25 min",
+          why: "Builds the component hierarchy and data-flow mental model.",
         },
         {
-          layer: "NestJS",
-          details:
-            "DTOs with class-validator decorators, ValidationPipe exception mapping, ConflictException (409) handling, and clean controller endpoints.",
+          title: "NestJS Modules",
+          url: "https://docs.nestjs.com/modules",
+          layers: "Backend",
+          format: "Read",
+          time: "20 min",
+          why: "Introduces the application boundary used throughout the backend.",
         },
         {
-          layer: "HTTP/REST",
-          details:
-            "RFC 7807 structured Problem Details, 201 Created receipts, 422 Validation Errors, and 409 Conflict detection.",
+          title: "Google Engineering Practices: How to do a code review",
+          url: "https://google.github.io/eng-practices/review/reviewer/",
+          layers: "Concept, Delivery",
+          format: "Read",
+          time: "20 min, selected",
+          why: "Read the introduction and 'What to look for'; the peer-review standard for the program.",
+        },
+        {
+          title: "Best practices for coding with agents (Cursor) (pick one)",
+          url: "https://cursor.com/blog/agent-best-practices",
+          layers: "AI",
+          format: "Read",
+          time: "25 min",
+          why: "How to scope work, provide context, and verify agent output.",
+        },
+        {
+          title: "Claude Code overview (pick one)",
+          url: "https://code.claude.com/docs/en/overview",
+          layers: "AI",
+          format: "Read",
+          time: "20 min",
+          why: "The same orientation for the terminal agent; read this or the Cursor guide.",
         },
       ],
-      assignment: {
-        title: "Cohort 2 Application Form",
-        summary:
-          "Build the official application form for ElWarsha Cohort 2! When a prospective student fills out the form on the website, the React frontend sends it to the NestJS backend. The backend validates the inputs and responds accordingly.",
-        detailsMd: `> **Starter Kit Note:** The routing (\`/:locale/apply\`), header CTA button ("قدّم للدفعة القادمة" / "Apply for next cohort"), pre-rendered page shell, and the shared API client binding (\`api.applyCohort\`) are already wired up for you in the starter codebase and mount your component. Your assignment is focused on building:
+      assignment: [
+        {
+          title: "NestJS Providers",
+          url: "https://docs.nestjs.com/providers",
+          layers: "Backend",
+          format: "Read",
+          time: "20 min",
+          why: "Dependency injection details while you build the labels module.",
+        },
+        {
+          title: "Feature-Sliced Design: Entities",
+          url: "https://feature-sliced.design/docs/reference/layers#entities",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "Why domain models live in entities rather than raw API clients.",
+        },
+        {
+          title: "Understanding your UI as a tree",
+          url: "https://react.dev/learn/understanding-your-ui-as-a-tree",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "Render and module dependency trees, if the feature map is unclear.",
+        },
+      ],
+      alternative: [
+        {
+          title: "Building a platform: NestJS from the ground up",
+          url: "https://www.youtube.com/watch?v=f0qzBkAQ3mk",
+          layers: "Backend",
+          format: "Watch",
+          time: "26 min",
+          why: "Video alternative to the NestJS Modules reading, by the framework's creator.",
+        },
+        {
+          title: "PodRocket: Modularizing the Monolith",
+          url: "https://podrocket.logrocket.com/modularizing-monolith-jimmy-bogard",
+          layers: "Concept",
+          format: "Listen",
+          time: "32 min",
+          why: "Audio alternative to the NDC talk; same speaker, transcript available.",
+        },
+        {
+          title: "Modularizing the Monolith — Jimmy Bogard, NDC Oslo",
+          url: "https://www.youtube.com/watch?v=fc6_NtD9soI",
+          layers: "Concept",
+          format: "Watch",
+          time: "56 min",
+          why: "Finding and enforcing boundaries inside an existing large codebase.",
+        },
+      ],
+    },
+    reflectionQuestion: "Which boundary would you be most likely to break, and why?",
+    prerequisites: ["Node 22", "Corepack/Yarn", "Docker Compose Postgres"],
+  },
+  2: {
+    weekNumber: 2,
+    title: "Connecting Frontend & Backend (HTTP & API Contracts)",
+    tagline: "Agree on the contract before writing code",
+    concept: "HTTP & API Contracts",
+    guidingQuestion:
+      "How do the frontend and backend talk to each other without breaking?",
+    bigIdea:
+      "In Week 1, you learned how to organize your code into clean modules. This week, we connect two completely separate worlds:\n\n1. **The Frontend (React):** The visual form running in the student's web browser.\n2. **The Backend (NestJS):** The server running on a computer that receives data, checks it, and saves it.\n\nBecause these two parts run in different places, they must agree on a **Contract**:\n\n- What data does the frontend send?\n- What checks must the backend perform?\n- How does the server reply if the user made a mistake (like typing an invalid email)?",
+    outcomes: [
+      "How HTTP works: How a browser sends data (POST) and how servers answer with status codes (201 Created, 422 Validation Error, 409 Already Exists).",
+      "Input Validation: Checking user inputs on the server so bad or malicious data never enters the database.",
+      "Friendly, Structured Errors: Sending clean JSON error messages so the frontend knows exactly which field had a problem.",
+      "Form UX & States: Making forms feel great in React (disabling the button while submitting, showing error text under wrong fields, showing a celebration receipt on success).",
+      "Accessibility (A11y): Connecting <label> to <input> so everyone, including people using screen readers, can use your form.",
+    ],
+    coreConcepts: [
+      "HTTP request methods & semantics (POST vs GET)",
+      "HTTP status codes (201 Created, 422 Unprocessable Entity, 409 Conflict)",
+      "Server-side validation via class-validator & ValidationPipe",
+      "Structured JSON Problem Details & invalidParams (RFC 7807)",
+      "Form UX states & uncontrolled inputs (React Hook Form)",
+      "Semantic HTML & accessible form notifications (aria-invalid, aria-describedby)",
+    ],
+    appliedThroughTheStack: [
+      {
+        layer: "React",
+        details:
+          "Accessible forms (<fieldset>, <legend>, <label>), React Hook Form integration, field-level error mapping, submit states, and success receipts.",
+      },
+      {
+        layer: "NestJS",
+        details:
+          "DTOs with class-validator decorators, ValidationPipe exception mapping, ConflictException (409) handling, and clean controller endpoints.",
+      },
+      {
+        layer: "HTTP/REST",
+        details:
+          "RFC 7807 structured Problem Details, 201 Created receipts, 422 Validation Errors, and 409 Conflict detection.",
+      },
+    ],
+    assignment: {
+      title: "Cohort 2 Application Form",
+      summary:
+        "Build the official application form for ElWarsha Cohort 2! When a prospective student fills out the form on the website, the React frontend sends it to the NestJS backend. The backend validates the inputs and responds accordingly.",
+      detailsMd: `> **Starter Kit Note:** The routing (\`/:locale/apply\`), header CTA button ("قدّم للدفعة القادمة" / "Apply for next cohort"), pre-rendered page shell, and the shared API client binding (\`api.applyCohort\`) are already wired up for you in the starter codebase and mount your component. Your assignment is focused on building:
 >
 > 1. The **\`CohortApplicationForm\`** component with full input controls, validation feedback, and workshop styling.
 > 2. The **NestJS backend validation & controller contract** with structured error responses and duplicate detection.
@@ -389,181 +388,182 @@ The backend sends a clear JSON response listing every invalid field:
   - Intercept throttler exceptions in \`src/common/http-exception.filter.ts\` to format rate-limit errors into the project's standard JSON error response (\`429 Too Many Requests\`), including the standard \`Retry-After\` header.
   - On the frontend form, catch HTTP 429 responses and display a tactile alert showing the retry cooldown before allowing the user to submit again.
   - Extend \`test/app.e2e-spec.ts\` with a test that sends 6 rapid requests and asserts that the 6th response returns HTTP 429 with the structured error body.`,
-      },
-      resources: {
-        required: [
-          {
-            title: "MDN: An overview of HTTP",
-            url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview",
-            layers: "Concept",
-            format: "Read",
-            time: "15 min",
-            why: "Mental model for client-server communication, request/response cycles, and headers.",
-          },
-          {
-            title: "MDN: HTTP request methods",
-            url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods",
-            layers: "Concept",
-            format: "Read",
-            time: "10 min",
-            why: "Understanding semantics of `POST` for submission vs `GET` for retrieval.",
-          },
-          {
-            title: "W3C WAI: Form Validation Tutorial",
-            url: "https://www.w3.org/WAI/tutorials/forms/notifications/",
-            layers: "Frontend, Accessibility",
-            format: "Read",
-            time: "15 min",
-            why: "Accessibility standards: how to announce errors with `aria-invalid` and `aria-describedby`.",
-          },
-          {
-            title: "NestJS: Validation Techniques",
-            url: "https://docs.nestjs.com/techniques/validation",
-            layers: "Backend",
-            format: "Read",
-            time: "20 min",
-            why: "Setting up `ValidationPipe`, class-validator decorators, and custom exception factories.",
-          },
-          {
-            title: "React Hook Form: Get Started",
-            url: "https://react-hook-form.com/get-started",
-            layers: "Frontend",
-            format: "Read",
-            time: "25 min",
-            why: "Core mental model of uncontrolled inputs with `register`, `handleSubmit`, and `formState.errors`.",
-          },
-          {
-            title: "Cursor Plan Mode (pick one)",
-            url: "https://cursor.com/docs/agent/plan-mode",
-            layers: "AI",
-            format: "Read",
-            time: "15 min",
-            why: "Plan-first agent collaboration; read this or the Claude Code workflows.",
-          },
-          {
-            title: "Claude Code common workflows (pick one)",
-            url: "https://code.claude.com/docs/en/common-workflows",
-            layers: "AI",
-            format: "Read",
-            time: "20 min, selected",
-            why: "Exploration, planning, and pull-request workflows; read this or Cursor Plan Mode.",
-          },
-        ],
-        assignment: [
-          {
-            title: "React Hook Form: setError API Reference",
-            url: "https://react-hook-form.com/docs/useform/seterror",
-            layers: "Frontend",
-            format: "Read",
-            time: "10 min",
-            why: "How to programmatically map backend 422 `invalidParams` into form fields and trigger focus.",
-          },
-          {
-            title: "class-validator Documentation",
-            url: "https://github.com/typestack/class-validator",
-            layers: "Backend",
-            format: "Read",
-            time: "15 min",
-            why: "Detailed lookup for validation decorators (`@IsEmail`, `@IsUrl`, `@MinLength`, `@IsEnum`, etc.).",
-          },
-          {
-            title: "MDN: HTML forms guide",
-            url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Your_first_form",
-            layers: "Frontend",
-            format: "Read",
-            time: "15 min",
-            why: "Reference for `<form>`, `<fieldset>`, `<legend>`, `<label>`, and semantic form controls.",
-          },
-        ],
-        alternative: [
-          {
-            title: "ByteGrad: React Hook Form (+ Zod) — Complete Tutorial",
-            url: "https://www.youtube.com/watch?v=k5jG58q025E",
-            layers: "Frontend",
-            format: "Watch",
-            time: "35 min",
-            why: "Video alternative to the React Hook Form reading, covering `useForm`, input registration, and handling server errors.",
-          },
-          {
-            title: "Dave Gray: NestJS DTO Schemas, Validation & Pipes",
-            url: "https://www.youtube.com/watch?v=Fh3K009K524",
-            layers: "Backend",
-            format: "Watch",
-            time: "20 min",
-            why: "Video alternative to the NestJS Validation reading, covering DTO schemas, `class-validator`, and `ValidationPipe`.",
-          },
-          {
-            title: "NestJS Throttler Documentation",
-            url: "https://docs.nestjs.com/security/rate-limiting",
-            layers: "Backend",
-            format: "Read",
-            time: "15 min",
-            why: "Setting up rate limiting guards and `@Throttle` decorators for the abuse prevention track.",
-          },
-          {
-            title: "MDN: Window.localStorage",
-            url: "https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage",
-            layers: "Frontend",
-            format: "Read",
-            time: "10 min",
-            why: "Safe usage patterns, quota limits, and serialization for the draft auto-save track.",
-          },
-        ],
-      },
-      reflectionQuestion:
-        "What leaks when a controller imports a database or entity model directly instead of receiving a validated DTO?",
-      prerequisites: [
-        "Week 1: Modularity & codebase understanding",
-        "Basic familiarity with TypeScript & React",
+    },
+    resources: {
+      required: [
+        {
+          title: "MDN: An overview of HTTP",
+          url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview",
+          layers: "Concept",
+          format: "Read",
+          time: "15 min",
+          why: "Mental model for client-server communication, request/response cycles, and headers.",
+        },
+        {
+          title: "MDN: HTTP request methods",
+          url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods",
+          layers: "Concept",
+          format: "Read",
+          time: "10 min",
+          why: "Understanding semantics of `POST` for submission vs `GET` for retrieval.",
+        },
+        {
+          title: "W3C WAI: Form Validation Tutorial",
+          url: "https://www.w3.org/WAI/tutorials/forms/notifications/",
+          layers: "Frontend, Accessibility",
+          format: "Read",
+          time: "15 min",
+          why: "Accessibility standards: how to announce errors with `aria-invalid` and `aria-describedby`.",
+        },
+        {
+          title: "NestJS: Validation Techniques",
+          url: "https://docs.nestjs.com/techniques/validation",
+          layers: "Backend",
+          format: "Read",
+          time: "20 min",
+          why: "Setting up `ValidationPipe`, class-validator decorators, and custom exception factories.",
+        },
+        {
+          title: "React Hook Form: Get Started",
+          url: "https://react-hook-form.com/get-started",
+          layers: "Frontend",
+          format: "Read",
+          time: "25 min",
+          why: "Core mental model of uncontrolled inputs with `register`, `handleSubmit`, and `formState.errors`.",
+        },
+        {
+          title: "Cursor Plan Mode (pick one)",
+          url: "https://cursor.com/docs/agent/plan-mode",
+          layers: "AI",
+          format: "Read",
+          time: "15 min",
+          why: "Plan-first agent collaboration; read this or the Claude Code workflows.",
+        },
+        {
+          title: "Claude Code common workflows (pick one)",
+          url: "https://code.claude.com/docs/en/common-workflows",
+          layers: "AI",
+          format: "Read",
+          time: "20 min, selected",
+          why: "Exploration, planning, and pull-request workflows; read this or Cursor Plan Mode.",
+        },
+      ],
+      assignment: [
+        {
+          title: "React Hook Form: setError API Reference",
+          url: "https://react-hook-form.com/docs/useform/seterror",
+          layers: "Frontend",
+          format: "Read",
+          time: "10 min",
+          why: "How to programmatically map backend 422 `invalidParams` into form fields and trigger focus.",
+        },
+        {
+          title: "class-validator Documentation",
+          url: "https://github.com/typestack/class-validator",
+          layers: "Backend",
+          format: "Read",
+          time: "15 min",
+          why: "Detailed lookup for validation decorators (`@IsEmail`, `@IsUrl`, `@MinLength`, `@IsEnum`, etc.).",
+        },
+        {
+          title: "MDN: HTML forms guide",
+          url: "https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Your_first_form",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "Reference for `<form>`, `<fieldset>`, `<legend>`, `<label>`, and semantic form controls.",
+        },
+      ],
+      alternative: [
+        {
+          title: "ByteGrad: React Hook Form (+ Zod) — Complete Tutorial",
+          url: "https://www.youtube.com/watch?v=k5jG58q025E",
+          layers: "Frontend",
+          format: "Watch",
+          time: "35 min",
+          why: "Video alternative to the React Hook Form reading, covering `useForm`, input registration, and handling server errors.",
+        },
+        {
+          title: "Dave Gray: NestJS DTO Schemas, Validation & Pipes",
+          url: "https://www.youtube.com/watch?v=Fh3K009K524",
+          layers: "Backend",
+          format: "Watch",
+          time: "20 min",
+          why: "Video alternative to the NestJS Validation reading, covering DTO schemas, `class-validator`, and `ValidationPipe`.",
+        },
+        {
+          title: "NestJS Throttler Documentation",
+          url: "https://docs.nestjs.com/security/rate-limiting",
+          layers: "Backend",
+          format: "Read",
+          time: "15 min",
+          why: "Setting up rate limiting guards and `@Throttle` decorators for the abuse prevention track.",
+        },
+        {
+          title: "MDN: Window.localStorage",
+          url: "https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage",
+          layers: "Frontend",
+          format: "Read",
+          time: "10 min",
+          why: "Safe usage patterns, quota limits, and serialization for the draft auto-save track.",
+        },
       ],
     },
-    3: {
-      weekNumber: 3,
-      title: "Database Migrations, Runtime Contracts & Server State",
-      tagline: "How schema changes flow safely through contracts to reactive UI components",
-      concept: "Database Migrations & Server State",
-      guidingQuestion: "How do database schema changes flow safely through runtime contracts to reactive UI components?",
-      bigIdea:
-        "In Week 2, you built an accessible application form and connected client-server HTTP contracts. This week, we connect the complete end-to-end vertical slice across all architectural layers:\n\n1. **PostgreSQL & Prisma:** Adding and applying database migrations safely with backwards-compatible defaults.\n2. **NestJS Service & API:** Reading cohort progression from the database and driving dynamic week locking rules.\n3. **Zod Runtime Contracts:** Validating API payloads at the frontend boundary to guarantee type safety and prevent runtime errors.\n4. **TanStack React Query:** Caching, synchronizing, and handling async server state with custom hooks.\n5. **Modular React Architecture:** Rendering single-responsibility components following the one-component-per-file pattern.",
-      outcomes: [
-        "Create and apply PostgreSQL schema migrations safely using Prisma CLI with default values for backwards compatibility.",
-        "Enforce dynamic business and locking rules in NestJS services driven directly by database state.",
-        "Validate API response payloads at the system boundary using Zod runtime schemas.",
-        "Manage asynchronous server state, caching, loading, and error states using TanStack React Query hooks.",
-        "Organize user interface features into clean, modular single-responsibility components adhering strictly to one component per file.",
-      ],
-      coreConcepts: [
-        "Database migrations & schema evolution (Prisma migrate)",
-        "Backwards-compatible defaults in relational databases",
-        "Runtime contract validation (Zod)",
-        "Server state management & caching (TanStack Query v5)",
-        "Single Responsibility Principle & Component Modularity (1 component per file)",
-        "Accessible data presentation & responsive grid layouts",
-      ],
-      appliedThroughTheStack: [
-        {
-          layer: "PostgreSQL",
-          details: "Prisma schema migration adding currentWeekNumber with @default(1).",
-        },
-        {
-          layer: "NestJS",
-          details: "WeeksService dynamic locking rules driven by cohort.currentWeekNumber.",
-        },
-        {
-          layer: "Zod",
-          details: "Runtime parsing and type assertion for cohort and week card payloads.",
-        },
-        {
-          layer: "React",
-          details:
-            "TanStack Query integration (useCohortWeeks), modular cards (CohortHeaderBar, WeekCard, LockedWeekCard), and WeeksPage layout.",
-        },
-      ],
-      assignment: {
-        title: "Database Migrations, Zod Contracts & Weeks Summary Page",
-        summary:
-          "Migrate the database to track cohort progress, validate API data with Zod, and build the Weeks Summary Page using TanStack React Query.",
-        detailsMd: `### Week 3 Assignment: Database Migrations, Runtime Contracts & Server State
+    reflectionQuestion:
+      "What leaks when a controller imports a database or entity model directly instead of receiving a validated DTO?",
+    prerequisites: [
+      "Week 1: Modularity & codebase understanding",
+      "Basic familiarity with TypeScript & React",
+    ],
+  },
+  3: {
+    weekNumber: 3,
+    title: "Database Migrations, Runtime Contracts & Server State",
+    tagline: "How schema changes flow safely through contracts to reactive UI components",
+    concept: "Database Migrations & Server State",
+    guidingQuestion:
+      "How do database schema changes flow safely through runtime contracts to reactive UI components?",
+    bigIdea:
+      "In Week 2, you built an accessible application form and connected client-server HTTP contracts. This week, we connect the complete end-to-end vertical slice across all architectural layers:\n\n1. **PostgreSQL & Prisma:** Adding and applying database migrations safely with backwards-compatible defaults.\n2. **NestJS Service & API:** Reading cohort progression from the database and driving dynamic week locking rules.\n3. **Zod Runtime Contracts:** Validating API payloads at the frontend boundary to guarantee type safety and prevent runtime errors.\n4. **TanStack React Query:** Caching, synchronizing, and handling async server state with custom hooks.\n5. **Modular React Architecture:** Rendering single-responsibility components following the one-component-per-file pattern.",
+    outcomes: [
+      "Create and apply PostgreSQL schema migrations safely using Prisma CLI with default values for backwards compatibility.",
+      "Enforce dynamic business and locking rules in NestJS services driven directly by database state.",
+      "Validate API response payloads at the system boundary using Zod runtime schemas.",
+      "Manage asynchronous server state, caching, loading, and error states using TanStack React Query hooks.",
+      "Organize user interface features into clean, modular single-responsibility components adhering strictly to one component per file.",
+    ],
+    coreConcepts: [
+      "Database migrations & schema evolution (Prisma migrate)",
+      "Backwards-compatible defaults in relational databases",
+      "Runtime contract validation (Zod)",
+      "Server state management & caching (TanStack Query v5)",
+      "Single Responsibility Principle & Component Modularity (1 component per file)",
+      "Accessible data presentation & responsive grid layouts",
+    ],
+    appliedThroughTheStack: [
+      {
+        layer: "PostgreSQL",
+        details: "Prisma schema migration adding currentWeekNumber with @default(1).",
+      },
+      {
+        layer: "NestJS",
+        details: "WeeksService dynamic locking rules driven by cohort.currentWeekNumber.",
+      },
+      {
+        layer: "Zod",
+        details: "Runtime parsing and type assertion for cohort and week card payloads.",
+      },
+      {
+        layer: "React",
+        details:
+          "TanStack Query integration (useCohortWeeks), modular cards (CohortHeaderBar, WeekCard, LockedWeekCard), and WeeksPage layout.",
+      },
+    ],
+    assignment: {
+      title: "Database Migrations, Zod Contracts & Weeks Summary Page",
+      summary:
+        "Migrate the database to track cohort progress, validate API data with Zod, and build the Weeks Summary Page using TanStack React Query.",
+      detailsMd: `### Week 3 Assignment: Database Migrations, Runtime Contracts & Server State
 
 #### 1. Database Migration & Backend (\`elwarsha-api\`)
 - In \`prisma/schema.prisma\`, add \`currentWeekNumber Int @default(1)\` to \`model Cohort\`.
@@ -587,337 +587,991 @@ The backend sends a clear JSON response listing every invalid field:
 #### 3. Verification Bar
 - Run \`yarn test\` and \`yarn test:e2e\` in \`elwarsha-api\`.
 - Run \`yarn test\` and \`yarn build\` in \`elwarsha-web\`.`,
-      },
-      resources: {
-        required: [
-          {
-            title: "TanStack Query Render Optimizations (select)",
-            url: "https://tanstack.com/query/latest/docs/framework/react/guides/render-optimizations",
-            layers: "Frontend",
-            format: "Read",
-            time: "15 min",
-            why: "How to derive view models from query cache without unnecessary component re-renders.",
-          },
-          {
-            title: "TanStack Query Full Course 2026 — PedroTech",
-            url: "https://youtu.be/mqV5OvbyXcM?si=d5VlfO4v_QXdfTTk",
-            layers: "Frontend",
-            format: "Watch",
-            time: "45 min",
-            why: "Complete video walkthrough of query keys, loading/error states, and data fetching hooks.",
-          },
-          {
-            title: "Zod Validation in React (Complete Tutorial) — Cosden Solutions",
-            url: "https://www.youtube.com/watch?v=U9PYyMhDc_k",
-            layers: "Frontend, Concept",
-            format: "Watch",
-            time: "25 min",
-            why: "Understanding runtime schema parsing, type inference, and defensive boundary validation.",
-          },
-          {
-            title: "Prisma Migrations: A Step-by-Step Guide — Prisma",
-            url: "https://www.youtube.com/watch?v=ZaCFsFES5yQ",
-            layers: "Backend, Database",
-            format: "Watch",
-            time: "20 min",
-            why: "How Prisma creates, tracks, and applies incremental SQL migration files.",
-          },
-          {
-            title: "Prisma 6 Migrate Getting Started",
-            url: "https://www.prisma.io/docs/orm/v6/prisma-migrate/getting-started",
-            layers: "Backend, Database",
-            format: "Read",
-            time: "15 min",
-            why: "Official reference for prisma migrate dev, migration history, and default column values.",
-          },
-          {
-            title: "React Router: Declarative Routing Guide",
-            url: "https://reactrouter.com/start/declarative/routing",
-            layers: "Frontend",
-            format: "Read",
-            time: "15 min",
-            why: "URL params, route matching, and linking between summary and detail views.",
-          },
-        ],
-        assignment: [
-          {
-            title: "NestJS Prisma Recipe",
-            url: "https://docs.nestjs.com/recipes/prisma",
-            layers: "Backend",
-            format: "Read",
-            time: "15 min",
-            why: "Setting up and injecting PrismaService across NestJS modules.",
-          },
-          {
-            title: "NestJS Modules Documentation",
-            url: "https://docs.nestjs.com/modules",
-            layers: "Backend",
-            format: "Read",
-            time: "15 min",
-            why: "Structuring feature modules, controllers, and service providers cleanly.",
-          },
-          {
-            title: "Zod Documentation & Schema Parsing",
-            url: "https://zod.dev",
-            layers: "Contract",
-            format: "Read",
-            time: "15 min",
-            why: "API reference for z.object, z.array, z.number, and safeParse.",
-          },
-        ],
-        alternative: [
-          {
-            title: "TanStack Query: 1 Intro (Arabic) — kimz codes",
-            url: "https://youtu.be/KIS-MJfuPDY?si=NEFlBFNJ5VPn7Xzt",
-            layers: "Frontend",
-            format: "Watch",
-            time: "20 min",
-            why: "Arabic video introduction to TanStack Query mental models and hooks.",
-          },
-          {
-            title: "Form & Data Validation with Zod (Arabic) — Youssef Turkey",
-            url: "https://youtu.be/4j5SZBTIXLc?si=LRh3UaiP1ODDDbDs",
-            layers: "Frontend, Contract",
-            format: "Watch",
-            time: "25 min",
-            why: "Arabic video tutorial on building schemas and validating runtime contracts with Zod.",
-          },
-          {
-            title: "كورس Prisma الشامل مع PostgreSQL & Express (Arabic) — Ali Sleem",
-            url: "https://www.youtube.com/watch?v=KoFgG7Rjhbc&t=775s",
-            layers: "Backend, Database",
-            format: "Watch",
-            time: "30 min",
-            why: "Arabic video tutorial covering Prisma schemas, migrations, and PostgreSQL relations.",
-          },
-          {
-            title: "تعلم كل شيء عن Prisma (ORM) مع TypeScript (Arabic) — Simple Arab Code",
-            url: "https://www.youtube.com/watch?v=uRPLhqR_d5I&t=92s",
-            layers: "Backend, Database",
-            format: "Watch",
-            time: "25 min",
-            why: "Arabic video overview of Prisma Client generation and queries.",
-          },
-          {
-            title: "كورس Nest JS في ٣ ساعات (Arabic) — أكاديمية ترميز",
-            url: "https://www.youtube.com/watch?v=RwOxUg2rsjY&t=4794s",
-            layers: "Backend",
-            format: "Watch",
-            time: "40 min",
-            why: "Arabic crash course covering controllers, services, and dependency injection in NestJS.",
-          },
-        ],
-      },
-      reflectionQuestion:
-        "Why is runtime validation with Zod necessary on the frontend even when TypeScript types already compile without errors?",
-      prerequisites: [
-        "Week 2: Connecting Frontend & Backend (HTTP & API Contracts)",
-        "Docker Compose PostgreSQL running locally",
-        "Node 22, Yarn & Vitest",
+    },
+    resources: {
+      required: [
+        {
+          title: "TanStack Query Render Optimizations (select)",
+          url: "https://tanstack.com/query/latest/docs/framework/react/guides/render-optimizations",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "How to derive view models from query cache without unnecessary component re-renders.",
+        },
+        {
+          title: "TanStack Query Full Course 2026 — PedroTech",
+          url: "https://youtu.be/mqV5OvbyXcM?si=d5VlfO4v_QXdfTTk",
+          layers: "Frontend",
+          format: "Watch",
+          time: "45 min",
+          why: "Complete video walkthrough of query keys, loading/error states, and data fetching hooks.",
+        },
+        {
+          title: "Zod Validation in React (Complete Tutorial) — Cosden Solutions",
+          url: "https://www.youtube.com/watch?v=U9PYyMhDc_k",
+          layers: "Frontend, Concept",
+          format: "Watch",
+          time: "25 min",
+          why: "Understanding runtime schema parsing, type inference, and defensive boundary validation.",
+        },
+        {
+          title: "Prisma Migrations: A Step-by-Step Guide — Prisma",
+          url: "https://www.youtube.com/watch?v=ZaCFsFES5yQ",
+          layers: "Backend, Database",
+          format: "Watch",
+          time: "20 min",
+          why: "How Prisma creates, tracks, and applies incremental SQL migration files.",
+        },
+        {
+          title: "Prisma 6 Migrate Getting Started",
+          url: "https://www.prisma.io/docs/orm/v6/prisma-migrate/getting-started",
+          layers: "Backend, Database",
+          format: "Read",
+          time: "15 min",
+          why: "Official reference for prisma migrate dev, migration history, and default column values.",
+        },
+        {
+          title: "React Router: Declarative Routing Guide",
+          url: "https://reactrouter.com/start/declarative/routing",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "URL params, route matching, and linking between summary and detail views.",
+        },
+      ],
+      assignment: [
+        {
+          title: "NestJS Prisma Recipe",
+          url: "https://docs.nestjs.com/recipes/prisma",
+          layers: "Backend",
+          format: "Read",
+          time: "15 min",
+          why: "Setting up and injecting PrismaService across NestJS modules.",
+        },
+        {
+          title: "NestJS Modules Documentation",
+          url: "https://docs.nestjs.com/modules",
+          layers: "Backend",
+          format: "Read",
+          time: "15 min",
+          why: "Structuring feature modules, controllers, and service providers cleanly.",
+        },
+        {
+          title: "Zod Documentation & Schema Parsing",
+          url: "https://zod.dev",
+          layers: "Contract",
+          format: "Read",
+          time: "15 min",
+          why: "API reference for z.object, z.array, z.number, and safeParse.",
+        },
+      ],
+      alternative: [
+        {
+          title: "TanStack Query: 1 Intro (Arabic) — kimz codes",
+          url: "https://youtu.be/KIS-MJfuPDY?si=NEFlBFNJ5VPn7Xzt",
+          layers: "Frontend",
+          format: "Watch",
+          time: "20 min",
+          why: "Arabic video introduction to TanStack Query mental models and hooks.",
+        },
+        {
+          title: "Form & Data Validation with Zod (Arabic) — Youssef Turkey",
+          url: "https://youtu.be/4j5SZBTIXLc?si=LRh3UaiP1ODDDbDs",
+          layers: "Frontend, Contract",
+          format: "Watch",
+          time: "25 min",
+          why: "Arabic video tutorial on building schemas and validating runtime contracts with Zod.",
+        },
+        {
+          title: "كورس Prisma الشامل مع PostgreSQL & Express (Arabic) — Ali Sleem",
+          url: "https://www.youtube.com/watch?v=KoFgG7Rjhbc&t=775s",
+          layers: "Backend, Database",
+          format: "Watch",
+          time: "30 min",
+          why: "Arabic video tutorial covering Prisma schemas, migrations, and PostgreSQL relations.",
+        },
+        {
+          title: "تعلم كل شيء عن Prisma (ORM) مع TypeScript (Arabic) — Simple Arab Code",
+          url: "https://www.youtube.com/watch?v=uRPLhqR_d5I&t=92s",
+          layers: "Backend, Database",
+          format: "Watch",
+          time: "25 min",
+          why: "Arabic video overview of Prisma Client generation and queries.",
+        },
+        {
+          title: "كورس Nest JS في ٣ ساعات (Arabic) — أكاديمية ترميز",
+          url: "https://www.youtube.com/watch?v=RwOxUg2rsjY&t=4794s",
+          layers: "Backend",
+          format: "Watch",
+          time: "40 min",
+          why: "Arabic crash course covering controllers, services, and dependency injection in NestJS.",
+        },
       ],
     },
-    4: {
-      weekNumber: 4,
-      title: "Authentication & Authorization",
-      tagline: "Identity tells who you are; capabilities determine what you can touch",
-      concept: "Authentication and authorization",
-      guidingQuestion: "How do we prove a route is strictly gated by a session and a capability?",
-      bigIdea:
-        "Authentication validates user identity, while authorization verifies permissions to perform specific operations. We implement secure cookie sessions, fake/real identity providers, NestJS Guards, and capability-based access controls across domain entities.",
-      outcomes: [
-        "Prove a route is gated by an authenticated session and required capability.",
-        "Implement secure, HttpOnly, SameSite cookies.",
-        "Apply role-to-capability mappings without leaking security logic into presentation layers.",
-      ],
-      coreConcepts: ["Authentication", "Authorization", "Session management", "Capability-based security"],
-      appliedThroughTheStack: [
-        { layer: "NestJS", details: "AuthGuard and RequireCapability decorators." },
-        { layer: "React", details: "Identity context and protected route wrappers." },
-      ],
-      assignment: {
-        title: "Route Gating with Capability Guards",
-        summary: "Gate API endpoints and portal views with authenticated sessions and granular capabilities.",
-        detailsMd: `### Deliverables
-- **AuthGuard**: Validate active sessions and attach user context.
-- **RequireCapability**: Check required capabilities against user roles.`,
+    reflectionQuestion:
+      "Why is runtime validation with Zod necessary on the frontend even when TypeScript types already compile without errors?",
+    prerequisites: [
+      "Week 2: Connecting Frontend & Backend (HTTP & API Contracts)",
+      "Docker Compose PostgreSQL running locally",
+      "Node 22, Yarn & Vitest",
+    ],
+  },
+  4: {
+    weekNumber: 4,
+    title: "Identity, Authentication & Route Protection",
+    tagline:
+      "Authenticate identity at the edge; protect every sensitive route through the stack",
+    concept: "Authentication, session management & protected routes",
+    guidingQuestion:
+      "How do we prove user identity and ensure portal routes are strictly gated?",
+    bigIdea:
+      "In Week 3, you built the Cohort Weeks portal view. This week, we make **login fully working** and **protect sensitive routes** across both frontend and backend:\n\n1. **Authentication (Login):** Prove user identity through secure HttpOnly cookie sessions. Unauthenticated requests return **401 Unauthorized**.\n2. **Object-Level Authorization (BOLA Defense):** Proving identity (401) is only the first layer. A participant must not access another cohort's weekly materials. We implement a NestJS `CohortMembershipGuard` checking database membership for `:cohortSlug` and returning **403 Forbidden** for non-members.\n3. **Protected Routes (Frontend):** Build a `ProtectedRoute` wrapper for portal routes that handles loading, signed-out, and denied states without ever reading or storing session tokens in JavaScript storage.\n4. **Session Lifecycle:** Display the user identity and a Sign-out button in the UI that cleanly revokes the session on the backend.\n5. **Browser Security:** Enforce HttpOnly and SameSite cookie policies, along with strict CORS allowlists for the frontend origin with credentials.",
+    outcomes: [
+      "Require a valid session cookie on protected API routes and return 401 when missing or expired.",
+      "Implement object-level cohort authorization with CohortMembershipGuard to prevent Broken Object Level Authorization (BOLA), returning 403 when an authenticated user attempts to access a cohort they are not enrolled in.",
+      "Implement a ProtectedRoute component in React that gates portal routes based on authentication status.",
+      "Render dedicated, accessible Signed-Out and Access-Denied screens in Arabic and English.",
+      "Connect the complete login and logout flow end-to-end between frontend and backend.",
+      "Enforce cookie security (HttpOnly, Secure, SameSite) and CORS allowlisting with credentials.",
+    ],
+    coreConcepts: [
+      "Authentication vs authorization",
+      "Object-level authorization & BOLA prevention (OWASP API1:2023)",
+      "Session cookies (HttpOnly, Secure, SameSite)",
+      "Protected routes and auth context in React",
+      "Route gating with NestJS Guards",
+      "Accessible request states and focus management",
+      "Disclosure policy: 401 vs 403 vs 404",
+    ],
+    appliedThroughTheStack: [
+      {
+        layer: "NestJS",
+        details:
+          "AuthGuard, RequireCapability('weeks.read'), and CohortMembershipGuard applied to WeeksController endpoints, returning 401 when unauthenticated and 403 when accessing an unauthorized cohort.",
       },
-      resources: {
-        required: [
-          {
-            title: "NestJS Guards Documentation",
-            url: "https://docs.nestjs.com/guards",
-            layers: "Backend",
-            format: "Read",
-            time: "20 min",
-            why: "Mental model for request interception and route gating.",
-          },
-        ],
-        assignment: [],
-        alternative: [],
+      {
+        layer: "HTTP",
+        details:
+          "HttpOnly + Secure + explicit SameSite session cookie and a CORS allowlist with credentials.",
       },
-      reflectionQuestion: "What is the difference between session validity and capability checks?",
-      prerequisites: ["Week 3"],
+      {
+        layer: "React",
+        details:
+          "ProtectedRoute wrapper for portal routes, auth state via useSession, signed-out and denied screens, and sign-out header action.",
+      },
+    ],
+    assignment: {
+      title: "Full-Stack Login & Protected Routes",
+      summary:
+        "Connect the login flow end-to-end, protect portal routes with React guards and signed-out screens, and gate backend week endpoints with AuthGuard.",
+      detailsMd: `### Week 4 Assignment: Full-Stack Login & Protected Routes
+
+#### Shared access policy
+
+Frontend and backend follow the **same policy**.
+
+| Situation | API response | UI screen |
+| --- | --- | --- |
+| Not signed in | **401** Unauthorized | Signed-out screen with Sign In button |
+| Signed in, missing required capability or membership | **403** Forbidden | Denied / not found screen |
+| Signed in with valid session & permissions | 200 OK | Protected portal page |
+
+#### 1. Frontend (\`elwarsha-web\`)
+
+**Required tools:** React Context, React Router, TanStack Query v5, Vitest + Testing Library.
+
+Send every request **with credentials** (cookies). The frontend **never reads or stores the session token** — no \`localStorage\`, no \`sessionStorage\`, no token in state. Hiding a button is UX, not security.
+
+- **Login Flow & Session Integration:**
+  - Consume \`useSession\` from \`@core/session\` to expose reactive authentication state: loading, authenticated, unauthenticated.
+  - Show the signed-in user's name and a **Sign out** button in the header. Sign out calls \`api.logout()\`, clears the session cache, and returns the user to the landing page.
+  - When unauthenticated, provide a **Sign in** button that initiates login via \`/api/v1/auth/login\`.
+- **Protected Route Guards (\`ProtectedRoute\`):**
+  - Implement a \`ProtectedRoute\` wrapper component for \`portalRoutes\` in \`src/app/routes/\`.
+  - While loading session state, display an accessible loading indicator.
+  - When unauthenticated, render a dedicated **Signed-out screen** with a prominent "Sign in" action.
+  - When authenticated but unauthorized, render a **Denied screen** (403).
+- **Accessibility & Internationalization:**
+  - Build every screen in Arabic (RTL) and English (LTR).
+  - Request states are announced through a **live region** (\`role="status"\` / \`role="alert"\`), and **focus moves to the error** when a request fails.
+- **Verification Tests:**
+  - One test proving the **signed-out screen** renders when an unauthenticated user visits a protected portal route.
+  - One test proving the **protected content** renders when authenticated.
+
+#### 2. Backend (\`elwarsha-api\`)
+
+**Required tools:** NestJS Guards, cookie-parser, NestJS CORS, Vitest + supertest.
+
+The starter already has \`AuthGuard\`, session cookies, and \`/api/v1/auth/me\` in \`src/modules/identity\`. Build on them; do not create a second auth system.
+
+1. **Authentication** — gate \`WeeksController\` endpoints (\`/api/v1/cohorts/:cohortSlug/weeks\`, \`/api/v1/weeks\`) with \`@UseGuards(AuthGuard)\`. No session → **401**.
+2. **Capability check** — enforce \`@RequireCapability("weeks.read")\` for role-based authorization.
+3. **Object-level authorization (\`CohortMembershipGuard\`)** — protect \`:cohortSlug\` endpoints against Broken Object Level Authorization (BOLA). Verify via \`PrismaService\` that the authenticated user is enrolled in the requested cohort.
+   - Enrolled members → **200 OK**.
+   - Authenticated non-members → **403 Forbidden** (or 404).
+   - Admins & maintainers → bypass cohort-specific check.
+4. **Session cookie** — ensure session cookies use \`HttpOnly\`, \`SameSite: "lax"\`, and \`Secure\` in production.
+5. **CORS** — allow only the frontend origin, with credentials enabled (\`credentials: true\`). No wildcard (\`*\`).
+6. **Endpoints in scope:**
+
+| Method | Path | Purpose | Expected Status / Errors |
+| --- | --- | --- | --- |
+| GET | \`/api/v1/auth/login\` | Initiate provider sign-in | 302 Redirect |
+| GET | \`/api/v1/auth/callback\` | Validate callback & issue session cookie | 302 Redirect |
+| GET | \`/api/v1/auth/me\` | Current authenticated user & capabilities | 401 signed out |
+| POST | \`/api/v1/auth/logout\` | Revoke session & clear cookie | 200 OK |
+| GET | \`/api/v1/cohorts/:cohortSlug/weeks\` | List cohort weeks (protected) | 401 unauthenticated · 403 not enrolled |
+| GET | \`/api/v1/cohorts/:cohortSlug/weeks/:weekNumber\` | Week detail (protected) | 401 unauthenticated · 403 not enrolled / 404 |
+
+- **Verification Tests:**
+  - One test proving that calling protected weeks endpoints without an active session returns **401**.
+  - One test proving that an authenticated user who is NOT enrolled in the requested cohort returns **403 Forbidden**.
+  - One test proving that an authenticated enrolled member returns **200 OK**.
+
+#### 3. Verification Bar
+- Run \`yarn test\` and \`yarn build\` in \`elwarsha-web\`.
+- Run \`yarn validate\` and \`yarn test\` in \`elwarsha-api\` (needs local Postgres: \`docker compose up -d\`).
+
+#### Done when
+- [ ] Unauthenticated requests to protected API routes return **401**.
+- [ ] Authenticated requests to cohorts the user is not enrolled in return **403 Forbidden** (BOLA defense).
+- [ ] Enrolled users can view their cohort weeks with **200 OK**.
+- [ ] Portal routes on the frontend are guarded by authentication state.
+- [ ] Unauthenticated users visiting portal routes see a clear Signed-Out screen with a Sign In button.
+- [ ] The full login and logout cycle works end-to-end with HttpOnly cookies.
+- [ ] User identity is reflected in the header with a working logout action.
+- [ ] The frontend never reads or stores the session token in client storage.
+- [ ] Request states use a live region and focus moves to the error notice on failure.
+
+#### Stretch Challenge (Optional): Real Auth0 Integration
+
+Once your core PR is green and verified using the built-in fake provider, test your architecture against a real OpenID Connect identity provider without changing backend or frontend business logic:
+
+1. **Create an Auth0 Application:**
+   - Sign up for a free tenant at [auth0.com](https://auth0.com).
+   - In the Auth0 Dashboard, navigate to **Applications > Create Application**, name it (e.g. \`ElWarsha Local\`), and select **Regular Web Applications**.
+2. **Configure Allowed URIs:**
+   - **Allowed Callback URLs:** \`http://localhost:3001/api/v1/auth/callback\` *(Notice this is the API port where code exchange occurs)*
+   - **Allowed Logout URLs:** \`http://localhost:5173\`
+   - **Allowed Web Origins:** \`http://localhost:5173\`
+3. **Configure Environment in \`elwarsha-api/.env\`:**
+   \`\`\`bash
+   IDENTITY_PROVIDER=auth0
+   AUTH0_DOMAIN=your-tenant.us.auth0.com
+   AUTH0_CLIENT_ID=your_client_id
+   AUTH0_CLIENT_SECRET=your_client_secret
+   \`\`\`
+4. **Verify Live Social Sign-in:**
+   - Restart the API server (\`yarn dev\`).
+   - Click "Sign in" on the web app. You will be redirected to the real Auth0 login page (supports Google, Email magic links, or username/password).
+   - Upon successful sign-in, Auth0 redirects back to your local callback, your NestJS backend issues the secure HttpOnly cookie, and you land authenticated in the portal!
+   - *Note: Keep your \`.env\` secrets safe and never commit them to git. Submit your PR with \`IDENTITY_PROVIDER=fake\` so peer reviewers and CI checks pass cleanly.*`,
     },
-    5: {
-      weekNumber: 5,
-      title: "Safe Schema Migrations & Zero-Downtime Data Evolution",
-      tagline: "Evolving production schemas requires disciplined expand-and-contract steps",
-      concept: "Database migrations",
-      guidingQuestion: "How do we migrate a busy production table without taking the service down?",
-      bigIdea:
-        "In production environments, columns cannot simply be dropped or renamed in a single step without breaking active clients. We implement the Expand-and-Contract migration pattern in Prisma and PostgreSQL to evolve relational schemas seamlessly.",
-      outcomes: [
-        "Write backward-compatible database migrations in Prisma.",
-        "Decouple dual-write and dual-read phases during entity schema evolutions.",
+    resources: {
+      required: [
+        {
+          title:
+            "JWT simply: Authentication vs Authorization & sessions (Arabic) — Bak Tech",
+          url: "https://www.youtube.com/watch?v=wDwA7ihoOlc",
+          layers: "Concept",
+          format: "Watch",
+          time: "—",
+          why: "Step 1: the difference between authentication, authorization, sessions, and JWT.",
+        },
+        {
+          title: "Cookies vs Sessions (Arabic) — أكاديمية ترميز",
+          url: "https://www.youtube.com/watch?v=hUQPu-RWJ_U",
+          layers: "Concept",
+          format: "Watch",
+          time: "—",
+          why: "Step 2: how cookies and server sessions work together.",
+        },
+        {
+          title: "React Protected Routes, videos 91–93 (Arabic) — Nageeb Darwish",
+          url: "https://www.youtube.com/watch?v=cjTE0IayYPg&list=PLpr1Lg_f0v3ojNKR4WzZ_SEXhiKBHDQmB&index=91",
+          layers: "Frontend",
+          format: "Watch",
+          time: "—",
+          why: "Step 3: guarding routes in React Router and redirecting after sign-in.",
+        },
+        {
+          title:
+            "Authentication in React with JWTs, Access & Refresh Tokens — Cosden Solutions",
+          url: "https://www.youtube.com/watch?v=AcYF18oGn6Y",
+          layers: "Frontend",
+          format: "Watch",
+          time: "—",
+          why: "Step 4: building an auth context in React. (Note: In El-Warsha we store sessions in HttpOnly cookies, never in localStorage or client state).",
+        },
+        {
+          title:
+            "NestJS API Authentication using JWT Tokens (HttpOnly cookies) — Scalable Scripts",
+          url: "https://www.youtube.com/watch?v=5rlsUfQTRzs&list=PLlameCF3cMEu8KAN-02n3CtToO5iYELTV",
+          layers: "Backend",
+          format: "Watch",
+          time: "—",
+          why: "Step 5: authenticating NestJS routes with HttpOnly cookies and guards. (Note: El-Warsha uses opaque database session tokens rather than JWTs).",
+        },
+        {
+          title: "React Router: Protected Routes Guide — Robin Wieruch",
+          url: "https://www.robinwieruch.de/react-router-private-routes/",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "Clean architectural pattern for gating routes with <Navigate /> and <Outlet /> in modern React Router.",
+        },
+        {
+          title: "React: Passing data deeply with context",
+          url: "https://react.dev/learn/passing-data-deeply-with-context",
+          layers: "Frontend",
+          format: "Read",
+          time: "—",
+          why: "Official guide for sharing the current user through React Context.",
+        },
+        {
+          title: "MDN: Using HTTP cookies",
+          url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies",
+          layers: "Concept",
+          format: "Read",
+          time: "—",
+          why: "Reference for HttpOnly, Secure, and SameSite cookie attributes.",
+        },
       ],
-      coreConcepts: ["Expand and Contract pattern", "Zero-downtime database migrations"],
-      appliedThroughTheStack: [
-        { layer: "Prisma", details: "Careful schema migrations without destructive column drops." },
-        { layer: "PostgreSQL", details: "Safe indexing and non-blocking constraints." },
+      assignment: [
+        {
+          title: "NestJS Guards Documentation",
+          url: "https://docs.nestjs.com/guards",
+          layers: "Backend",
+          format: "Read",
+          time: "15 min",
+          why: "Canonical reference for CanActivate, ExecutionContext, and how guards protect endpoints.",
+        },
+        {
+          title: "OWASP API1:2023 — Broken Object Level Authorization",
+          url: "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/",
+          layers: "Concept, Backend",
+          format: "Read",
+          time: "15 min",
+          why: "Understanding BOLA flaws and why verifying cohort membership per object is essential.",
+        },
+        {
+          title: "NestJS Authentication",
+          url: "https://docs.nestjs.com/security/authentication",
+          layers: "Backend",
+          format: "Read",
+          time: "—",
+          why: "Official reference for authentication guards in NestJS.",
+        },
+        {
+          title: "NestJS Authorization",
+          url: "https://docs.nestjs.com/security/authorization",
+          layers: "Backend",
+          format: "Read",
+          time: "—",
+          why: "Official reference for role, claims, and policy-based authorization.",
+        },
+        {
+          title: "NestJS CORS",
+          url: "https://docs.nestjs.com/security/cors",
+          layers: "Backend",
+          format: "Read",
+          time: "—",
+          why: "Allowlisting the frontend origin with credentials.",
+        },
+        {
+          title: "MDN: ARIA live regions",
+          url: "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions",
+          layers: "Frontend, Accessibility",
+          format: "Read",
+          time: "10 min",
+          why: "Accessible announcements for sign-in errors and auth state changes using role='status' and role='alert'.",
+        },
+        {
+          title: "OWASP Session Management Cheat Sheet",
+          url: "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html",
+          layers: "Concept",
+          format: "Read",
+          time: "—",
+          why: "Secure session cookie attributes and lifecycle.",
+        },
+        {
+          title: "OWASP Authentication Cheat Sheet",
+          url: "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html",
+          layers: "Concept",
+          format: "Read",
+          time: "—",
+          why: "Generic sign-in error messages and authentication best practices.",
+        },
+        {
+          title: "OWASP Authorization Cheat Sheet",
+          url: "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+          layers: "Concept",
+          format: "Read",
+          time: "—",
+          why: "Deny by default and check authorization on every request.",
+        },
+        {
+          title: "Claude Code permissions",
+          url: "https://code.claude.com/docs/en/permissions",
+          layers: "AI agent security",
+          format: "Read",
+          time: "—",
+          why: "Limiting what a coding agent is allowed to run and read.",
+        },
+        {
+          title: "Cursor agent security",
+          url: "https://cursor.com/docs/agent/security",
+          layers: "AI agent security",
+          format: "Read",
+          time: "—",
+          why: "Security model of the Cursor agent.",
+        },
       ],
-      assignment: {
-        title: "Expand and Contract Schema Migration",
-        summary: "Migrate database schema with non-breaking expand, dual-write, and contract phases.",
-        detailsMd: `### Deliverables
+      alternative: [
+        {
+          title: "NestJS Authorization: RBAC, ABAC, and claims-based guards",
+          url: "https://www.youtube.com/watch?v=wdsp7BNmJRc",
+          layers: "Backend",
+          format: "Watch",
+          time: "—",
+          why: "Video walkthrough of authorization guard patterns in NestJS.",
+        },
+        {
+          title: "Auth0: Authorization Code Flow Guide",
+          url: "https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow",
+          layers: "Backend, Identity",
+          format: "Read",
+          time: "15 min",
+          why: "Official overview of OpenID Connect authorization code exchange for the Auth0 stretch challenge.",
+        },
+        {
+          title: "Building Smarter Authorization Systems (Oso)",
+          url: "https://www.lastweekinaws.com/podcast/screaming-in-the-cloud/building-smarter-authorization-systems-with-sam-scott/",
+          layers: "Concept",
+          format: "Listen",
+          time: "—",
+          why: "Podcast on designing authorization systems.",
+        },
+      ],
+    },
+    reflectionQuestion:
+      "Why must the backend enforce authentication and capability checks even when the frontend already hides views or links the user cannot access?",
+    prerequisites: [
+      "Week 3: Cohort Weeks summary page (database migration, runtime contracts, TanStack Query)",
+      "Docker Compose PostgreSQL running locally",
+      "Node 22, Yarn & Vitest",
+    ],
+  },
+  5: {
+    weekNumber: 5,
+    title: "Testing, Quality & Evaluation Loops",
+    tagline: "Use executable evidence to control change",
+    concept: "Testing and evaluation",
+    guidingQuestion:
+      "How do we know that human- or AI-written code actually solves the problem?",
+    bigIdea:
+      "A test only protects a behavior if it **fails when that behavior is broken**. The cohort application flow already has tests on both sides. This week you audit them, the way a reviewer would:\n\n1. **Plan by risk:** build a risk-based test matrix before writing any test, and keep only the rows you can justify.\n2. **Test behavior, not internals:** query by role and label, interact with `user-event`, and assert what the user perceives.\n3. **Pick the cheapest level that catches the risk:** pure rules get unit tests; contracts get HTTP tests; only the critical journey gets a browser test.\n4. **Prove it:** break the production code on purpose and watch the test go red.\n5. **Evaluate AI output:** classify every AI review finding as valid, false positive, or uncertain, instead of accepting it.",
+    outcomes: [
+      "Choose an appropriate test level for a behavior and its risk.",
+      "Tell a test that protects behavior from one that only executes code.",
+      "Write behavior-focused frontend, backend, and end-to-end tests.",
+      "Keep test data repeatable and isolate dependencies: network, database, and clock.",
+      "Use a required CI check as merge evidence.",
+      "Evaluate AI-generated code, tests, and review findings instead of accepting them.",
+    ],
+    coreConcepts: [
+      "Unit, integration, contract, and end-to-end tests",
+      "Behavior versus implementation details",
+      "Determinism and test isolation",
+      "Risk-based test matrix",
+      "Breaking behavior on purpose to prove a test",
+      "Classifying AI findings: valid / false positive / uncertain",
+    ],
+    appliedThroughTheStack: [
+      {
+        layer: "React",
+        details:
+          "Testing Library role and label queries with user-event, asserting what the user perceives (elwarsha-web).",
+      },
+      {
+        layer: "NestJS",
+        details:
+          "Provider unit tests with no database or Nest module; HTTP tests through AppModule with supertest (elwarsha-api).",
+      },
+      {
+        layer: "Playwright",
+        details:
+          "The apply flow end to end in a real browser, with the API stubbed at the network boundary (page.route).",
+      },
+      {
+        layer: "GitHub",
+        details:
+          "verify as a required status check: a red check blocks the merge button.",
+      },
+    ],
+    assignment: {
+      title: "Audit & Harden the Cohort Application Tests",
+      summary:
+        "Build a risk-based test matrix, harden the web form tests, add the missing ApplicationsService unit tests, prove each side's tests by breaking the code on purpose, and compare human and AI review findings.",
+      detailsMd: `### Week 5 Assignment: Audit & Harden the Cohort Application Tests
+
+**Deliverable:** one PR to each repository. Each PR description contains sections 1–6 below. If a PR is too large to review in about 20 minutes, split it.
+
+#### Starting point
+
+| Side | File | What it covers | Known gaps |
+| --- | --- | --- | --- |
+| Web | \`src/features/apply/CohortApplicationForm.test.tsx\` | Sections render; 422 field errors; 409 global alert; 201 receipt | Uses \`fireEvent\`; finds sections with \`getByText\`; asserts the literal id \`aria-describedby="email-error"\` |
+| API | \`test/app.e2e-spec.ts\` (last 3 tests) | 201; 422 with \`invalidParams\`; 409 for an identical payload | Not covered: case-insensitive matching, duplicate GitHub handle, another cohort |
+| API | \`src/modules/applications/applications.service.spec.ts\` | **Does not exist** | \`ApplicationsService\` has no unit tests |
+
+Facts to plan around:
+
+- \`ApplicationsService\` stores applications **in memory**. \`apply()\` is \`async\`, throws \`ConflictError\` (409), and \`reset()\` clears state.
+- \`test/app.e2e-spec.ts\` needs a migrated, seeded Postgres and shares the database with local development.
+- \`yarn e2e\` serves the built web app with \`vite preview\`. **No API runs.**
+
+#### 1. Risk-based test matrix
+
+Ask the agent for a risk-based test matrix before it writes any tests, and paste the prompt and the raw output into the PR. Then build the final table in this format, with one row for every existing application test and every test you add:
+
+| Behavior | Risk if broken | Level | Test (file › name) | Status | Why this level |
+| --- | --- | --- | --- | --- | --- |
+| Duplicate email in the same cohort is rejected, regardless of letter case | An applicant enters twice under \`Sara@\` and \`sara@\` | Unit | \`applications.service.spec.ts\` › "rejects duplicate email ignoring case" | add | Pure rule. No HTTP or database needed. |
+
+- **Status** is one of: keep, fix, add, delete.
+- At least one row is **delete**, or a **fix** that merges two overlapping tests.
+- Rows the AI suggested and you dropped stay in the table with status **rejected** and a reason.
+
+#### 2. Frontend (\`elwarsha-web\`)
+
+Harden \`CohortApplicationForm.test.tsx\`. The work is done when:
+
+- \`fireEvent\` no longer appears. Interactions use \`const user = userEvent.setup()\` and \`await user.type()\` / \`await user.click()\`.
+- The four sections are found with \`getByRole("group", { name: /…/ })\`. The \`<legend>\` provides the name.
+- **422:** the email input is found with \`getByLabelText\` and asserted with \`toHaveAttribute("aria-invalid", "true")\` and \`toHaveAccessibleDescription(/valid email/i)\`. No test references an element id.
+- **409:** \`getByRole("alert")\` contains the duplicate message.
+- **201:** the receipt heading is visible **and** the submit button is no longer in the document.
+- The suite passes with \`yarn test\` and with \`yarn vitest run --sequence.shuffle\`.
+
+#### 3. Backend (\`elwarsha-api\`)
+
+1. **Create** \`src/modules/applications/applications.service.spec.ts\`. Instantiate the service directly with \`new ApplicationsService()\`: no Nest testing module and no database. Cover:
+   - a valid application returns a receipt with an \`app_\` id and \`status: "received"\`;
+   - a duplicate email in different letter case rejects with \`ConflictError\` (\`await expect(...).rejects.toThrow(ConflictError)\`);
+   - a duplicate GitHub handle with a different email rejects;
+   - the same applicant in a different cohort is accepted;
+   - \`reset()\` clears state.
+2. **HTTP:** application HTTP cases stay in \`test/app.e2e-spec.ts\`. Add or change one only where your matrix shows a unit test cannot cover the risk.
+3. Reuse \`vitest.config.ts\` and \`vitest.config.e2e.ts\`. Do not add a new test harness.
+
+#### 4. Break the behavior on purpose
+
+On each side, pick one test from your matrix and break the **production** code, not the test. Commit nothing broken. In the PR, include the one-line change, the red run (command and failing test name), and the green run after restoring the code.
+
+- **API:** remove \`.toLowerCase()\` from \`normalizedEmail\` in \`ApplicationsService.apply\`.
+- **Web:** stop rendering the email error \`<span>\` in \`PersonalInfoSection.tsx\`.
+
+If your test stays green, that is a finding: fix the test and report it.
+
+#### 5. Human vs AI review
+
+1. Write your own review notes on the diff first: at least three observations.
+2. Run one AI reviewer: Cursor Agent Review, or Claude Code \`/code-review\`.
+3. Combine both into one table: finding → source (human / AI / both) → **valid / false positive / uncertain** → one-line reason → action taken.
+
+#### 6. CI gate
+
+Show that a red \`verify\` check disables **Merge** on your PR, then push the fix that turns it green. Required checks block **merging**, not **approving**. That is why approval on its own is not evidence.
+
+#### Verification bar
+
+| Repo | Commands |
+| --- | --- |
+| elwarsha-web | \`yarn test\`, \`yarn vitest run --sequence.shuffle\`, \`yarn e2e\` |
+| elwarsha-api | \`yarn test\`, then \`yarn test:e2e\` with Postgres running, migrated, and seeded (\`docker compose up -d && yarn prisma:deploy && yarn prisma:seed\`) |
+
+After switching branches, run \`yarn prisma:generate\` before you run tests. A generated client built from another branch's schema fails with \`P2022\`.
+
+#### Accessibility bar
+
+Role and label queries pass, which shows that controls have accessible roles and names. The 422 test also shows that the error is linked to its field through the accessible description. jsdom cannot show that a screen reader **announces** anything. Treat that as **uncertain** unless you check it with a real screen reader.
+
+#### Acceptance criteria
+
+- [ ] The matrix uses the table format above, and every test you kept or added has a row.
+- [ ] The web tests meet every item in section 2.
+- [ ] \`applications.service.spec.ts\` exists and covers the five cases in section 3.
+- [ ] One deliberate break per side, with the red and green runs reported.
+- [ ] The human vs AI findings table is complete, and every AI finding is classified.
+- [ ] Shuffled runs pass in both repositories.
+- [ ] \`verify\` is green on the final commit.
+
+#### Full scope (optional, raises the rubric ceiling)
+
+- **Playwright apply flow** (\`e2e/apply.spec.ts\`): open \`/en/apply/\`, fill every field with \`getByLabel\`, submit, and see the receipt heading. Stub \`**/api/v1/cohorts/*/applications\` with \`page.route\`. Add a second case that returns 422 and shows the field error. Use web-first assertions only; no \`waitForTimeout\`.
+- **Deterministic week locking:** the HTTP weeks test depends on today's date. Make it independent of when it runs (a cohort seeded relative to \`now\`, or an injected clock), then assert one completed, one active, and one locked week.
+
+#### Advanced track (optional)
+
+- Run the API e2e suite against an **isolated database**: a separate \`DATABASE_URL\`, or **Testcontainers**.
+- Run **Stryker** mutation testing on \`applications.service.ts\` and report surviving mutants.
+- Turn "does the agent's output work" into a measurable eval loop.`,
+    },
+    resources: {
+      required: [
+        {
+          title: "Testing Library: Guiding principles",
+          url: "https://testing-library.com/docs/guiding-principles",
+          layers: "Frontend",
+          format: "Read",
+          time: "5 min",
+          why: "Behavior-focused frontend testing.",
+        },
+        {
+          title: "Testing Library: About queries",
+          url: "https://testing-library.com/docs/queries/about",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "Query priority by role and label, which doubles as an accessibility check.",
+        },
+        {
+          title: "Common mistakes with React Testing Library — Kent C. Dodds",
+          url: "https://kentcdodds.com/blog/common-mistakes-with-react-testing-library",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "Covers what is wrong with the current tests: fireEvent, getByText, and asserting on ids.",
+        },
+        {
+          title: "NestJS: Testing",
+          url: "https://docs.nestjs.com/fundamentals/testing",
+          layers: "Backend",
+          format: "Read",
+          time: "20 min, selected",
+          why: "Provider unit tests and HTTP tests with supertest.",
+        },
+        {
+          title: "Write tests. Not too many. Mostly integration. — Kent C. Dodds",
+          url: "https://www.youtube.com/watch?v=Fha2bVoC8SE",
+          layers: "Concept",
+          format: "Watch",
+          time: "15 min",
+          why: "The mental model for balancing confidence, cost, and test scope.",
+        },
+        {
+          title: "Cursor: Agent Review (pick one)",
+          url: "https://cursor.com/docs/agent/review",
+          layers: "AI",
+          format: "Read",
+          time: "15 min",
+          why: "An additional AI reviewer on the diff. Read this or the Claude Code page.",
+        },
+        {
+          title: "Claude Code: Code review (pick one)",
+          url: "https://code.claude.com/docs/en/code-review",
+          layers: "AI",
+          format: "Read",
+          time: "15 min",
+          why: "Local /code-review is always available; hosted PR review depends on the plan.",
+        },
+      ],
+      assignment: [
+        {
+          title: "Testing Library: user-event",
+          url: "https://testing-library.com/docs/user-event/intro",
+          layers: "Frontend",
+          format: "Read",
+          time: "10 min",
+          why: "userEvent.setup() and why it replaces fireEvent.",
+        },
+        {
+          title: "Vitest: Mocking",
+          url: "https://vitest.dev/guide/mocking",
+          layers: "Both",
+          format: "Read",
+          time: "10 min, selected",
+          why: "vi.mock, vi.fn, vi.setSystemTime, and when not to mock.",
+        },
+        {
+          title: "Playwright: Mock APIs",
+          url: "https://playwright.dev/docs/mock",
+          layers: "Frontend",
+          format: "Read",
+          time: "10 min",
+          why: "page.route for the apply flow without a running API (Full scope).",
+        },
+        {
+          title: "Playwright: Best practices",
+          url: "https://playwright.dev/docs/best-practices",
+          layers: "Frontend",
+          format: "Read",
+          time: "10 min",
+          why: "User-facing locators, isolation, and no fixed waits.",
+        },
+        {
+          title: "GitHub: Managing a branch protection rule",
+          url: "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule",
+          layers: "Delivery",
+          format: "Read",
+          time: "10 min, selected",
+          why: "What a required status check enforces, and what it does not.",
+        },
+        {
+          title: "On the Diverse and Fantastical Shapes of Testing — Martin Fowler",
+          url: "https://martinfowler.com/articles/2021-test-shapes.html",
+          layers: "Concept",
+          format: "Read",
+          time: "20 min",
+          why: "Test scope, confidence, and cost when the matrix is contested.",
+        },
+        {
+          title: "Testing Implementation Details — Kent C. Dodds",
+          url: "https://kentcdodds.com/blog/testing-implementation-details",
+          layers: "Frontend",
+          format: "Read",
+          time: "15 min",
+          why: "Optional reinforcement of the Testing Library principles.",
+        },
+        {
+          title: "Prisma: Integration testing (Advanced)",
+          url: "https://www.prisma.io/docs/orm/prisma-client/testing/integration-testing",
+          layers: "Backend",
+          format: "Read",
+          time: "20 min",
+          why: "An isolated database, seeding, and teardown.",
+        },
+        {
+          title: "Testcontainers for Node.js (Advanced)",
+          url: "https://node.testcontainers.org",
+          layers: "Backend",
+          format: "Read",
+          time: "20 min",
+          why: "Ephemeral PostgreSQL for integration tests without shared state.",
+        },
+        {
+          title: "Stryker mutation testing (Advanced)",
+          url: "https://stryker-mutator.io",
+          layers: "Concept",
+          format: "Read",
+          time: "15 min",
+          why: "Finds tests that pass while protecting nothing.",
+        },
+        {
+          title: "Demystifying evals for AI agents — Anthropic (Advanced)",
+          url: "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+          layers: "AI",
+          format: "Read",
+          time: "30 min",
+          why: 'Turns "does the agent\'s output work" into a measurable evaluation loop.',
+        },
+      ],
+      alternative: [
+        {
+          title:
+            "Testing in React Tutorial: Jest and React Testing Library — PedroTech (English)",
+          url: "https://www.youtube.com/watch?v=JBSUgDxICg8",
+          layers: "Frontend",
+          format: "Watch",
+          time: "~30 min",
+          why: "Behavior-focused component tests. Uses Jest: read jest.fn as vi.fn.",
+        },
+        {
+          title:
+            "React, Next.js, Testing Library & Jest project course — Index Academy (Arabic)",
+          url: "https://www.youtube.com/watch?v=tOoxZf3dxhQ&list=PLDQ11FgmbqQOFLSRv-Ya39CchDjP1BLju",
+          layers: "Frontend",
+          format: "Watch",
+          time: "2–3 episodes",
+          why: "Arabic walkthrough of Testing Library on a real project. Watch only the form-testing episodes.",
+        },
+        {
+          title:
+            "React Testing with Playwright (Complete Tutorial) — Cosden Solutions (English)",
+          url: "https://www.youtube.com/watch?v=3NW0Mz943_E",
+          layers: "Frontend",
+          format: "Watch",
+          time: "~25 min",
+          why: "End-to-end Playwright flow for React apps.",
+        },
+        {
+          title: "Playwright: Introduction series — Mohamed Bakry (Arabic)",
+          url: "https://www.youtube.com/watch?v=afxvu3DlT2w&list=PLdQqfr7NdTfoK2FnHR-MmqSIIfGD7WV0E",
+          layers: "Frontend",
+          format: "Watch",
+          time: "series",
+          why: "Arabic introduction to Playwright: selectors and a first test.",
+        },
+        {
+          title: "NestJS: Unit Test, Part 43 — Youssef Abbas (Arabic)",
+          url: "https://www.youtube.com/watch?v=lKL7i9pWOjc&list=PL5gCk5NdNx5-W_GivoyivrwGOlNnffTX4&index=43&t=2632s",
+          layers: "Backend",
+          format: "Watch",
+          time: "~20 min, from 43:52",
+          why: "Arabic walkthrough of NestJS provider unit testing.",
+        },
+        {
+          title:
+            "Software Testing Course: Playwright, E2E, and AI Agents — freeCodeCamp (English)",
+          url: "https://www.youtube.com/watch?v=jydYq7oAtD8",
+          layers: "Concept",
+          format: "Watch",
+          time: "~63 min, selected chapters",
+          why: "The E2E mental model and where AI agents fit in testing.",
+        },
+      ],
+    },
+    reflectionQuestion:
+      "What would a flaky end-to-end test hide that a focused unit test would show?",
+    prerequisites: ["Week 4", "Docker Compose Postgres"],
+  },
+  6: {
+    weekNumber: 6,
+    title: "Safe Schema Migrations & Zero-Downtime Data Evolution",
+    tagline: "Evolving production schemas requires disciplined expand-and-contract steps",
+    concept: "Database migrations",
+    guidingQuestion:
+      "How do we migrate a busy production table without taking the service down?",
+    bigIdea:
+      "In production environments, columns cannot simply be dropped or renamed in a single step without breaking active clients. We implement the Expand-and-Contract migration pattern in Prisma and PostgreSQL to evolve relational schemas seamlessly.",
+    outcomes: [
+      "Write backward-compatible database migrations in Prisma.",
+      "Decouple dual-write and dual-read phases during entity schema evolutions.",
+    ],
+    coreConcepts: ["Expand and Contract pattern", "Zero-downtime database migrations"],
+    appliedThroughTheStack: [
+      {
+        layer: "Prisma",
+        details: "Careful schema migrations without destructive column drops.",
+      },
+      { layer: "PostgreSQL", details: "Safe indexing and non-blocking constraints." },
+    ],
+    assignment: {
+      title: "Expand and Contract Schema Migration",
+      summary:
+        "Migrate database schema with non-breaking expand, dual-write, and contract phases.",
+      detailsMd: `### Deliverables
 - **Expand Migration**: Add nullable column to Prisma schema.
 - **Dual-write**: Service writes to both old and new columns.`,
-      },
-      resources: {
-        required: [
-          {
-            title: "Zero-downtime database migrations guide",
-            url: "https://www.prisma.io/dataguide/types/relational/zero-downtime-migrations",
-            layers: "Database",
-            format: "Read",
-            time: "20 min",
-            why: "Safe evolutionary database design principles.",
-          },
-        ],
-        assignment: [],
-        alternative: [],
-      },
-      reflectionQuestion: "Why must you not delete a database column in the same PR that stops using it?",
-      prerequisites: ["Week 4"],
     },
-    6: {
-      weekNumber: 6,
-      title: "Background Workers, Concurrency & Lease Locks",
-      tagline: "Controlled concurrency guarantees reliable job processing at scale",
-      concept: "Concurrency and workers",
-      guidingQuestion: "How do we prevent multiple workers from executing the same job at the same time?",
-      bigIdea:
-        "When running multiple worker replicas, race conditions can cause duplicate executions and data corruption. We implement lease locks with heartbeats, exponential backoff retries, and dead-letter handling in PostgreSQL.",
-      outcomes: [
-        "Implement lease locks with timeouts and heartbeat renewal.",
-        "Reclaim abandoned job leases safely without crashing other active workers.",
+    resources: {
+      required: [
+        {
+          title: "Zero-downtime database migrations guide",
+          url: "https://www.prisma.io/dataguide/types/relational/zero-downtime-migrations",
+          layers: "Database",
+          format: "Read",
+          time: "20 min",
+          why: "Safe evolutionary database design principles.",
+        },
       ],
-      coreConcepts: ["Lease locks", "Exponential backoff", "Idempotent job execution"],
-      appliedThroughTheStack: [
-        { layer: "PostgreSQL", details: "lockedAt, lockedBy, and attempt counters." },
-        { layer: "Worker", details: "Safe polling loops and graceful shutdown hooks." },
-      ],
-      assignment: {
-        title: "Job Lease Management & Crash Recovery",
-        summary: "Implement lease heartbeats and safe recovery of crashed worker jobs.",
-        detailsMd: `### Deliverables
-- **Lease Renewal**: Periodically renew job lease during long operations.
-- **Reaper**: Automatically reclaim expired leases and retry failed attempts.`,
-      },
-      resources: {
-        required: [
-          {
-            title: "Patterns of Distributed Systems",
-            url: "https://martinfowler.com/articles/patterns-of-distributed-systems/",
-            layers: "Concept",
-            format: "Read",
-            time: "25 min",
-            why: "Concurrency control and lease semantics in distributed architectures.",
-          },
-        ],
-        assignment: [],
-        alternative: [],
-      },
-      reflectionQuestion: "What happens if a worker process crashes mid-job while holding a lease?",
-      prerequisites: ["Week 5"],
+      assignment: [],
+      alternative: [],
     },
-    7: {
-      weekNumber: 7,
-      title: "Production Observability, Health Checks & Telemetry",
-      tagline: "If you cannot measure your service in real time, you cannot run it reliably",
-      concept: "Observability and health checks",
-      guidingQuestion: "How do we distinguish between a liveness failure (healthz) and an unready dependency (readyz)?",
-      bigIdea:
-        "Production systems need clear signals regarding their operational state. We construct rigorous /healthz and /readyz probes, structured JSON logging, and error tracing to monitor application health under real workloads.",
-      outcomes: [
-        "Implement distinct /healthz and /readyz endpoints with meaningful dependency checks.",
-        "Structure all application logs into machine-readable JSON for indexing.",
-      ],
-      coreConcepts: ["Liveness vs Readiness probes", "Structured logging", "Error telemetry"],
-      appliedThroughTheStack: [
-        { layer: "NestJS", details: "Health indicators checking database, redis, and external APIs." },
-      ],
-      assignment: {
-        title: "Health Probes & Structured Telemetry",
-        summary: "Build liveness and readiness endpoints with JSON structured logging across the application.",
-        detailsMd: `### Deliverables
+    reflectionQuestion:
+      "Why must you not delete a database column in the same PR that stops using it?",
+    prerequisites: ["Week 5"],
+  },
+  7: {
+    weekNumber: 7,
+    title: "Production Observability, Health Checks & Telemetry",
+    tagline:
+      "If you cannot measure your service in real time, you cannot run it reliably",
+    concept: "Observability and health checks",
+    guidingQuestion:
+      "How do we distinguish between a liveness failure (healthz) and an unready dependency (readyz)?",
+    bigIdea:
+      "Production systems need clear signals regarding their operational state. We construct rigorous /healthz and /readyz probes, structured JSON logging, and error tracing to monitor application health under real workloads.",
+    outcomes: [
+      "Implement distinct /healthz and /readyz endpoints with meaningful dependency checks.",
+      "Structure all application logs into machine-readable JSON for indexing.",
+    ],
+    coreConcepts: [
+      "Liveness vs Readiness probes",
+      "Structured logging",
+      "Error telemetry",
+    ],
+    appliedThroughTheStack: [
+      {
+        layer: "NestJS",
+        details: "Health indicators checking database, redis, and external APIs.",
+      },
+    ],
+    assignment: {
+      title: "Health Probes & Structured Telemetry",
+      summary:
+        "Build liveness and readiness endpoints with JSON structured logging across the application.",
+      detailsMd: `### Deliverables
 - **/healthz & /readyz**: Probes checking process liveness and dependency readiness.
 - **Structured Logger**: Format all stdout logs in JSON with correlation IDs.`,
-      },
-      resources: {
-        required: [
-          {
-            title: "Kubernetes Liveness and Readiness Probes Guide",
-            url: "https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
-            layers: "DevOps, Concept",
-            format: "Read",
-            time: "20 min",
-            why: "Industry standards for health checking and zero-downtime routing.",
-          },
-        ],
-        assignment: [],
-        alternative: [],
-      },
-      reflectionQuestion: "When should readyz return 503 even if the Node process is running fine?",
-      prerequisites: ["Week 6"],
     },
-    8: {
-      weekNumber: 8,
-      title: "Capstone Release, Public Demo & Architecture Review",
-      tagline: "The culmination: a production-grade software product shipped to real users",
-      concept: "Product release",
-      guidingQuestion: "How do we verify a complete multi-tier system is ready for real users and public traffic?",
-      bigIdea:
-        "In this final week, participants tie together every layer built over the past seven weeks, conducting end-to-end performance verification, accessibility audits, public code reviews, and launching the live product.",
-      outcomes: [
-        "Open and merge the final qualifying pull request.",
-        "Participate in public architecture reviews and demo the live system.",
+    resources: {
+      required: [
+        {
+          title: "Kubernetes Liveness and Readiness Probes Guide",
+          url: "https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/",
+          layers: "DevOps, Concept",
+          format: "Read",
+          time: "20 min",
+          why: "Industry standards for health checking and zero-downtime routing.",
+        },
       ],
-      coreConcepts: ["Production readiness", "Release management", "Public architecture review"],
-      appliedThroughTheStack: [
-        { layer: "Full Stack", details: "Frontend, backend, database, and repository integration." },
-      ],
-      assignment: {
-        title: "Final Qualifying PR & Production Launch",
-        summary: "Audit full-stack performance, accessibility, and ship the release pull request.",
-        detailsMd: `### Deliverables
+      assignment: [],
+      alternative: [],
+    },
+    reflectionQuestion:
+      "When should readyz return 503 even if the Node process is running fine?",
+    prerequisites: ["Week 6"],
+  },
+  8: {
+    weekNumber: 8,
+    title: "Capstone Release, Public Demo & Architecture Review",
+    tagline: "The culmination: a production-grade software product shipped to real users",
+    concept: "Product release",
+    guidingQuestion:
+      "How do we verify a complete multi-tier system is ready for real users and public traffic?",
+    bigIdea:
+      "In this final week, participants tie together every layer built over the past seven weeks, conducting end-to-end performance verification, accessibility audits, public code reviews, and launching the live product.",
+    outcomes: [
+      "Open and merge the final qualifying pull request.",
+      "Participate in public architecture reviews and demo the live system.",
+    ],
+    coreConcepts: [
+      "Production readiness",
+      "Release management",
+      "Public architecture review",
+    ],
+    appliedThroughTheStack: [
+      {
+        layer: "Full Stack",
+        details: "Frontend, backend, database, and repository integration.",
+      },
+    ],
+    assignment: {
+      title: "Final Qualifying PR & Production Launch",
+      summary:
+        "Audit full-stack performance, accessibility, and ship the release pull request.",
+      detailsMd: `### Deliverables
 - **Final Pull Request**: Merge qualifying feature with zero lint errors and 100% test coverage.
 - **Public Demo**: Present architecture and live request flow in public review.`,
-      },
-      resources: {
-        required: [
-          {
-            title: "Production Release Checklist",
-            url: "https://github.com",
-            layers: "Full Stack",
-            format: "Read",
-            time: "15 min",
-            why: "Comprehensive verification before final release.",
-          },
-        ],
-        assignment: [],
-        alternative: [],
-      },
-      reflectionQuestion: "What is the single most valuable architectural principle you applied in this project?",
-      prerequisites: ["All previous weeks"],
     },
+    resources: {
+      required: [
+        {
+          title: "Production Release Checklist",
+          url: "https://github.com",
+          layers: "Full Stack",
+          format: "Read",
+          time: "15 min",
+          why: "Comprehensive verification before final release.",
+        },
+      ],
+      assignment: [],
+      alternative: [],
+    },
+    reflectionQuestion:
+      "What is the single most valuable architectural principle you applied in this project?",
+    prerequisites: ["All previous weeks"],
+  },
 };

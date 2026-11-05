@@ -119,10 +119,11 @@ export class AuthController {
   }
 
   private cookieOptions(path: string): CookieOptions {
+    const isProduction = this.env.NODE_ENV === "production";
     return {
       httpOnly: true,
-      secure: this.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       path,
     };
   }

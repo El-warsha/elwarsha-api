@@ -24,12 +24,13 @@ async function main(): Promise<void> {
     where: { slug: "cohort-01" },
     update: {
       nameAr: "الدفعة الأولى",
-      currentWeekNumber: 3
+      currentWeekNumber: 5,
     },
     create: {
       slug: "cohort-01",
       name: "Cohort 01",
       nameAr: "الدفعة الأولى",
+      currentWeekNumber: 5,
       startsOn: new Date("2026-10-01"),
       endsOn: new Date("2026-11-26"),
     },
@@ -97,27 +98,28 @@ async function main(): Promise<void> {
     },
     {
       weekNumber: 3,
-      title: "Asynchronous flow: webhook verification and background queue",
+      title: "Database migrations, Zod runtime contracts & server state",
       status: "published" as const,
-      labels: ["backend", "worker"],
+      labels: ["database", "contract", "frontend"],
     },
     {
       weekNumber: 4,
-      title: "Authentication and authorization: session guards and capabilities",
+      title: "Full-stack login and protected route authorization",
       status: "draft" as const,
-      labels: ["backend", "security"],
+      labels: ["backend", "frontend", "security"],
     },
     {
       weekNumber: 5,
-      title: "Validation and reliability: request schemas and error envelopes",
+      title:
+        "Testing, quality & evaluation loops: audit application tests and deliberate breaks",
       status: "draft" as const,
-      labels: ["backend", "frontend"],
+      labels: ["testing", "quality"],
     },
     {
       weekNumber: 6,
-      title: "Testing: unit tests and isolated regression coverage",
+      title: "Safe schema migrations & zero-downtime data evolution",
       status: "draft" as const,
-      labels: ["testing", "quality"],
+      labels: ["database", "backend"],
     },
     {
       weekNumber: 7,

@@ -9,7 +9,10 @@ const curriculumData: Record<"ar" | "en", Record<number, CurriculumWeek>> = {
   en: curriculumEn,
 };
 
-export function getCurriculumWeek(weekNumber: number, locale: "ar" | "en" = "en"): CurriculumWeek | null {
+export function getCurriculumWeek(
+  weekNumber: number,
+  locale: "ar" | "en" = "en",
+): CurriculumWeek | null {
   return curriculumData[locale]?.[weekNumber] ?? curriculumData.en[weekNumber] ?? null;
 }
 

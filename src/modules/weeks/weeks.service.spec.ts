@@ -1,22 +1,26 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NotFoundError } from "../../common/errors.js";
+import type { PrismaService } from "../../infrastructure/prisma/prisma.service.js";
 import { WeeksService } from "./weeks.service.js";
-import { WeeksRepository } from "./weeks.repository.js";
 
 describe("WeeksService", () => {
   let service: WeeksService;
-  let repositoryMock: {
-    findActiveEngagement: ReturnType<typeof vi.fn>;
-    findLatestCohort: ReturnType<typeof vi.fn>;
-    findBySlug: ReturnType<typeof vi.fn>;
-    findBySlugAndWeek: ReturnType<typeof vi.fn>;
+  let prismaMock: {
+    cohort: {
+      findUnique: ReturnType<typeof vi.fn>;
+      findFirst: ReturnType<typeof vi.fn>;
+    };
+    cohortProductEngagement: {
+      findFirst: ReturnType<typeof vi.fn>;
+    };
   };
 
   const sampleCohort = {
     id: "cohort-1",
     slug: "cohort-01",
     name: "Cohort 01",
+    currentWeekNumber: 2,
     startsOn: new Date("2026-10-01"),
     endsOn: new Date("2026-11-26"),
     engagements: [
@@ -28,10 +32,7 @@ describe("WeeksService", () => {
             weekNumber: 1,
             title: "Navigate the codebase and open a focused PR",
             status: "published" as const,
-            labels: [
-              { label: { name: "frontend" } },
-              { label: { name: "backend" } },
-            ],
+            labels: [{ label: { name: "frontend" } }, { label: { name: "backend" } }],
           },
         ],
       },
@@ -39,23 +40,29 @@ describe("WeeksService", () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-17T12:00:00Z"));
 
-    repositoryMock = {
-      findActiveEngagement: vi.fn(),
-      findLatestCohort: vi.fn(),
-      findBySlug: vi.fn(),
-      findBySlugAndWeek: vi.fn(),
+    prismaMock = {
+      cohort: {
+        findUnique: vi.fn(),
+        findFirst: vi.fn(),
+      },
+      cohortProductEngagement: {
+        findFirst: vi.fn(),
+      },
     };
 
-    service = new WeeksService(
-      repositoryMock as unknown as WeeksRepository,
-    );
+    service = new WeeksService(prismaMock as unknown as PrismaService);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe("listWeeksForCohort", () => {
     it("returns all 8 weeks with merged DB assignment data in Arabic by default", async () => {
-      repositoryMock.findBySlug.mockResolvedValue(sampleCohort);
+      prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
 
       const weeks = await service.listWeeksForCohort("cohort-01");
 
@@ -84,7 +91,7 @@ describe("WeeksService", () => {
     });
 
     it("returns English curriculum content when locale is en", async () => {
-      repositoryMock.findBySlug.mockResolvedValue(sampleCohort);
+      prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
 
       const weeks = await service.listWeeksForCohort("cohort-01", "en");
 
@@ -92,8 +99,29 @@ describe("WeeksService", () => {
       expect(weeks[0].title).toBe("Modularity & Codebase Understanding");
     });
 
+    it("uses cohort.currentWeekNumber to set completed, active, and locked upcoming weeks", async () => {
+      prismaMock.cohort.findUnique.mockResolvedValue({
+        ...sampleCohort,
+        currentWeekNumber: 3,
+      });
+
+      const weeks = await service.listWeeksForCohort("cohort-01");
+
+      expect(weeks[0].status).toBe("completed");
+      expect(weeks[0].isLocked).toBe(false);
+      expect(weeks[1].status).toBe("completed");
+      expect(weeks[1].isLocked).toBe(false);
+      expect(weeks[2].status).toBe("active");
+      expect(weeks[2].isLocked).toBe(false);
+      expect(weeks[2].isCurrent).toBe(true);
+      expect(weeks[3].status).toBe("upcoming");
+      expect(weeks[3].isLocked).toBe(true);
+      expect(weeks[3].isCurrent).toBe(false);
+      expect(weeks[0].cohort.currentWeekNumber).toBe(3);
+    });
+
     it("locks weeks after current week with upcoming status and empty concept/assignment", async () => {
-      repositoryMock.findBySlug.mockResolvedValue(sampleCohort);
+      prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
 
       const weeks = await service.listWeeksForCohort("cohort-01");
       const week4 = weeks[3];
@@ -107,15 +135,17 @@ describe("WeeksService", () => {
     });
 
     it("throws NotFoundError when cohort does not exist", async () => {
-      repositoryMock.findBySlug.mockResolvedValue(null);
+      prismaMock.cohort.findUnique.mockResolvedValue(null);
 
-      await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(NotFoundError);
+      await expect(service.listWeeksForCohort("non-existent")).rejects.toThrow(
+        NotFoundError,
+      );
     });
   });
 
   describe("getWeekForCohort", () => {
     it("returns complete week details with bigIdea, outcomes, assignment, and resources", async () => {
-      repositoryMock.findBySlugAndWeek.mockResolvedValue(sampleCohort);
+      prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
 
       const week = await service.getWeekForCohort("cohort-01", 1, "en");
 
@@ -132,7 +162,7 @@ describe("WeeksService", () => {
     });
 
     it("returns locked week with empty outcomes, concepts, and resources for week after current week", async () => {
-      repositoryMock.findBySlugAndWeek.mockResolvedValue(sampleCohort);
+      prismaMock.cohort.findUnique.mockResolvedValue(sampleCohort);
 
       const week = await service.getWeekForCohort("cohort-01", 4, "en");
 
@@ -147,20 +177,26 @@ describe("WeeksService", () => {
     });
 
     it("throws NotFoundError for week number out of 1-8 bounds", async () => {
-      await expect(service.getWeekForCohort("cohort-01", 0)).rejects.toThrow(NotFoundError);
-      await expect(service.getWeekForCohort("cohort-01", 9)).rejects.toThrow(NotFoundError);
+      await expect(service.getWeekForCohort("cohort-01", 0)).rejects.toThrow(
+        NotFoundError,
+      );
+      await expect(service.getWeekForCohort("cohort-01", 9)).rejects.toThrow(
+        NotFoundError,
+      );
     });
 
     it("throws NotFoundError when cohort does not exist", async () => {
-      repositoryMock.findBySlugAndWeek.mockResolvedValue(null);
+      prismaMock.cohort.findUnique.mockResolvedValue(null);
 
-      await expect(service.getWeekForCohort("non-existent", 1)).rejects.toThrow(NotFoundError);
+      await expect(service.getWeekForCohort("non-existent", 1)).rejects.toThrow(
+        NotFoundError,
+      );
     });
   });
 
   describe("resolveActiveCohortSlug", () => {
     it("returns the active cohort slug from active engagement", async () => {
-      repositoryMock.findActiveEngagement.mockResolvedValue({
+      prismaMock.cohortProductEngagement.findFirst.mockResolvedValue({
         cohort: { slug: "cohort-01" },
       });
 
