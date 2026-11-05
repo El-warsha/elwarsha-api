@@ -32,7 +32,7 @@ describe("Foundation API (e2e)", () => {
     const prisma = app.get(PrismaService);
     await prisma.job.deleteMany();
     await prisma.githubWebhookDelivery.deleteMany();
-    app.get(ApplicationsService).reset();
+    await app.get(ApplicationsService).reset();
   });
 
   it("/healthz (GET)", () => {
@@ -257,7 +257,12 @@ describe("Foundation API (e2e)", () => {
     motivation:
       "I am highly committed to building hands-on full-stack features and contributing to open-source software in ElWarsha Cohort 2.",
   };
-
+  // Application HTTP tests cover:
+  // 1. Valid application submission (201 Created).
+  // 2. Invalid application data and validation errors (422).
+  // 3. Duplicate application handling (409 Conflict).
+  // These E2E tests verify HTTP behavior that unit tests cannot cover.
+  // accepted application with 201 Created
   it("accepts a valid Cohort 2 application with 201 Created", async () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/cohorts/cohort-2/applications")
@@ -271,8 +276,8 @@ describe("Foundation API (e2e)", () => {
     });
     expect(response.body.id).toMatch(/^app_/);
   });
-
-  it("rejects an invalid Cohort 2 application with 422 and structured invalidParams", async () => {
+// Reject due to invalid email, WhatsApp number, and motivation.
+    it("rejects an invalid Cohort 2 application with 422 and structured invalidParams", async () => {
     const response = await request(app.getHttpServer())
       .post("/api/v1/cohorts/cohort-2/applications")
       .send({
@@ -296,7 +301,7 @@ describe("Foundation API (e2e)", () => {
       ]),
     );
   });
-
+// Rejects a duplicate Cohort 2 application with 409 Conflict.
   it("rejects a duplicate Cohort 2 application with 409 Conflict", async () => {
     await request(app.getHttpServer())
       .post("/api/v1/cohorts/cohort-2/applications")
