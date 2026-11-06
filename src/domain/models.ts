@@ -69,3 +69,16 @@ export type Submission = {
     checksPassed: boolean;
   } | null;
 };
+
+
+export type Label = {
+  id: string;
+  name: string;
+  createdAt: Date
+};
+
+export type AssignmentLabel = {
+  assignmentId: string;
+  labelId: string;
+  label: Label;
+};
