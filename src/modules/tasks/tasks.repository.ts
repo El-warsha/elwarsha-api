@@ -7,7 +7,7 @@ import { PrismaService } from "../../infrastructure/prisma/prisma.service.js";
 export class TasksRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listAssignments(): Promise<Assignment[]> {
+  async listAssignments(): Promise<Omit<Assignment, "labels">[]> {
     const records = await this.prisma.assignment.findMany({
       orderBy: [{ engagementId: "asc" }, { weekNumber: "asc" }],
     });
