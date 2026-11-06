@@ -13,18 +13,32 @@ export interface CohortApplicationRecord extends ApplyCohortDto {
 export class ApplicationsService {
   private readonly applications: CohortApplicationRecord[] = [];
 
+
   async apply(
     cohortSlug: string,
-    dto: ApplyCohortDto,
-  ): Promise<{
-    id: string;
-    cohortSlug: string;
-    email: string;
-    status: string;
-    createdAt: string;
-  }> {
+    fullName: string,
+    email: string,
+    githubHandle: string,
+  ) {
+    const dto = { cohortSlug, fullName, email, githubHandle };
+
     const normalizedEmail = dto.email.toLowerCase().trim();
     const normalizedGithub = dto.githubHandle.toLowerCase().trim();
+
+  // async apply(
+  //   cohortSlug: string,
+  //   fullName: string,
+  //   email: string,
+  //   githubHandle: string
+  // ): Promise<{
+  //   id: string;
+  //   cohortSlug: string;
+  //   email: string;
+  //   status: string;
+  //   createdAt: string;
+  // }> {
+  //   const normalizedEmail = dto.email.toLowerCase().trim();
+  //   const normalizedGithub = dto.githubHandle.toLowerCase().trim();
 
     const existing = this.applications.find(
       (app) =>
@@ -39,7 +53,7 @@ export class ApplicationsService {
       );
     }
 
-    const record: CohortApplicationRecord = {
+const record = {
       ...dto,
       id: `app_${crypto.randomUUID().slice(0, 8)}`,
       cohortSlug,
@@ -47,7 +61,7 @@ export class ApplicationsService {
       githubHandle: normalizedGithub,
       status: "received",
       createdAt: new Date().toISOString(),
-    };
+    } as any;
 
     this.applications.push(record);
 
