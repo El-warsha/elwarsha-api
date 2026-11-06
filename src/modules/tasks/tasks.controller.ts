@@ -3,6 +3,7 @@ import { ApiTags } from "@nestjs/swagger";
 
 import { AuthGuard, RequireCapability } from "../identity/auth.guard.js";
 import { TasksService } from "./tasks.service.js";
+import { Assignment } from "../../domain/models.js";
 
 @ApiTags("tasks")
 @Controller("api/v1")
@@ -12,7 +13,7 @@ export class TasksController {
 
   @Get("assignments")
   @RequireCapability("assignments.read")
-  listAssignments() {
+  listAssignments(): Promise<Assignment[]> {
     return this.tasks.listAssignments();
   }
 }

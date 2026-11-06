@@ -54,6 +54,12 @@ export type Assignment = {
   title: string;
   status: "draft" | "published" | "closed";
   engagementId: string;
+  labels: Label[];
+};
+
+export type Label = {
+  id: string;
+  name: string;
 };
 
 export type Submission = {

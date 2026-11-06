@@ -10,14 +10,24 @@ export class TasksRepository {
   async listAssignments(): Promise<Assignment[]> {
     const records = await this.prisma.assignment.findMany({
       orderBy: [{ engagementId: "asc" }, { weekNumber: "asc" }],
+      include: {
+        labels: {
+          include: {
+            label: true,
+          },
+        },
+      },
     });
-
     return records.map((record) => ({
       id: record.id,
       weekNumber: record.weekNumber,
       title: record.title,
       status: record.status,
       engagementId: record.engagementId,
+      labels: record.labels.map((labelRecord) => ({
+        id: labelRecord.label.id,
+        name: labelRecord.label.name,
+      })),
     }));
   }
 }
