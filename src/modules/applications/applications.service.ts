@@ -45,7 +45,7 @@ export class ApplicationsService {
       cohortSlug,
       email: normalizedEmail,
       githubHandle: normalizedGithub,
-      status: "received",
+      status:"received",
       createdAt: new Date().toISOString(),
     };
 
