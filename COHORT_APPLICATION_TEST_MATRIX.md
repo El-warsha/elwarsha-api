@@ -1,7 +1,5 @@
 \# Cohort Application Test Matrix
 
-
-
 | Test case | Risk covered | Test level | Existing / proposed test | Decision | Reason |
 
 |---|---|---|---|---|---|
@@ -31,6 +29,3 @@
 | Test DTO validation directly in service unit tests | Validation behavior may be duplicated at the wrong layer | Unit | `applications.service.spec.ts` › “validates application DTO fields” | rejected | The DTO constraints are applied through the HTTP validation pipeline, which the existing E2E validation test exercises. `ApplicationsService.apply()` does not implement those DTO validators. |
 
 | Test persistence across service instances or process restarts | Tests may assert durability the implementation does not provide | Integration | `applications.service.spec.ts` › “persists applications across service instances” | rejected | `ApplicationsService` stores records in an in-memory array; persistence across instances or restarts is not behavior implemented by that method. |
-
-
-
