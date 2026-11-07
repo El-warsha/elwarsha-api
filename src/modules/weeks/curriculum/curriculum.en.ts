@@ -1575,28 +1575,28 @@ When landing on the week page, automatically call the submissions endpoint and d
     resources: {
       required: [
         {
-          title: "GitHub REST API: Pull Requests",
-          url: "https://docs.github.com/en/rest/pulls/pulls",
+          title: "GitHub REST API: List Pull Requests",
+          url: "https://docs.github.com/en/rest/pulls/pulls#list-pull-requests",
           layers: "Backend, External API",
           format: "Read",
           time: "15 min",
-          why: "Endpoint structure for listing and reading pull request details.",
+          why: "Endpoint parameters (state=all), headers, and pull request summary fields.",
         },
         {
-          title: "GitHub REST API: Checks and Reviews",
-          url: "https://docs.github.com/en/rest/checks/runs",
+          title: "GitHub REST API: Rate Limits & Authentication",
+          url: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
           layers: "Backend, External API",
           format: "Read",
-          time: "15 min",
-          why: "Understanding check-run conclusions and review approval states.",
+          time: "10 min",
+          why: "Understanding the 60 req/hr unauthenticated limit vs 5,000 req/hr token limit and handling 403/429 statuses.",
         },
         {
-          title: "MDN: Regular Expressions Guide",
-          url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
+          title: "MDN: Regular Expressions Guide & Groups",
+          url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Groups_and_backreferences",
           layers: "Concept",
           format: "Read",
           time: "15 min",
-          why: "Constructing robust capture groups for title parsing.",
+          why: "Constructing capture groups for title parsing (test patterns interactively on regex101.com).",
         },
         {
           title: "TanStack Query: Important Defaults & StaleTime",
@@ -1617,6 +1617,22 @@ When landing on the week page, automatically call the submissions endpoint and d
           why: "Decoupling GithubAppClient port from fake and live adapters.",
         },
         {
+          title: "Vitest: Mocking Globals & Spies",
+          url: "https://vitest.dev/api/vi.html#vi-spyon",
+          layers: "Testing, Backend",
+          format: "Read",
+          time: "10 min",
+          why: "Mocking globalThis.fetch in unit tests without hitting live GitHub endpoints.",
+        },
+        {
+          title: "MDN: Using the Fetch API",
+          url: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
+          layers: "Backend, JavaScript",
+          format: "Read",
+          time: "10 min",
+          why: "Native fetch headers, JSON body resolution, and error handling without external packages.",
+        },
+        {
           title: "W3C WAI: Status Messages and ARIA Live Regions",
           url: "https://www.w3.org/WAI/WCAG21/Understanding/status-messages.html",
           layers: "Frontend, Accessibility",
@@ -1627,12 +1643,13 @@ When landing on the week page, automatically call the submissions endpoint and d
       ],
       alternative: [
         {
-          title: "GitHub REST API with Node.js / Octokit Tutorial — Web Dev Simplified",
-          url: "https://www.youtube.com/watch?v=6a8HzzTugB0",
-          layers: "Backend",
+          title:
+            "JavaScript Regular Expressions in Arabic (Videos #134–#142) — Osama Elzero",
+          url: "https://www.youtube.com/playlist?list=PLDoPjvoNmBAx3kiplQR_oeDqLDBUDYwVv",
+          layers: "Concept",
           format: "Watch",
-          time: "20 min",
-          why: "Video walkthrough of interacting with GitHub REST API in Node.js.",
+          time: "25 min, selected",
+          why: "Arabic walkthrough of regex syntax, character classes, quantifiers, and capture groups.",
         },
         {
           title: "React Query (TanStack Query) Crash Course — Dave Gray",
@@ -1641,6 +1658,15 @@ When landing on the week page, automatically call the submissions endpoint and d
           format: "Watch",
           time: "30 min",
           why: "Video guide on query caching, stale time, and loading states.",
+        },
+        {
+          title:
+            "Fetching GitHub REST API with Vanilla JavaScript / Fetch — Architecture Notes",
+          url: "https://www.youtube.com/watch?v=AUZIYQHjvm6i45XdNmrnlFSinTSiBIGjd-lO9vJqMaCkkJC0XkJ0Thk0lRxNkn5owDwJqUeAJmkf1yvi6aBj6raCqyJsevC_QC0FrS7FoxfjsOxvKEd8YqfD91WjppjwvJSxcV9F",
+          layers: "Backend",
+          format: "Watch",
+          time: "20 min",
+          why: "Video walkthrough of interacting with GitHub REST API using native fetch and headers.",
         },
       ],
     },
