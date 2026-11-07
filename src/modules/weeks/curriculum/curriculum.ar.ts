@@ -1548,28 +1548,28 @@ export const curriculumAr: Record<number, CurriculumWeek> = {
     resources: {
       required: [
         {
-          title: "دليل واجهة برمجة تطبيقات GitHub: طلبات الدمج",
-          url: "https://docs.github.com/en/rest/pulls/pulls",
+          title: "دليل واجهة برمجة تطبيقات GitHub: عرض طلبات الدمج (List Pull Requests)",
+          url: "https://docs.github.com/en/rest/pulls/pulls#list-pull-requests",
           layers: "Backend, External API",
           format: "Read",
           time: "١٥ دقيقة",
-          why: "فهم بنية نقاط نهاية GitHub لسحب تفاصيل طلبات الدمج.",
+          why: "فهم معايير الاستعلام (state=all) والترويسات وحقول تفاصيل طلبات الدمج.",
         },
         {
-          title: "دليل واجهة برمجة تطبيقات GitHub: الفحوصات والمراجعات",
-          url: "https://docs.github.com/en/rest/checks/runs",
+          title: "دليل GitHub: حدود الاستخدام والمصادقة (Rate Limits & Auth)",
+          url: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
           layers: "Backend, External API",
           format: "Read",
-          time: "١٥ دقيقة",
-          why: "فهم نتائج Check Runs وحالات موافقة المراجعات (Approved).",
+          time: "١٠ دقائق",
+          why: "فهم الفرق بين حد ٦٠ طلباً/ساعة بدون مصادقة و ٥٠٠٠ طلباً بالرمز، ومعالجة أخطاء 403/429.",
         },
         {
-          title: "دليل MDN: التعبيرات النمطية (Regular Expressions)",
-          url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
+          title: "دليل MDN: مجموعات التعبيرات النمطية (Regular Expressions)",
+          url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Groups_and_backreferences",
           layers: "Concept",
           format: "Read",
           time: "١٥ دقيقة",
-          why: "بناء مجموعات مطابقة دقيقة لاستخراج أرقام الأسابيع من العناوين.",
+          why: "بناء مجموعات مطابقة دقيقة لاستخراج أرقام الأسابيع من العناوين (يمكنك التجربة التفاعلية على regex101.com).",
         },
         {
           title: "دليل TanStack Query: الإعدادات الافتراضية و StaleTime",
@@ -1590,6 +1590,22 @@ export const curriculumAr: Record<number, CurriculumWeek> = {
           why: "فصل منفذ عميل GitHub عن المحولات الحقيقية والوهمية.",
         },
         {
+          title: "دليل Vitest: محاكاة الدوال العامة و fetch (Mocking Globals & Spies)",
+          url: "https://vitest.dev/api/vi.html#vi-spyon",
+          layers: "Testing, Backend",
+          format: "Read",
+          time: "١٠ دقائق",
+          why: "محاكاة globalThis.fetch في الاختبارات الأحادية دون استدعاء خوادم GitHub الحقيقية.",
+        },
+        {
+          title: "دليل MDN: استخدام واجهة Fetch في جافاسكريبت",
+          url: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
+          layers: "Backend, JavaScript",
+          format: "Read",
+          time: "١٠ دقائق",
+          why: "التعامل مع الترويسات وقراءة بيانات JSON ومعالجة الأخطاء بـ fetch الأصيلة.",
+        },
+        {
           title: "معايير W3C WAI: رسائل الحالة ومناطق ARIA الحية",
           url: "https://www.w3.org/WAI/WCAG21/Understanding/status-messages.html",
           layers: "Frontend, Accessibility",
@@ -1600,12 +1616,13 @@ export const curriculumAr: Record<number, CurriculumWeek> = {
       ],
       alternative: [
         {
-          title: "فيديو: التعامل مع GitHub REST API في Node.js — Web Dev Simplified",
-          url: "https://www.youtube.com/watch?v=6a8HzzTugB0",
-          layers: "Backend",
+          title:
+            "فيديو: التعبيرات النمطية في جافاسكريبت (الحلقات ١٣٤-١٤٢) — أسامة الزيرو",
+          url: "https://www.youtube.com/playlist?list=PLDoPjvoNmBAx3kiplQR_oeDqLDBUDYwVv",
+          layers: "Concept",
           format: "Watch",
-          time: "٢٠ دقيقة",
-          why: "شرح مرئي لكيفية استدعاء GitHub API في Node.js و Octokit.",
+          time: "٢٥ دقيقة، مختارات",
+          why: "شرح عربي عملي للتعبيرات النمطية، المجموعات، الفئات، والتطبيق على النصوص.",
         },
         {
           title: "دورة سريعة في React Query — Dave Gray",
@@ -1614,6 +1631,15 @@ export const curriculumAr: Record<number, CurriculumWeek> = {
           format: "Watch",
           time: "٣٠ دقيقة",
           why: "شرح عملي للتخزين المؤقت وحالات التحميل وإدارة البيانات في الواجهة.",
+        },
+        {
+          title:
+            "فيديو: التعامل مع GitHub REST API بـ Fetch وجافاسكريبت — Architecture Notes",
+          url: "https://www.youtube.com/watch?v=AUZIYQHjvm6i45XdNmrnlFSinTSiBIGjd-lO9vJqMaCkkJC0XkJ0Thk0lRxNkn5owDwJqUeAJmkf1yvi6aBj6raCqyJsevC_QC0FrS7FoxfjsOxvKEd8YqfD91WjppjwvJSxcV9F",
+          layers: "Backend",
+          format: "Watch",
+          time: "٢٠ دقيقة",
+          why: "شرح مرئي لكيفية استدعاء GitHub REST API باستخدام fetch الأصلية وضبط الترويسات.",
         },
       ],
     },
