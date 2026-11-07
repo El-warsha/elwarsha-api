@@ -144,27 +144,29 @@ elwarsha-web: `src/features/apply/CohortApplicationForm.test.tsx`, `e2e/`.
 
 **Reflection:** What would a flaky end-to-end test hide that a focused unit test would show?
 
-## Week 6 — Safe schema migrations & zero-downtime data evolution
+## Week 6 — GitHub integration & runtime submission sync
 
-**Outcome:** Write backward-compatible database migrations in Prisma without breaking active clients.
+**Outcome:** Synchronize pull request existence and state (draft / in_review / merged) directly from the GitHub REST API at runtime using native fetch without webhooks or background queues.
 
-**Prerequisites:** Week 5.
+**Prerequisites:** Week 5. Docker Compose PostgreSQL running locally. Set `FAKE_USER_GITHUB_ID=<your-github-id>` in `.env` to test live PRs with fake auth.
 
-**Entry points:** `prisma/schema.prisma`, `src/common/http-exception.filter.ts`, `src/common/errors.ts`.
+**Entry points:** `src/modules/github/`, `src/modules/submissions/`, `prisma/schema.prisma`, ADR 0005. In `elwarsha-web`: `src/features/tasks/`, `src/features/weeks/WeekDetailPage.tsx`.
 
-| Order | Small task                                                      | Observable behavior                       | Focused check        |
-| ----- | --------------------------------------------------------------- | ----------------------------------------- | -------------------- |
-| 6.1   | Add nullable column to Prisma schema and write expand migration | Safe non-breaking column addition         | `yarn prisma:deploy` |
-| 6.2   | Implement dual-write in service layer for safe data migration   | Writes populate old and new columns       | Service unit test    |
-| 6.3   | Trigger one `AppError` and confirm envelope shape               | `{ error: { code, message, requestId } }` | One HTTP test        |
+| Order | Small task                                                                 | Observable behavior                                                    | Focused check                                      |
+| ----- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------- |
+| 6.1   | Implement regex PR title matcher (`/^\[week-0?(\d+)\]/i`)                  | Accurately extracts target week from PR titles                         | `yarn test src/modules/github/github-matcher`      |
+| 6.2   | Implement `HttpGithubAppClient` against GitHub REST API with fetch         | Queries public pulls endpoint and returns normalized PR summaries      | `yarn test src/modules/github`                     |
+| 6.3   | Build `SubmissionsService` multi-repo runtime sync and relational snapshot | Matches student `githubUserId` across all product repos and updates DB | `yarn test src/modules/submissions`                |
+| 6.4   | Expose `GET /api/v1/cohorts/:slug/assignments/:week/submissions` endpoint  | Authenticated member receives multi-repo submissions contract          | `yarn test test/app.e2e-spec.ts`                   |
+| 6.5   | Build frontend multi-repo submission section on week and tasks pages       | UI displays each repo's live PR status and manual refresh btn          | `yarn test src/features/tasks` (in `elwarsha-web`) |
 
-**Core increment:** 6.1 and 6.2.
+**Core increment:** 6.1, 6.2, and 6.3 on API; 6.5 on Web.
 
-**Stretch:** Propose a zero-downtime column rename strategy without database lock.
+**Stretch:** Handle GitHub 403/429 rate limit errors with graceful fallback to the cached PostgreSQL snapshot and `stale: true`.
 
-**Evidence:** Migration file and unit tests proving backward compatibility.
+**Evidence:** Passing matcher unit test, submissions service test, and e2e endpoint test.
 
-**Reflection:** Why must you not delete a database column in the same PR that stops using it?
+**Reflection:** Why is an on-demand runtime pull pattern often more resilient and simpler than webhooks for local development and single-user views, and what are its trade-offs regarding API rate limits?
 
 ## Week 7 — Performance
 

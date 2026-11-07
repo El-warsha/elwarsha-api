@@ -134,20 +134,22 @@ model Product {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  repository  ProductRepository?
-  engagements CohortProductEngagement[]
+  repositories ProductRepository[]
+  engagements  CohortProductEngagement[]
 }
 
 model ProductRepository {
   id             String @id @default(uuid()) @db.Uuid
-  productId      String @unique @db.Uuid
+  productId      String @db.Uuid
   githubOwner    String
   githubRepo     String
   installationId BigInt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  submissions Submission[]
 
   @@unique([githubOwner, githubRepo])
+  @@unique([productId, githubOwner, githubRepo])
 }
 
 model Cohort {
@@ -228,19 +230,21 @@ model AssignmentLabel {
 }
 
 model Submission {
-  id           String           @id @default(uuid()) @db.Uuid
-  assignmentId String           @db.Uuid
-  authorUserId String           @db.Uuid
-  status       SubmissionStatus @default(draft)
-  prUrl        String?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id                  String           @id @default(uuid()) @db.Uuid
+  assignmentId        String           @db.Uuid
+  authorUserId        String           @db.Uuid
+  productRepositoryId String?          @db.Uuid
+  status              SubmissionStatus @default(draft)
+  prUrl               String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 
-  assignment  Assignment        @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  author      User              @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
-  pullRequest GithubPullRequest?
+  assignment        Assignment         @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  author            User               @relation(fields: [authorUserId], references: [id], onDelete: Cascade)
+  productRepository ProductRepository? @relation(fields: [productRepositoryId], references: [id], onDelete: SetNull)
+  pullRequest       GithubPullRequest?
 
-  @@unique([assignmentId, authorUserId])
+  @@unique([assignmentId, authorUserId, productRepositoryId])
 }
 
 model GithubPullRequest {

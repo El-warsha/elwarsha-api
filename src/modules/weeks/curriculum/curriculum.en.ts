@@ -1428,50 +1428,225 @@ Role and label queries pass, which shows that controls have accessible roles and
   },
   6: {
     weekNumber: 6,
-    title: "Safe Schema Migrations & Zero-Downtime Data Evolution",
-    tagline: "Evolving production schemas requires disciplined expand-and-contract steps",
-    concept: "Database migrations",
+    title: "GitHub Integration & Synchronous Submission Tracking",
+    tagline:
+      "Query the external source of truth at runtime without webhooks or background queues",
+    concept: "External API integration & synchronous reconciliation",
     guidingQuestion:
-      "How do we migrate a busy production table without taking the service down?",
+      "How do we integrate external developer platforms (GitHub) synchronously into our user experience without complex webhook infrastructure?",
     bigIdea:
-      "In production environments, columns cannot simply be dropped or renamed in a single step without breaking active clients. We implement the Expand-and-Contract migration pattern in Prisma and PostgreSQL to evolve relational schemas seamlessly.",
+      "Over the past five weeks, you built modular architectures, validated HTTP contracts, evolved relational schemas with migrations, implemented authentication and route guards, and hardened comprehensive test suites. This week, we connect our platform to the outside world by integrating with GitHub's REST API.\n\nWhile external platforms often push events via webhooks, webhooks introduce significant operational friction for user-facing views and local development (requiring public tunnels like `ngrok`, webhook signature verifiers, and background queues). In Week 6, we adopt the **Runtime Reconciliation Pattern**: when a participant opens their assignment page, the application directly queries the GitHub REST API on demand, matches their open PR via a deterministic title pattern (`[week-06]`), and persists a relational snapshot in PostgreSQL. This makes the platform self-healing, deterministic, and instant without running background daemon workers.",
     outcomes: [
-      "Write backward-compatible database migrations in Prisma.",
-      "Decouple dual-write and dual-read phases during entity schema evolutions.",
+      "Query the GitHub REST API using authenticated GitHub App credentials.",
+      "Implement deterministic pattern matching for pull request titles (`[week-06]`).",
+      "Extract and verify student identity across external GitHub IDs and platform user accounts.",
+      "Evaluate pull request state (open, merged, or draft) synchronously on page load.",
+      "Reconcile pull requests across all product repositories (`elwarsha-api`, `elwarsha-web`) in parallel.",
+      "Persist relational snapshots in PostgreSQL without leaking third-party SDK types into application layers.",
+      "Build an accessible status component in React that displays live multi-repository pull request progress.",
     ],
-    coreConcepts: ["Expand and Contract pattern", "Zero-downtime database migrations"],
+    coreConcepts: [
+      "Push (Webhooks) vs Pull (Runtime Reconciliation)",
+      "Multi-Repository Product Submissions",
+      "Authoritative Source of Truth (ADR 0005)",
+      "Deterministic Title Pattern Matching",
+      "OAuth & GitHub App Token Authentication",
+      "Relational Snapshot Caching",
+      "Client-side SWR / Stale-Time Caching",
+    ],
     appliedThroughTheStack: [
       {
-        layer: "Prisma",
-        details: "Careful schema migrations without destructive column drops.",
+        layer: "React",
+        details:
+          'Data hook (`useAssignmentSubmissions`), live multi-repo PR card (`SubmissionStatusCard`), accessible status announcement (`aria-live="polite"`), cached with TanStack Query (elwarsha-web).',
       },
-      { layer: "PostgreSQL", details: "Safe indexing and non-blocking constraints." },
+      {
+        layer: "NestJS",
+        details:
+          "SubmissionsModule, GithubAppClient port/adapter, regex title matcher, GET /api/v1/cohorts/:slug/assignments/:week/submissions multi-repo endpoint gated by AuthGuard & CohortMembershipGuard (elwarsha-api).",
+      },
+      {
+        layer: "PostgreSQL & Prisma",
+        details:
+          "Upserting Submission and GithubPullRequest snapshot records per repository without schema leaks (schema.prisma).",
+      },
+      {
+        layer: "GitHub",
+        details:
+          "Pull Requests as the authoritative source of truth for work completion (ADR 0005).",
+      },
     ],
     assignment: {
-      title: "Expand and Contract Schema Migration",
+      title: "Build the Runtime GitHub Submission Tracker",
       summary:
-        "Migrate database schema with non-breaking expand, dual-write, and contract phases.",
-      detailsMd: `### Deliverables
-- **Expand Migration**: Add nullable column to Prisma schema.
-- **Dual-write**: Service writes to both old and new columns.`,
+        "Implement regex title matching, extend the GitHub App client, build the Submissions module to synchronize PR snapshots across all product repositories on page load, and display live multi-repo PR status cards in the portal.",
+      detailsMd: `### Week 6 Assignment: Runtime GitHub Submission Tracker
+
+**Deliverable:** One focused PR to \`elwarsha-api\` and one to \`elwarsha-web\`.
+
+#### Starting point
+
+| Side | File | What exists | What is missing |
+| --- | --- | --- | --- |
+| API | \`src/modules/github/github.ports.ts\` | \`GithubAppClient\` port with \`getPullRequest\` | \`listRepositoryPullRequests\` method |
+| API | \`src/modules/github/http-github.client.ts\` | **Does not exist** | Real GitHub REST client using native \`fetch\` |
+| API | \`src/modules/github/fake-github.client.ts\` | Fake client with dynamic mock PRs | Integrated with runtime client module provider |
+| API | \`src/modules/submissions/\` | **Does not exist** | Module, Service, Controller, and Repository |
+| API | \`prisma/schema.prisma\` | \`ProductRepository\`, \`Submission\`, & \`GithubPullRequest\` | Business service to reconcile multi-repo snapshots |
+| Web | \`src/features/tasks/\` | Tasks list and labels filter | Multi-repo PR submission status card and sync hook |
+
+#### 1. Title Convention & Matcher (\`elwarsha-api\`)
+
+Implement a regex title matcher in \`src/modules/github/github-matcher.ts\`:
+- Matches titles starting with \`[week-06]\`, \`[week-6]\`, or case-insensitive variants (\`/^\\\\[week-0?(\\\\d+)\\\\]/i\`).
+- Exports \`extractWeekNumberFromTitle(title: string): number | null\` and \`matchPrToWeek(title: string, targetWeek: number): boolean\`.
+- Comprehensive unit test in \`github-matcher.spec.ts\` testing valid titles, zero-padding, leading spaces, and non-matching PRs.
+
+#### 2. Implement Real GitHub REST Client & Adapter
+
+In \`src/modules/github/\`:
+- Add \`listRepositoryPullRequests(owner: string, repo: string): Promise<NormalizedPullRequestSummary[]>\` to \`GithubAppClient\` in \`github.ports.ts\`.
+- Implement \`HttpGithubAppClient\` in \`src/modules/github/http-github.client.ts\`:
+  - Uses Node native \`fetch\` to query \`https://api.github.com/repos/:owner/:repo/pulls?state=all&per_page=100\`.
+  - Sets required headers: \`Accept: application/vnd.github+json\`, \`User-Agent: ElWarsha-App\`, and optional \`Authorization: Bearer <GITHUB_TOKEN>\`.
+  - Normalizes pull request items into \`NormalizedPullRequestSummary\` (normalizing state to \`merged\` when \`merged_at\` is non-null).
+- Update \`FakeGithubAppClient\` with dynamic author support (\`this.env.FAKE_USER_GITHUB_ID || "1001"\`) and fixture data including:
+  - Open PR matching \`[week-06]\` for participant.
+  - Merged PR for Week 1.
+  - Another student's PR.
+- Unit test \`http-github.client.spec.ts\` by mocking \`globalThis.fetch\` to verify headers, token injection, normalization, and rate-limit handling.
+- Ensure unit and e2e tests execute deterministically with PostgreSQL running locally without hitting live GitHub (using \`FakeGithubAppClient\` when \`NODE_ENV=test\` or \`GITHUB_CLIENT_ADAPTER=fake\`).
+
+#### 3. Submissions Module & Multi-Repo Sync Service
+
+In El-Warsha, each Product has multiple repositories (e.g. \`El-warsha/elwarsha-api\` for backend and \`El-warsha/elwarsha-web\` for frontend). Students open PRs in each repository where they contribute.
+
+Create \`src/modules/submissions/\`:
+- **SubmissionsService**:
+  - Resolves participant's \`githubUserId\` from \`ExternalIdentity\`.
+    > **Tip:** In local development with fake identity, set \`FAKE_USER_GITHUB_ID=<your-numeric-id>\` in \`.env\` to match your real GitHub user ID, which you can find via \`https://api.github.com/users/<username>\`.
+  - Iterates over all repositories configured for the engagement's product (\`engagement.product.repositories\`).
+  - For each repository, queries GitHub PRs via \`GithubAppClient.listRepositoryPullRequests(githubOwner, githubRepo)\`.
+  - Finds the PR where \`BigInt(pr.authorGithubUserId) === identity.githubUserId\` and title matches \`[week-XX]\`.
+  - **Reconciliation Rules:**
+    - If a matching PR is merged on GitHub: status is \`merged\`.
+    - If a matching PR is open on GitHub: status is \`in_review\`.
+    - If **no** matching PR is found on GitHub: status is \`draft\` with \`prUrl: null\` and \`pullRequest: null\` (do not fall back to stale cached records from other PRs).
+  - Upserts \`Submission\` and \`GithubPullRequest\` snapshot in Prisma for each repository.
+  - Returns the list of repository submission items.
+- **SubmissionsController**:
+  - Exposes \`GET /api/v1/cohorts/:slug/assignments/:weekNumber/submissions\` returning \`AssignmentSubmissionsResponse\` (\`{ assignmentId, weekNumber, submissions: RepositorySubmissionItem[] }\`).
+  - Protected by \`AuthGuard\` and \`CohortMembershipGuard\`.
+
+#### 4. Frontend Progress Section (\`elwarsha-web\`)
+
+When landing on the week page, automatically call the submissions endpoint and display a live multi-repository progress section at the very top:
+- **Contract & API Client (\`@core/api\`):** Re-export updated submission response contracts (\`AssignmentSubmissionsResponse\`, \`RepositorySubmissionItem\`, \`SubmissionStatus\`) and connect \`api.getAssignmentSubmissions(cohortSlug, weekNumber)\`.
+- **State & Caching Hook (\`useSubmission.ts\`):** Build the custom hook \`useAssignmentSubmissions\` with TanStack Query configured with \`staleTime: 60_000\` so navigation doesn't hammer GitHub rate limits, and expose \`refetch\` for on-demand synchronization.
+- **Progress Section & Status Card (\`SubmissionStatusCard.tsx\`):**
+  - Displays a dedicated sub-section for each repository in the product list:
+    - Repository name (linked to GitHub repo).
+    - Live status badge (\`Draft\`, \`● In Review\`, \`✓ Merged\`).
+    - **Draft State:** Displays instructions to open a PR on GitHub titled \`[week-06] <description>\`, with reassurance of automatic runtime sync upon page load.
+    - **In Review State:** Displays PR state badge (\`● In Review\`), PR number (\`#42\`), and external link to GitHub (\`target="_blank"\`, \`rel="noreferrer noopener"\`).
+    - **Merged State:** Displays completion badge (\`✓ Merged\`) confirming the assignment PR has been merged into main.
+  - **Interactive Sync:** Include a global "↻ Refresh from GitHub" button in the card header that triggers \`refetch()\` immediately.
+  - **Accessibility:** Uses \`role="region"\`, \`aria-live="polite"\`, and explicit accessible link labels for screen readers.
+- **Page Integration (\`WeekDetailPage.tsx\` & \`TasksPage.tsx\`):** Mount the progress section at the **very top of the week page** (above the fold, right below the week header) and on the task page so students immediately see their multi-repo progress upon landing.
+- **Component Tests (\`SubmissionStatusCard.test.tsx\`):** Write React Testing Library tests covering loading, draft, open PR, merged PR states, multi-repo list rendering, and the manual refresh action.
+
+---
+
+#### Acceptance criteria
+
+- [ ] Matcher unit tests cover all casing and padding variations.
+- [ ] \`SubmissionsService\` evaluates PR existence and state accurately across all product repositories.
+- [ ] Submissions endpoint is protected: returns 401 without session and 403 for non-members.
+- [ ] Database stores synchronized PR snapshots without leaking \`@prisma/client\` outside infrastructure.
+- [ ] Frontend implements the multi-repo submission section end-to-end at the very start of the week and task pages.
+- [ ] Frontend displays clean status transitions (Draft -> In Review -> Merged) for each repository and supports manual refresh.
+- [ ] \`yarn validate\` passes with zero type errors.
+
+#### Advanced track (optional)
+
+- **Graceful Rate-Limit Degradation:** Catch GitHub API 403/429 rate limit errors and return the cached PostgreSQL snapshot with a \`stale: true\` warning header.
+- **Force Re-sync Action:** Add a manual "Sync with GitHub" button that bypasses client cache with a 15-second debounce.`,
     },
     resources: {
       required: [
         {
-          title: "Zero-downtime database migrations guide",
-          url: "https://www.prisma.io/dataguide/types/relational/zero-downtime-migrations",
-          layers: "Database",
+          title: "GitHub REST API: Pull Requests",
+          url: "https://docs.github.com/en/rest/pulls/pulls",
+          layers: "Backend, External API",
           format: "Read",
-          time: "20 min",
-          why: "Safe evolutionary database design principles.",
+          time: "15 min",
+          why: "Endpoint structure for listing and reading pull request details.",
+        },
+        {
+          title: "GitHub REST API: Checks and Reviews",
+          url: "https://docs.github.com/en/rest/checks/runs",
+          layers: "Backend, External API",
+          format: "Read",
+          time: "15 min",
+          why: "Understanding check-run conclusions and review approval states.",
+        },
+        {
+          title: "MDN: Regular Expressions Guide",
+          url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions",
+          layers: "Concept",
+          format: "Read",
+          time: "15 min",
+          why: "Constructing robust capture groups for title parsing.",
+        },
+        {
+          title: "TanStack Query: Important Defaults & StaleTime",
+          url: "https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults",
+          layers: "Frontend",
+          format: "Read",
+          time: "10 min",
+          why: "Preventing excessive GitHub API queries on client navigation.",
         },
       ],
-      assignment: [],
-      alternative: [],
+      assignment: [
+        {
+          title: "NestJS: Custom Providers & Injection Tokens",
+          url: "https://docs.nestjs.com/fundamentals/custom-providers",
+          layers: "Backend",
+          format: "Read",
+          time: "15 min",
+          why: "Decoupling GithubAppClient port from fake and live adapters.",
+        },
+        {
+          title: "W3C WAI: Status Messages and ARIA Live Regions",
+          url: "https://www.w3.org/WAI/WCAG21/Understanding/status-messages.html",
+          layers: "Frontend, Accessibility",
+          format: "Read",
+          time: "10 min",
+          why: "Announcing dynamic review and CI status changes politely.",
+        },
+      ],
+      alternative: [
+        {
+          title: "GitHub REST API with Node.js / Octokit Tutorial — Web Dev Simplified",
+          url: "https://www.youtube.com/watch?v=6a8HzzTugB0",
+          layers: "Backend",
+          format: "Watch",
+          time: "20 min",
+          why: "Video walkthrough of interacting with GitHub REST API in Node.js.",
+        },
+        {
+          title: "React Query (TanStack Query) Crash Course — Dave Gray",
+          url: "https://www.youtube.com/watch?v=r8Dg0KVnfMA",
+          layers: "Frontend",
+          format: "Watch",
+          time: "30 min",
+          why: "Video guide on query caching, stale time, and loading states.",
+        },
+      ],
     },
     reflectionQuestion:
-      "Why must you not delete a database column in the same PR that stops using it?",
-    prerequisites: ["Week 5"],
+      "Why is an on-demand runtime pull pattern often more resilient and simpler than webhooks for local development and single-user views, and what are its trade-offs regarding API rate limits?",
+    prerequisites: ["Week 5", "Docker Compose Postgres", "Node 22, Yarn & Vitest"],
   },
   7: {
     weekNumber: 7,
