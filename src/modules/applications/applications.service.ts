@@ -23,7 +23,7 @@ export class ApplicationsService {
     status: string;
     createdAt: string;
   }> {
-    const normalizedEmail = dto.email.toLowerCase().trim();
+    const normalizedEmail = dto.email.trim();
     const normalizedGithub = dto.githubHandle.toLowerCase().trim();
 
     const existing = this.applications.find(
