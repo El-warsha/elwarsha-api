@@ -5,6 +5,8 @@ import { AuthGuard, RequireCapability } from "../identity/auth.guard.js";
 import { CohortMembershipGuard } from "./cohort-membership.guard.js";
 import { WeeksService } from "./weeks.service.js";
 import type { Week } from "./weeks.types.js";
+import { AuthGuard, RequireCapability } from "../identity/auth.guard.js";
+import { CohortMembershipGuard } from "../identity/CohortMembership.guard.js";
 
 @ApiTags("weeks")
 @Controller("api/v1")
@@ -13,7 +15,7 @@ export class WeeksController {
   constructor(private readonly weeks: WeeksService) {}
 
   @Get("cohorts/:cohortSlug/weeks")
-  @UseGuards(CohortMembershipGuard)
+  @UseGuards(AuthGuard, CohortMembershipGuard)
   @RequireCapability("weeks.read")
   listWeeks(
     @Param("cohortSlug") cohortSlug: string,
@@ -24,7 +26,7 @@ export class WeeksController {
   }
 
   @Get("cohorts/:cohortSlug/weeks/:weekNumber")
-  @UseGuards(CohortMembershipGuard)
+  @UseGuards(AuthGuard, CohortMembershipGuard)
   @RequireCapability("weeks.read")
   getWeek(
     @Param("cohortSlug") cohortSlug: string,

@@ -150,7 +150,6 @@ describe("Foundation API (e2e)", () => {
     await agent.get("/api/v1/auth/me").expect(401);
     await agent.get("/api/v1/products").expect(401);
     await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(401);
-    await agent.get("/api/v1/weeks").expect(401);
   });
 
   it("preserves requested locale when logging in from English portal", async () => {
@@ -315,6 +314,29 @@ describe("Foundation API (e2e)", () => {
       type: "https://elwarsha.dev/errors/duplicate-application",
       status: 409,
     });
+  });
+
+  it("returns 401 if accessing weeks without a sesstion", () => {
+    return request(app.getHttpServer())
+      .get("/api/v1/cohorts/cohort-01/weeks")
+      .expect(401);
+  });
+
+  it("returns 200 if accessing weeks with a valid session and memebership", async () => {
+    const agent = request.agent(app.getHttpServer());
+    const login = await agent.get("/api/v1/auth/login").redirects(0);
+    const callbackUrl = new URL(login.headers.location as string);
+    await agent.get(`${callbackUrl.pathname}${callbackUrl.search}`).redirects(0);
+
+    await agent.get("/api/v1/cohorts/cohort-01/weeks").expect(200);
+  });
+
+  it("returns 403 if user is logged in but not a member of the cohort", async () => {
+    const agent = request.agent(app.getHttpServer());
+    const login = await agent.get("/api/v1/auth/login").redirects(0);
+    const callbackUrl = new URL(login.headers.location as string);
+    await agent.get(`${callbackUrl.pathname}${callbackUrl.search}`).redirects(0);
+    await agent.get("/api/v1/cohorts/secret-cohort/weeks").expect(403);
   });
 
   afterEach(async () => {

@@ -5,6 +5,7 @@ import { IdentityModule } from "../identity/identity.module.js";
 import { CohortMembershipGuard } from "./cohort-membership.guard.js";
 import { WeeksController } from "./weeks.controller.js";
 import { WeeksService } from "./weeks.service.js";
+import { IdentityModule } from "../identity/identity.module.js";
 
 @Module({
   imports: [PrismaModule, IdentityModule],
