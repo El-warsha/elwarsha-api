@@ -1633,9 +1633,8 @@ export const curriculumAr: Record<number, CurriculumWeek> = {
           why: "شرح عملي للتخزين المؤقت وحالات التحميل وإدارة البيانات في الواجهة.",
         },
         {
-          title:
-            "فيديو: التعامل مع GitHub REST API بـ Fetch وجافاسكريبت — Architecture Notes",
-          url: "https://www.youtube.com/watch?v=AUZIYQHjvm6i45XdNmrnlFSinTSiBIGjd-lO9vJqMaCkkJC0XkJ0Thk0lRxNkn5owDwJqUeAJmkf1yvi6aBj6raCqyJsevC_QC0FrS7FoxfjsOxvKEd8YqfD91WjppjwvJSxcV9F",
+          title: "دورة سريعة في GitHub REST API بجافاسكريبت بدون مكتبات — Hussein Nasser",
+          url: "https://www.youtube.com/watch?v=5QlE6o-iYcE",
           layers: "Backend",
           format: "Watch",
           time: "٢٠ دقيقة",

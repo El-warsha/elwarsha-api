@@ -1661,8 +1661,8 @@ When landing on the week page, automatically call the submissions endpoint and d
         },
         {
           title:
-            "Fetching GitHub REST API with Vanilla JavaScript / Fetch — Architecture Notes",
-          url: "https://www.youtube.com/watch?v=AUZIYQHjvm6i45XdNmrnlFSinTSiBIGjd-lO9vJqMaCkkJC0XkJ0Thk0lRxNkn5owDwJqUeAJmkf1yvi6aBj6raCqyJsevC_QC0FrS7FoxfjsOxvKEd8YqfD91WjppjwvJSxcV9F",
+            "GitHub REST API v3 Crash Course with Vanilla JavaScript — Hussein Nasser",
+          url: "https://www.youtube.com/watch?v=5QlE6o-iYcE",
           layers: "Backend",
           format: "Watch",
           time: "20 min",
