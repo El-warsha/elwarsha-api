@@ -58,6 +58,15 @@ describe("Foundation API (e2e)", () => {
       });
   });
 
+  it("/api/v1/cohorts/cohort-01/weeks without a session (GET)", () => {
+    return request(app.getHttpServer())
+      .get("/api/v1/cohorts/cohort-01/weeks")
+      .expect(401)
+      .expect((response) => {
+        expect(response.body.error.code).toBe("unauthorized");
+      });
+  });
+
   it("rejects an auth callback with mismatched state", async () => {
     const agent = request.agent(app.getHttpServer());
     await agent.get("/api/v1/auth/login").redirects(0).expect(302);
@@ -116,6 +125,8 @@ describe("Foundation API (e2e)", () => {
         status: "published",
       }),
     });
+
+    await agent.get("/api/v1/cohorts/cohort-2/weeks").expect(403);
 
     const defaultWeeks = await agent.get("/api/v1/weeks").expect(200);
     expect(defaultWeeks.body).toHaveLength(8);

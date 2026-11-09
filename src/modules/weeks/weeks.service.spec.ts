@@ -20,6 +20,7 @@ describe("WeeksService", () => {
     id: "cohort-1",
     slug: "cohort-01",
     name: "Cohort 01",
+    currentWeekNumber: 2,
     startsOn: new Date("2026-10-01"),
     endsOn: new Date("2026-11-26"),
     engagements: [
@@ -96,6 +97,27 @@ describe("WeeksService", () => {
 
       expect(weeks[0].concept).toBe("Architecture and modularity");
       expect(weeks[0].title).toBe("Modularity & Codebase Understanding");
+    });
+
+    it("uses cohort.currentWeekNumber to set completed, active, and locked upcoming weeks", async () => {
+      prismaMock.cohort.findUnique.mockResolvedValue({
+        ...sampleCohort,
+        currentWeekNumber: 3,
+      });
+
+      const weeks = await service.listWeeksForCohort("cohort-01");
+
+      expect(weeks[0].status).toBe("completed");
+      expect(weeks[0].isLocked).toBe(false);
+      expect(weeks[1].status).toBe("completed");
+      expect(weeks[1].isLocked).toBe(false);
+      expect(weeks[2].status).toBe("active");
+      expect(weeks[2].isLocked).toBe(false);
+      expect(weeks[2].isCurrent).toBe(true);
+      expect(weeks[3].status).toBe("upcoming");
+      expect(weeks[3].isLocked).toBe(true);
+      expect(weeks[3].isCurrent).toBe(false);
+      expect(weeks[0].cohort.currentWeekNumber).toBe(3);
     });
 
     it("locks weeks after current week with upcoming status and empty concept/assignment", async () => {

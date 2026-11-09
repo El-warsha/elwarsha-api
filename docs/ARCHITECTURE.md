@@ -112,6 +112,7 @@ process container (`node dist/worker.js & node dist/main.js`). Database persiste
 is powered by Neon serverless PostgreSQL.
 
 CD triggers on push to `main` (and `cd-setup`):
+
 1. Verifies code quality and unit/e2e test suites (`yarn validate:ci`).
 2. Deploys pending Prisma database migrations (`yarn prisma:deploy`).
 3. Notifies the container host via an authenticated Deploy Hook.

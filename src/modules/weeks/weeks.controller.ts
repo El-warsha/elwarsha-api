@@ -1,6 +1,8 @@
 import { Controller, Get, Param, ParseIntPipe, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 
+import { AuthGuard, RequireCapability } from "../identity/auth.guard.js";
+import { CohortMembershipGuard } from "./cohort-membership.guard.js";
 import { WeeksService } from "./weeks.service.js";
 import type { Week } from "./weeks.types.js";
 import { AuthGuard, RequireCapability } from "../identity/auth.guard.js";
@@ -8,6 +10,7 @@ import { CohortMembershipGuard } from "../identity/CohortMembership.guard.js";
 
 @ApiTags("weeks")
 @Controller("api/v1")
+@UseGuards(AuthGuard)
 export class WeeksController {
   constructor(private readonly weeks: WeeksService) {}
 
