@@ -89,6 +89,10 @@ describe("Foundation API (e2e)", () => {
 
     const me = await agent.get("/api/v1/auth/me").expect(200);
     expect(me.body.user.email).toBe("participant@elwarsha.dev");
+    
+    console.log("ME MEMBERSHIPS:", me.body.memberships);
+console.log("ME ROLES:", me.body.roles);
+
     expect(me.body.roles).toEqual(["participant"]);
     expect(me.body.capabilities).toContain("portal.view");
     expect(me.body.memberships).toHaveLength(1);
