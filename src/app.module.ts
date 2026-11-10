@@ -9,6 +9,7 @@ import { HealthModule } from "./modules/health/health.module.js";
 import { IdentityModule } from "./modules/identity/identity.module.js";
 import { ApplicationsModule } from "./modules/applications/applications.module.js";
 import { TasksModule } from "./modules/tasks/tasks.module.js";
+import { LabelsModule } from './modules/labels/labels.module.js';
 import { WeeksModule } from "./modules/weeks/weeks.module.js";
 
 @Module({
@@ -22,6 +23,7 @@ import { WeeksModule } from "./modules/weeks/weeks.module.js";
     TasksModule,
     ApplicationsModule,
     GithubModule,
+    LabelsModule,
     WeeksModule,
   ],
 })
