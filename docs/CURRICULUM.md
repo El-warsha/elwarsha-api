@@ -118,35 +118,11 @@ the cookie contract.
 **Reflection:** Where should a new capability be declared so controllers stay
 thin?
 
-## Week 5 — Validation and reliability
-
-**Outcome:** Return the shared error envelope and reject invalid input at the
-boundary.
-
-**Prerequisites:** Weeks 3–4.
-
-**Entry points:** `src/common/http-exception.filter.ts`, `src/common/errors.ts`,
-`src/config/env.ts`.
-
-| Order | Small task                                                       | Observable behavior                       | Focused check                                            |
-| ----- | ---------------------------------------------------------------- | ----------------------------------------- | -------------------------------------------------------- |
-| 5.1   | Trigger one `AppError` and confirm the envelope shape            | `{ error: { code, message, requestId } }` | One HTTP test                                            |
-| 5.2   | Validate one request or env value with existing Zod/env patterns | Invalid value fails closed                | `yarn test src/config/env.spec.ts` or a new focused spec |
-| 5.3   | Add retry or lastError visibility for one failed job path        | Failed job remains retryable              | Job service test                                         |
-
-**Core increment:** 5.1 or 5.2, not both in one PR.
-
-**Stretch:** Propose a webhook payload schema without inventing GitHub fields.
-
-**Evidence:** Test that asserts the envelope or the rejected input.
-
-**Reflection:** What must never leak in `error.message`?
-
-## Week 6 — Testing, quality & evaluation loops
+## Week 5 — Testing, quality & evaluation loops
 
 **Outcome:** Show that a test protects a behavior by breaking that behavior on purpose and watching it fail.
 
-**Prerequisites:** Weeks 4–5. Local Postgres (`docker compose up -d`) for the e2e suite.
+**Prerequisites:** Week 4. Local Postgres (`docker compose up -d`) for the e2e suite.
 
 **Entry points:** `src/modules/applications/`, `test/app.e2e-spec.ts`,
 `vitest.config.ts`, `vitest.config.e2e.ts`, `.github/workflows/ci.yml`. In
@@ -154,19 +130,43 @@ elwarsha-web: `src/features/apply/CohortApplicationForm.test.tsx`, `e2e/`.
 
 | Order | Small task                                                                                   | Observable behavior                                           | Focused check                                        |
 | ----- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------- |
-| 6.1   | Write a risk-based test matrix for the apply flow and keep only the justified rows           | Matrix in the PR with behavior, risk, level, file, and status | Review of the matrix                                 |
-| 6.2   | Create `applications.service.spec.ts` for duplicate email (any letter case) and handle       | Spec fails when `.toLowerCase()` is removed from the email    | `yarn test`, then the break/restore run              |
-| 6.3   | Harden `CohortApplicationForm.test.tsx`: `user-event`, role queries, accessible descriptions | No `fireEvent`; 422 error linked to its field                 | `yarn test` and `yarn vitest run --sequence.shuffle` |
-| 6.4   | Break one production behavior per repo on purpose, then restore it                           | A named test goes red, then green                             | Red and green runs in the PR                         |
-| 6.5   | Classify your review notes and one AI review as valid, false positive, or uncertain          | A findings table with one reason per row                      | Review of the table                                  |
+| 5.1   | Write a risk-based test matrix for the apply flow and keep only the justified rows           | Matrix in the PR with behavior, risk, level, file, and status | Review of the matrix                                 |
+| 5.2   | Create `applications.service.spec.ts` for duplicate email (any letter case) and handle       | Spec fails when `.toLowerCase()` is removed from the email    | `yarn test`, then the break/restore run              |
+| 5.3   | Harden `CohortApplicationForm.test.tsx`: `user-event`, role queries, accessible descriptions | No `fireEvent`; 422 error linked to its field                 | `yarn test` and `yarn vitest run --sequence.shuffle` |
+| 5.4   | Break one production behavior per repo on purpose, then restore it                           | A named test goes red, then green                             | Red and green runs in the PR                         |
+| 5.5   | Classify your review notes and one AI review as valid, false positive, or uncertain          | A findings table with one reason per row                      | Review of the table                                  |
 
-**Core increment:** 6.2 and 6.4 together. Each is one focused change.
+**Core increment:** 5.2 and 5.4 together. Each is one focused change.
 
 **Stretch:** Make the weeks locking test independent of today's date.
 
 **Evidence:** Red and green test runs for each side, the matrix, and the findings table, all in the PR.
 
 **Reflection:** What would a flaky end-to-end test hide that a focused unit test would show?
+
+## Week 6 — GitHub integration & runtime submission sync
+
+**Outcome:** Synchronize pull request existence and state (draft / in_review / merged) directly from the GitHub REST API at runtime using native fetch without webhooks or background queues.
+
+**Prerequisites:** Week 5. Docker Compose PostgreSQL running locally. Set `FAKE_USER_GITHUB_ID=<your-github-id>` in `.env` to test live PRs with fake auth.
+
+**Entry points:** `src/modules/github/`, `src/modules/submissions/`, `prisma/schema.prisma`, ADR 0005. In `elwarsha-web`: `src/features/tasks/`, `src/features/weeks/WeekDetailPage.tsx`.
+
+| Order | Small task                                                                 | Observable behavior                                                    | Focused check                                      |
+| ----- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------- |
+| 6.1   | Implement regex PR title matcher (`/^\[week-0?(\d+)\]/i`)                  | Accurately extracts target week from PR titles                         | `yarn test src/modules/github/github-matcher`      |
+| 6.2   | Implement `HttpGithubAppClient` against GitHub REST API with fetch         | Queries public pulls endpoint and returns normalized PR summaries      | `yarn test src/modules/github`                     |
+| 6.3   | Build `SubmissionsService` multi-repo runtime sync and relational snapshot | Matches student `githubUserId` across all product repos and updates DB | `yarn test src/modules/submissions`                |
+| 6.4   | Expose `GET /api/v1/cohorts/:slug/assignments/:week/submissions` endpoint  | Authenticated member receives multi-repo submissions contract          | `yarn test test/app.e2e-spec.ts`                   |
+| 6.5   | Build frontend multi-repo submission section on week and tasks pages       | UI displays each repo's live PR status and manual refresh btn          | `yarn test src/features/tasks` (in `elwarsha-web`) |
+
+**Core increment:** 6.1, 6.2, and 6.3 on API; 6.5 on Web.
+
+**Stretch:** Handle GitHub 403/429 rate limit errors with graceful fallback to the cached PostgreSQL snapshot and `stale: true`.
+
+**Evidence:** Passing matcher unit test, submissions service test, and e2e endpoint test.
+
+**Reflection:** Why is an on-demand runtime pull pattern often more resilient and simpler than webhooks for local development and single-user views, and what are its trade-offs regarding API rate limits?
 
 ## Week 7 — Performance
 

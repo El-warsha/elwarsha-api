@@ -67,6 +67,7 @@ export class WeeksService {
       slug: cohort.slug,
       name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
       nameAr: cohort.nameAr,
+      currentWeekNumber: cohort.currentWeekNumber,
       startsOn: formatDate(cohort.startsOn),
       endsOn: formatDate(cohort.endsOn),
     };
@@ -74,21 +75,7 @@ export class WeeksService {
     const assignments = cohort.engagements.flatMap((e) => e.assignments);
     const curriculumWeeks = getAllCurriculumWeeks(locale);
     const now = new Date();
-
-    // Determine current active week number based on date schedule
-    let currentWeekNumber: number | null = null;
-    for (const cWeek of curriculumWeeks) {
-      const schedule = this.computeSchedule(
-        cohort.startsOn,
-        cohort.endsOn,
-        cWeek.weekNumber,
-        now,
-      );
-      if (schedule.isCurrent) {
-        currentWeekNumber = cWeek.weekNumber;
-        break;
-      }
-    }
+    const currentWeekNumber = cohort.currentWeekNumber;
 
     return curriculumWeeks.map((cWeek) => {
       const weekNumber = cWeek.weekNumber;
@@ -99,12 +86,7 @@ export class WeeksService {
         now,
       );
 
-      // All weeks after the current week are locked with upcoming status
-      const isLocked =
-        currentWeekNumber !== null
-          ? weekNumber > currentWeekNumber
-          : schedule.status === "upcoming";
-
+      const isLocked = weekNumber > currentWeekNumber;
       const dbAssignment = assignments.find((a) => a.weekNumber === weekNumber);
 
       return this.buildWeek(cWeek, cohortRef, schedule, isLocked, dbAssignment);
@@ -154,26 +136,13 @@ export class WeeksService {
       slug: cohort.slug,
       name: locale === "ar" && cohort.nameAr ? cohort.nameAr : cohort.name,
       nameAr: cohort.nameAr,
+      currentWeekNumber: cohort.currentWeekNumber,
       startsOn: formatDate(cohort.startsOn),
       endsOn: formatDate(cohort.endsOn),
     };
 
     const now = new Date();
-    const curriculumWeeks = getAllCurriculumWeeks(locale);
-    let currentWeekNumber: number | null = null;
-    for (const cWeek of curriculumWeeks) {
-      const schedule = this.computeSchedule(
-        cohort.startsOn,
-        cohort.endsOn,
-        cWeek.weekNumber,
-        now,
-      );
-      if (schedule.isCurrent) {
-        currentWeekNumber = cWeek.weekNumber;
-        break;
-      }
-    }
-
+    const currentWeekNumber = cohort.currentWeekNumber;
     const schedule = this.computeSchedule(
       cohort.startsOn,
       cohort.endsOn,
@@ -181,10 +150,7 @@ export class WeeksService {
       now,
     );
 
-    const isLocked =
-      currentWeekNumber !== null
-        ? weekNumber > currentWeekNumber
-        : schedule.status === "upcoming";
+    const isLocked = weekNumber > currentWeekNumber;
 
     const dbAssignment = cohort.engagements.flatMap((e) => e.assignments)[0] ?? null;
 
@@ -245,8 +211,18 @@ export class WeeksService {
       detailsMd: cWeek.assignment.detailsMd,
     };
 
-    const effectiveStatus =
-      dbAssignment?.status === "closed" ? "completed" : schedule.status;
+    const isCurrent = cWeek.weekNumber === cohortRef.currentWeekNumber;
+    let effectiveStatus: "completed" | "active" | "upcoming" | "draft" = schedule.status;
+    if (
+      dbAssignment?.status === "closed" ||
+      cWeek.weekNumber < cohortRef.currentWeekNumber
+    ) {
+      effectiveStatus = "completed";
+    } else if (cWeek.weekNumber === cohortRef.currentWeekNumber) {
+      effectiveStatus = "active";
+    } else {
+      effectiveStatus = "upcoming";
+    }
 
     return {
       weekNumber: cWeek.weekNumber,
@@ -256,7 +232,7 @@ export class WeeksService {
       guidingQuestion: cWeek.guidingQuestion,
       startDate: schedule.startDate,
       endDate: schedule.endDate,
-      isCurrent: schedule.isCurrent,
+      isCurrent,
       status: effectiveStatus,
       isLocked: false,
       cohort: cohortRef,

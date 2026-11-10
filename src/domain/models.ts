@@ -22,15 +22,19 @@ export type Membership = {
   role: MembershipRole;
 };
 
+export type ProductRepositoryInfo = {
+  id?: string;
+  githubOwner: string;
+  githubRepo: string;
+};
+
 export type Product = {
   id: string;
   slug: string;
   name: string;
   status: "draft" | "active" | "archived";
-  repository: {
-    githubOwner: string;
-    githubRepo: string;
-  } | null;
+  repositories: ProductRepositoryInfo[];
+  repository: ProductRepositoryInfo | null;
 };
 
 export type Cohort = {
@@ -67,6 +71,7 @@ export type Submission = {
   id: string;
   assignmentId: string;
   authorUserId: string;
+  productRepositoryId?: string | null;
   status: "draft" | "submitted" | "in_review" | "eligible" | "merged" | "withdrawn";
   prUrl: string | null;
   pullRequest: {

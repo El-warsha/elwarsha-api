@@ -1034,52 +1034,6 @@ export const curriculumAr: Record<number, CurriculumWeek> = {
   },
   5: {
     weekNumber: 5,
-    title: "تعديل المخطط وقواعد البيانات بلا انقطاع",
-    tagline: "تغيير قواعد البيانات الحية يتطلب خطوات توافقية دقيقة",
-    concept: "هجرة قواعد البيانات",
-    guidingQuestion: "إزاي نعمل هجرة لجدول مستخدم في الإنتاج من غير ما نوقف الخدمة؟",
-    bigIdea:
-      "في الأنظمة الحية، لا يمكن إسقاط الأعمدة أو تعديلها بخطوة واحدة مفاجئة. نتعلّم نمط Expand and Contract لتنفيذ هجرات Prisma آمنة بدون أي انقطاع في الخدمة.",
-    outcomes: [
-      "كتابة هجرات آمنة تدعم التوافق مع الإصدارات السابقة.",
-      "فصل قراءة البيانات عن كتابتها أثناء مراحل الانتقال.",
-    ],
-    coreConcepts: [
-      "نمط التوسيع والانكماش (Expand and Contract)",
-      "الهجرة الآمنة (Zero-Downtime Migrations)",
-    ],
-    appliedThroughTheStack: [
-      { layer: "Prisma", details: "إدارة الهجرات وتحديث schema.prisma بحذر." },
-      { layer: "PostgreSQL", details: "فهارس آمنة وقيود لا تعطل الجداول." },
-    ],
-    assignment: {
-      title: "هجرة آمنة لجدول حي بنمط Expand and Contract",
-      summary:
-        "توسيع مخطط قاعدة البيانات بإضافة أعمدة جديدة مع دعم التوافق التراجعي الكامل.",
-      detailsMd: `### المخرجات البرمجية
-- **هجرة التوسيع (Expand)**: إضافة الحقل الجديد كحقل اختياري.
-- **الكتابة المزدوجة (Dual-write)**: تحديث الخدمة لتكتب في الحقلين القديم والجديد معاً.`,
-    },
-    resources: {
-      required: [
-        {
-          title: "دليل الهجرة بدون توقف الخدمة (Prisma)",
-          url: "https://www.prisma.io/dataguide/types/relational/zero-downtime-migrations",
-          layers: "Database",
-          format: "Read",
-          time: "٢٠ دقيقة",
-          why: "فهم استراتيجيات هجرة قواعد البيانات الإنتاجية.",
-        },
-      ],
-      assignment: [],
-      alternative: [],
-    },
-    reflectionQuestion:
-      "ليه مينفعش نمسح عمود من قاعدة البيانات في نفس الـ PR اللي بيوقف استخدامه في الكود؟",
-    prerequisites: ["الأسبوع الرابع"],
-  },
-  6: {
-    weekNumber: 6,
     title: "الاختبارات والجودة وحلقات التقييم",
     tagline: "استخدم أدلة قابلة للتشغيل للتحكم في التغيير",
     concept: "الاختبارات والتقييم",
@@ -1128,7 +1082,7 @@ export const curriculumAr: Record<number, CurriculumWeek> = {
       title: "مراجعة وتقوية اختبارات التقديم للدفعة",
       summary:
         "ابنِ مصفوفة اختبارات مبنية على المخاطر، وقوِّ اختبارات نموذج الواجهة، وأضف اختبارات الوحدة الناقصة لـ ApplicationsService، وأثبت اختبارات كل طرف بكسر الكود عمداً، وقارن ملاحظات المراجعة البشرية بملاحظات الذكاء الاصطناعي.",
-      detailsMd: `### مهمة الأسبوع السادس: مراجعة وتقوية اختبارات التقديم للدفعة
+      detailsMd: `### مهمة الأسبوع الخامس: مراجعة وتقوية اختبارات التقديم للدفعة
 
 **المطلوب تسليمه:** طلب دمج (PR) واحد لكل مستودع. وصف كل PR يحتوي على الأقسام ١–٦ أدناه. إذا كانت مراجعة الـ PR تحتاج أكثر من ٢٠ دقيقة تقريباً، قسّمه.
 
@@ -1444,7 +1398,258 @@ export const curriculumAr: Record<number, CurriculumWeek> = {
     },
     reflectionQuestion:
       "ما الذي قد يخفيه اختبار من طرف لطرف غير مستقر (flaky) ويكشفه اختبار وحدة مركّز؟",
-    prerequisites: ["الأسبوع الخامس", "Docker Compose Postgres"],
+    prerequisites: ["الأسبوع الرابع", "Docker Compose Postgres"],
+  },
+  6: {
+    weekNumber: 6,
+    title: "تكامل GitHub وتتبع التسليمات الفوري",
+    tagline:
+      "استعلم من المصدر الموثوق مباشرة وقت التشغيل دون تعقيدات الـ Webhooks أو طوابير الانتظار",
+    concept: "التكامل مع واجهات البرمجة الخارجية والمزامنة الفورية",
+    guidingQuestion:
+      "إزاي نربط منصتنا بأنظمة خارجية (زي GitHub) بشكل فوري وبسيط وقت تشغيل الصفحة من غير تعقيدات الـ Webhooks والتوجيه الخارجي؟",
+    bigIdea:
+      "على مدار الأسابيع الخمسة الماضية، بنيت معمارية معيارية نظيفة، وتحققت من عقود HTTP، وطوّرت مخططات قواعد البيانات عبر الهجرات (Migrations)، وطبّقت المصادقة وحماية المسارات، وأحكمت اختبارات شاملة للنظام. هذا الأسبوع، نربط منصتنا بالعالم الخارجي عبر التكامل مع GitHub REST API.\n\nبينما تدفع الأنظمة الخارجية التحديثات غالباً عبر الـ Webhooks، تسبب الـ Webhooks احتكاكاً تقنياً وتشغيلياً كبيراً في بيئات التطوير المحلية وعرض صفحات المستخدمين (إذ تتطلب أنفاق توجيه مثل `ngrok`، وتدقيق التوقيعات المشفرة، وطوابير انتظار معقدة). في الأسبوع السادس، نعتمد **نمط المزامنة وقت التشغيل (Runtime Reconciliation Pattern)**: عندما يفتح المتدرب صفحة مهمته، يستعلم التطبيق فوراً من واجهة GitHub REST API، ويطابق طلب الدمج المفتوح عبر نمط تسمية حتمي ومحدد (`[week-06]`)، ويحدد حالته (مفتوح أو مدموج)، ثم يحفظ لقطة البيانات (Snapshot) في PostgreSQL. هذا يجعل المنصة ذاتية التعافي وسريعة الاستجابة وموثوقة تماماً دون الحاجة لتشغيل عمال خلفية دائمين.",
+    outcomes: [
+      "التكامل مع GitHub REST API باستخدام حساب تطبيق GitHub موثّق.",
+      "تنفيذ مطابقة نمطية حتمية لعناوين طلبات الدمج (`[week-06]`).",
+      "الربط والتحقق من هوية المتدرب بين معرفات GitHub الخارجية وحسابات المنصة.",
+      "تقييم حالة طلب الدمج (مسودة، قيد المراجعة، تم الدمج) بشكل فوري.",
+      "حفظ لقطات البيانات في PostgreSQL دون تسريب أنواع مكتبات الطرف الثالث إلى طبقات التطبيق.",
+      "بناء مكوّن واجهة في React سهل الوصول (Accessible) يعرض دليلاً حياً لحالة طلب الدمج.",
+    ],
+    coreConcepts: [
+      "الدفع (Webhooks) مقابل السحب وقت التشغيل (Runtime Reconciliation)",
+      "تسليمات المنتجات متعددة المستودعات (Multi-Repository Submissions)",
+      "المصدر الموثوق الوحيد للحقيقة (ADR 0005)",
+      "المطابقة الحتمية للعناوين عبر Regex",
+      "المصادقة عبر OAuth ورموز تطبيقات GitHub",
+      "التخزين المؤقت للقطات البيانات العلائقية (Relational Snapshot Caching)",
+      "التخزين المؤقت في الواجهة الأمامية عبر Stale-Time و SWR",
+    ],
+    appliedThroughTheStack: [
+      {
+        layer: "React",
+        details:
+          'خطاف بيانات (`useAssignmentSubmissions`)، وبطاقة حالة التسليم متعددة المستودعات (`SubmissionStatusCard`)، وتنبيهات سهولة الوصول (`aria-live="polite"`)، مع التخزين المؤقت عبر TanStack Query (elwarsha-web).',
+      },
+      {
+        layer: "NestJS",
+        details:
+          "وحدة SubmissionsModule، ومنفذ ومحوّل GithubAppClient، ومطابق العناوين النمطي، ونقطة النهاية متعددة المستودعات GET /api/v1/cohorts/:slug/assignments/:week/submissions المحمية بـ AuthGuard و CohortMembershipGuard (elwarsha-api).",
+      },
+      {
+        layer: "PostgreSQL و Prisma",
+        details:
+          "تحديث وحفظ لقطات الجداول Submission و GithubPullRequest لكل مسار مستودع دون تسريب تفاصيل المخطط (schema.prisma).",
+      },
+      {
+        layer: "GitHub",
+        details:
+          "طلبات الدمج وحالتها كمصدر موثوق وحيد للحقيقة وفقاً للقرار المعماري ADR 0005.",
+      },
+    ],
+    assignment: {
+      title: "بناء متتبع تسليمات GitHub الفوري متعدد المستودعات",
+      summary:
+        "نفّذ مطابقة عناوين الـ PR عبر التعبيرات النمطية، وسّع عميل GitHub App، وابنِ وحدة Submissions لمزامنة لقطات طلبات الدمج عبر كافة مستودعات المنتج عند تحميل الصفحة، واعرض بطاقات حالة التسليم الحية في بوابة المتدرب.",
+      detailsMd: `### مهمة الأسبوع السادس: متتبع تسليمات GitHub الفوري
+
+**المطلوب تسليمه:** طلب دمج (PR) مركّز لكل من \`elwarsha-api\` و \`elwarsha-web\`.
+
+#### نقطة البداية
+
+| الطرف | الملف | ما هو موجود | ما ينقص |
+| --- | --- | --- | --- |
+| الـ API | \`src/modules/github/github.ports.ts\` | واجهة \`GithubAppClient\` مع دالة \`getPullRequest\` | دالة \`listRepositoryPullRequests\` |
+| الـ API | \`src/modules/github/http-github.client.ts\` | **غير موجود** | عميل GitHub REST الفعلي باستخدام دالة \`fetch\` الأصلية |
+| الـ API | \`src/modules/github/fake-github.client.ts\` | عميل وهمي مع دعم ديناميكي للمؤلف | ربطه بمزود عميل GitHub وقت التشغيل |
+| الـ API | \`src/modules/submissions/\` | **غير موجود** | الوحدة (Module) والخدمة والمتحكم والمستودع |
+| الـ API | \`prisma/schema.prisma\` | \`ProductRepository\` و \`Submission\` و \`GithubPullRequest\` | خدمة منطق العمل لمزامنة لقطات المستودعات المتعددة |
+| الواجهة | \`src/features/tasks/\` | قائمة المهام وفلترة الوسوم | بطاقة حالة التسليم متعددة المستودعات وخطاف المزامنة |
+
+#### ١. اتفاقية العنوان والمطابق النمطي (\`elwarsha-api\`)
+
+نفّذ مطابق عناوين في \`src/modules/github/github-matcher.ts\`:
+- يطابق العناوين التي تبدأ بـ \`[week-06]\` أو \`[week-6]\` أو غيرها دون حساسية لحالة الأحرف (\`/^\\\\[week-0?(\\\\d+)\\\\]/i\`).
+- يصدّر الدالتين \`extractWeekNumberFromTitle(title: string): number | null\` و \`matchPrToWeek(title: string, targetWeek: number): boolean\`.
+- اختبار وحدة شامل في \`github-matcher.spec.ts\` يختبر العناوين الصحيحة، والأصفار البادئة، والمسافات، وحالات عدم التطابق.
+
+#### ٢. بناء عميل GitHub REST الفعلي والمحوّل الوهمي
+
+في \`src/modules/github/\`:
+- أضف \`listRepositoryPullRequests(owner: string, repo: string): Promise<NormalizedPullRequestSummary[]>\` إلى \`GithubAppClient\` في \`github.ports.ts\`.
+- أنشئ \`HttpGithubAppClient\` في \`src/modules/github/http-github.client.ts\`:
+  - يستعلم من واجهة برمجة تطبيقات GitHub العامة عبر \`fetch\` الأصلية (\`https://api.github.com/repos/:owner/:repo/pulls?state=all&per_page=100\`).
+  - يرفق الترويسات القياسية: \`Accept: application/vnd.github+json\`، و \`User-Agent: ElWarsha-App\`، وترويسة التوثيق الاختيارية \`Authorization: Bearer <GITHUB_TOKEN>\`.
+  - يوحّد حقول طلبات الدمج في بنية \`NormalizedPullRequestSummary\` (مع تحويل الحالة إلى \`merged\` عند وجود \`merged_at\`).
+- حدّث \`FakeGithubAppClient\` بالاعتماد على معرف المؤلف الديناميكي (\`this.env.FAKE_USER_GITHUB_ID || "1001"\`) مع بيانات وهمية تشمل:
+  - طلب دمج مفتوح يطابق \`[week-06]\` للمشارك.
+  - طلب دمج مدموج للأسبوع الأول.
+  - طلب دمج لمشارك آخر.
+- اكتب اختبار وحدة \`http-github.client.spec.ts\` بمحاكاة \`globalThis.fetch\` لاختبار الترويسات وحقن التوكن وتوحيد البيانات ومعالجة حدود الطلبات.
+- تأكد أن اختبارات الوحدة واختبارات e2e تعمل بحتمية كاملة مع Postgres المحلي دون الحاجة للاتصال الفعلي بـ GitHub عند تشغيل الاختبارات.
+
+#### ٣. وحدة التسليمات وخدمة المزامنة متعددة المستودعات
+
+في الورشة، لكل منتج عدة مستودعات (مثل \`El-warsha/elwarsha-api\` للخلفية و \`El-warsha/elwarsha-web\` للواجهة). ويفتح المتدرب طلب دمج في كل مستودع يشارك في تطويره.
+
+أنشئ المجلد \`src/modules/submissions/\`:
+- **SubmissionsService**:
+  - تجلب معرّف المتدرب \`githubUserId\` من \`ExternalIdentity\`.
+    > **ملاحظة:** في البيئة المحلية مع نظام الهوية الوهمي، يمكنك ضبط \`FAKE_USER_GITHUB_ID=<معرفك-الرقمي>\` في \`.env\` لاختبار طلبات الدمج الحقيقية بحسابك، ويمكنك معرفة رقمك عبر \`https://api.github.com/users/<اسم-المستخدم>\`.
+  - تدور على كافة المستودعات المضبوطة لمنتج الدفعة (\`engagement.product.repositories\`).
+  - لكل مستودع، تستعلم عن طلبات الدمج عبر \`GithubAppClient.listRepositoryPullRequests(githubOwner, githubRepo)\`.
+  - تبحث عن طلب الدمج الذي يتطابق فيه \`BigInt(pr.authorGithubUserId) === identity.githubUserId\` ويبدأ عنوانه بـ \`[week-XX]\`.
+  - **قواعد المطابقة والتسوية الحتمية:**
+    - إذا كان الـ PR مدموجاً بالفعل في GitHub: الحالة \`merged\`.
+    - إذا كان الـ PR مفتوحاً على GitHub: الحالة \`in_review\`.
+    - إذا **لم** يوجد طلب دمج مطابق في GitHub: الحالة \`draft\` مع \`prUrl: null\` و \`pullRequest: null\` (ولا يتم الاعتماد على لقطات قديمة منسوخة من طلبات أخرى).
+  - تحدّث أو تنشئ لقطة السجل في \`Submission\` و \`GithubPullRequest\` داخل Prisma لكل مستودع.
+  - ترجع مصفوفة تسليمات المستودعات.
+- **SubmissionsController**:
+  - يعرض المسار \`GET /api/v1/cohorts/:slug/assignments/:weekNumber/submissions\` الذي يرجع \`AssignmentSubmissionsResponse\` (\`{ assignmentId, weekNumber, submissions: RepositorySubmissionItem[] }\`).
+  - محمي بواسطة \`AuthGuard\` و \`CohortMembershipGuard\`.
+
+#### ٤. بناء قسم تتبع التقدم والتسليمات في الواجهة الأمامية (\`elwarsha-web\`)
+
+عند فتح صفحة الأسبوع أو صفحة المهام، استعلم تلقائياً من نقطة النهاية واعرض قسم متابعة التقدم متعدد المستودعات في أعلى الصفحة مباشرة:
+- **طبقة العقود والعميل (\`@core/api\`):** استيراد أنواع بيانات التسليم وتحديثات العميل (\`AssignmentSubmissionsResponse\`، \`RepositorySubmissionItem\`، \`SubmissionStatus\`) وربط استدعاء العميل \`api.getAssignmentSubmissions(cohortSlug, weekNumber)\`.
+- **خطاف إدارة الحالة والتخزين المؤقت (\`useSubmission.ts\`):** بناء الخطاف \`useAssignmentSubmissions\` بالاعتماد على TanStack Query مع ضبط مدة الـ SWR بـ دقيقة (\`staleTime: 60_000\`) لحماية واجهة برمجة تطبيقات GitHub من استنزاف معدل الطلبات، وإتاحة \`refetch\` لإعادة المزامنة عند الطلب.
+- **مكوّن وبطاقة حالة التقدم والتسليم (\`SubmissionStatusCard.tsx\`):**
+  - يعرض قسماً فرعياً لكل مستودع من مستودعات المنتج:
+    - اسم المستودع (كرابط إلى GitHub).
+    - شارة الحالة الحية (\`مسودة\`، \`● قيد المراجعة\`، \`✓ تم الدمج\`).
+    - **حالة المسودة (Draft):** إرشادات واضحة لفتح طلب دمج يبدأ بـ \`[week-06] <الوصف>\` مع طمأنة المتدرب بأن المزامنة ستلتقط الـ PR تلقائياً فور فتحه.
+    - **حالة قيد المراجعة (In Review):** شارة الحالة المفتوحة (\`● قيد المراجعة\`)، ورقم الـ PR (مثل \`#42\`)، ورابط خارجي موثوق إلى GitHub (\`target="_blank"\`، \`rel="noreferrer noopener"\`).
+    - **حالة تم الدمج (Merged):** شارة إتمام التكليف بنجاح (\`✓ تم الدمج\`).
+  - **زر التحديث اليدوي الفوري:** زر عام في ترويسة البطاقة "↻ تحديث من GitHub" يعيد الاستعلام فور ضغطه.
+  - **سهولة الوصول (Accessibility):** استخدام \`role="region"\` و \`aria-live="polite"\` وتسميات وصول صريحة للروابط (\`aria-label\`).
+- **الدمج في صفحة الأسبوع وصفحة المهام (\`WeekDetailPage.tsx\` و \`TasksPage.tsx\`):** وضع قسم التسليم في **أول صفحة الأسبوع مباشرة** (أعلى الصفحة تحت الترويسة) وصفحة المهام ليظهر للمتدرب فور فتح الصفحة دون الحاجة للتمرير لأسفل.
+- **اختبارات المكوّن (\`SubmissionStatusCard.test.tsx\`):** تغطية الحالات المختلفة، وعرض المستودعات المتعددة، وزر التحديث اليدوي وسمات سهولة الوصول.
+
+---
+
+#### معايير القبول
+
+- [ ] اختبارات وحدة مطابق العناوين تغطي كافة حالات الأحرف والفواصل والأصفار البادئة.
+- [ ] \`SubmissionsService\` تحدد حالة الـ PR بدقة عبر كافة مستودعات المنتج (draft، in_review، merged).
+- [ ] نقطة نهاية التسليمات محمية: ترجع 401 بدون جلسة صالحة و 403 لمن ليس عضواً في الدفعة.
+- [ ] قاعدة البيانات تحفظ لقطات الـ PR المزامنة دون تسريب أنواع \`@prisma/client\` خارج طبقة البنية التحتية.
+- [ ] الواجهة الأمامية تطبّق قسم التسليم متعدد المستودعات بالكامل في أول صفحة الأسبوع وصفحة المهام مع دعم المزامنة اليدوية.
+- [ ] الواجهة الأمامية تعرض انتقالات الحالة بوضوح لكل مستودع (مسودة -> قيد المراجعة -> تم الدمج).
+- [ ] أمر التحقق \`yarn validate\` ينجح بدون أي أخطاء أنواع.
+
+#### المسار المتقدم (اختياري)
+
+- **التعامل المرن مع حدود الاستخدام (Rate Limits):** التقط أخطاء 403/429 من GitHub وأرجع لقطة قاعدة البيانات المخزنة مع ترويسة تحذيرية \`stale: true\`.
+- **زر إعادة المزامنة اليدوي:** أضف زراً لإعادة المزامنة يتجاوز التخزين المؤقت للعميل مع ضبط تأخير (Debounce) مدته ١٥ ثانية.`,
+    },
+    resources: {
+      required: [
+        {
+          title: "دليل واجهة برمجة تطبيقات GitHub: عرض طلبات الدمج (List Pull Requests)",
+          url: "https://docs.github.com/en/rest/pulls/pulls#list-pull-requests",
+          layers: "Backend, External API",
+          format: "Read",
+          time: "١٥ دقيقة",
+          why: "فهم معايير الاستعلام (state=all) والترويسات وحقول تفاصيل طلبات الدمج.",
+        },
+        {
+          title: "دليل GitHub: حدود الاستخدام والمصادقة (Rate Limits & Auth)",
+          url: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
+          layers: "Backend, External API",
+          format: "Read",
+          time: "١٠ دقائق",
+          why: "فهم الفرق بين حد ٦٠ طلباً/ساعة بدون مصادقة و ٥٠٠٠ طلباً بالرمز، ومعالجة أخطاء 403/429.",
+        },
+        {
+          title: "دليل MDN: مجموعات التعبيرات النمطية (Regular Expressions)",
+          url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Groups_and_backreferences",
+          layers: "Concept",
+          format: "Read",
+          time: "١٥ دقيقة",
+          why: "بناء مجموعات مطابقة دقيقة لاستخراج أرقام الأسابيع من العناوين (يمكنك التجربة التفاعلية على regex101.com).",
+        },
+        {
+          title: "دليل TanStack Query: الإعدادات الافتراضية و StaleTime",
+          url: "https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults",
+          layers: "Frontend",
+          format: "Read",
+          time: "١٠ دقائق",
+          why: "منع الاستعلامات المفرطة من GitHub API أثناء تنقل المستخدم في الموقع.",
+        },
+      ],
+      assignment: [
+        {
+          title: "دليل NestJS: المزودات المخصصة ورموز الحقن (Custom Providers)",
+          url: "https://docs.nestjs.com/fundamentals/custom-providers",
+          layers: "Backend",
+          format: "Read",
+          time: "١٥ دقيقة",
+          why: "فصل منفذ عميل GitHub عن المحولات الحقيقية والوهمية.",
+        },
+        {
+          title: "دليل Vitest: محاكاة الدوال العامة و fetch (Mocking Globals & Spies)",
+          url: "https://vitest.dev/api/vi.html#vi-spyon",
+          layers: "Testing, Backend",
+          format: "Read",
+          time: "١٠ دقائق",
+          why: "محاكاة globalThis.fetch في الاختبارات الأحادية دون استدعاء خوادم GitHub الحقيقية.",
+        },
+        {
+          title: "دليل MDN: استخدام واجهة Fetch في جافاسكريبت",
+          url: "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch",
+          layers: "Backend, JavaScript",
+          format: "Read",
+          time: "١٠ دقائق",
+          why: "التعامل مع الترويسات وقراءة بيانات JSON ومعالجة الأخطاء بـ fetch الأصيلة.",
+        },
+        {
+          title: "معايير W3C WAI: رسائل الحالة ومناطق ARIA الحية",
+          url: "https://www.w3.org/WAI/WCAG21/Understanding/status-messages.html",
+          layers: "Frontend, Accessibility",
+          format: "Read",
+          time: "١٠ دقائق",
+          why: "إعلام قارئات الشاشة بتحديثات حالة الفحص والمراجعة بلباقة.",
+        },
+      ],
+      alternative: [
+        {
+          title:
+            "فيديو: التعبيرات النمطية في جافاسكريبت (الحلقات ١٣٤-١٤٢) — أسامة الزيرو",
+          url: "https://www.youtube.com/playlist?list=PLDoPjvoNmBAx3kiplQR_oeDqLDBUDYwVv",
+          layers: "Concept",
+          format: "Watch",
+          time: "٢٥ دقيقة، مختارات",
+          why: "شرح عربي عملي للتعبيرات النمطية، المجموعات، الفئات، والتطبيق على النصوص.",
+        },
+        {
+          title: "دورة سريعة في React Query — Dave Gray",
+          url: "https://www.youtube.com/watch?v=r8Dg0KVnfMA",
+          layers: "Frontend",
+          format: "Watch",
+          time: "٣٠ دقيقة",
+          why: "شرح عملي للتخزين المؤقت وحالات التحميل وإدارة البيانات في الواجهة.",
+        },
+        {
+          title:
+            "فيديو: التعامل مع GitHub REST API بـ Fetch وجافاسكريبت — Architecture Notes",
+          url: "https://www.youtube.com/watch?v=AUZIYQHjvm6i45XdNmrnlFSinTSiBIGjd-lO9vJqMaCkkJC0XkJ0Thk0lRxNkn5owDwJqUeAJmkf1yvi6aBj6raCqyJsevC_QC0FrS7FoxfjsOxvKEd8YqfD91WjppjwvJSxcV9F",
+          layers: "Backend",
+          format: "Watch",
+          time: "٢٠ دقيقة",
+          why: "شرح مرئي لكيفية استدعاء GitHub REST API باستخدام fetch الأصلية وضبط الترويسات.",
+        },
+      ],
+    },
+    reflectionQuestion:
+      "ليه الاستعلام الفوري وقت تشغيل الصفحة (On-demand Pull) أبسط وأكثر اعتمادية من الـ Webhooks في بيئة التطوير وعرض صفحات المستخدمين، وإيه هي مقايضاته بالنسبة لحدود الاستخدام (Rate Limits)؟",
+    prerequisites: [
+      "الأسبوع الخامس",
+      "تشغيل Docker Compose Postgres محلياً",
+      "Node 22 و Yarn و Vitest",
+    ],
   },
   7: {
     weekNumber: 7,
