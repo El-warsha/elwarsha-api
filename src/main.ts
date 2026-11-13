@@ -18,6 +18,12 @@ if (existsSync(".env")) {
 }
 
 async function bootstrap(): Promise<void> {
+  Object.defineProperty(BigInt.prototype, "toJSON", {
+  value: function (this: bigint) {
+    return this.toString();
+  },
+  configurable: true,
+});
   const env = loadEnv();
   const logger = new ConsoleLogger(env.LOG_LEVEL);
   const app = await NestFactory.create(AppModule, {
