@@ -10,6 +10,7 @@ import { IdentityModule } from "./modules/identity/identity.module.js";
 import { ApplicationsModule } from "./modules/applications/applications.module.js";
 import { TasksModule } from "./modules/tasks/tasks.module.js";
 import { WeeksModule } from "./modules/weeks/weeks.module.js";
+import { SubmissionsModule } from "./modules/submissions/submissions.module.js";
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { WeeksModule } from "./modules/weeks/weeks.module.js";
     ApplicationsModule,
     GithubModule,
     WeeksModule,
+      SubmissionsModule,
   ],
 })
 export class AppModule {}

@@ -1,0 +1,1 @@
+export const GITHUB_APP_CLIENT = Symbol("GITHUB_APP_CLIENT");

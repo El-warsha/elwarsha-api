@@ -4,11 +4,12 @@ import { UnauthorizedError } from "../../common/errors.js";
 import { JobService } from "../../infrastructure/jobs/job.service.js";
 import { PrismaService } from "../../infrastructure/prisma/prisma.service.js";
 import type { GithubAppClient } from "./github.ports.js";
+import { GITHUB_APP_CLIENT } from "./github.tokens.js";
 
 @Injectable()
 export class GithubService {
   constructor(
-    @Inject("GithubAppClient") private readonly github: GithubAppClient,
+    @Inject(GITHUB_APP_CLIENT) private readonly github: GithubAppClient,
     private readonly prisma: PrismaService,
     private readonly jobs: JobService,
   ) {}
