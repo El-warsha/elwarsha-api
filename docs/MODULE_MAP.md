@@ -10,7 +10,7 @@ not the long-term product.
 | Cohorts     | `src/modules/catalog`     | Time-bounded cohorts                          | Read nested on engagements                                                   |
 | Engagements | `src/modules/catalog`     | Cohort-product pairing                        | `GET /api/v1/engagements`                                                    |
 | Assignments | `src/modules/tasks`       | Weekly work items                             | `GET /api/v1/assignments`                                                    |
-| Labels      | schema only               | Tags on assignments                           | `Label` and `AssignmentLabel` in Prisma; no HTTP module                      |
+| Labels      | `src/modules/labels`      | Labels and assignment-label relations         | `GET /api/v1/labels`; repository reads `Label` and `AssignmentLabel`         |
 | Submissions | schema only               | Candidate PRs                                 | `Submission` in Prisma; no HTTP module                                       |
 | GitHub      | `src/modules/github`      | Webhooks and future PR/review/check snapshots | Signature, persist delivery, enqueue. `processDelivery` marks processed only |
 | Jobs        | `src/infrastructure/jobs` | Durable worker queue                          | Enqueue, claim, complete, retry                                              |
@@ -19,4 +19,6 @@ not the long-term product.
 Shared authorization exports (`AuthGuard`, `RequireCapability`) live in
 identity and are the only identity symbols other modules may import.
 `TasksModule` exports `TasksService`. Do not import `tasks.repository.ts` from
-another module.
+another module. `LabelsModule` exports `LabelsService`; `TasksModule` uses that
+service to include labels in assignment responses. Do not import
+`labels.repository.ts` from another module.
