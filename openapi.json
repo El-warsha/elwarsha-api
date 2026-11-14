@@ -127,20 +127,6 @@
         ]
       }
     },
-    "/api/v1/labels": {
-      "get": {
-        "operationId": "LabelsController_listLabels",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "labels"
-        ]
-      }
-    },
     "/api/v1/cohorts/{slug}/applications": {
       "post": {
         "operationId": "ApplicationsController_apply",
@@ -212,6 +198,62 @@
         },
         "tags": [
           "github"
+        ]
+      }
+    },
+    "/api/v1/cohorts/{cohortSlug}/assignments/{weekNumber}/submissions": {
+      "get": {
+        "operationId": "SubmissionsController_getAssignmentSubmissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/api/v1/cohorts/{cohortSlug}/weeks": {
+      "get": {
+        "operationId": "WeeksController_listWeeks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "weeks"
+        ]
+      }
+    },
+    "/api/v1/cohorts/{cohortSlug}/weeks/{weekNumber}": {
+      "get": {
+        "operationId": "WeeksController_getWeek",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "weeks"
+        ]
+      }
+    },
+    "/api/v1/weeks": {
+      "get": {
+        "operationId": "WeeksController_listDefaultWeeks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "weeks"
         ]
       }
     }

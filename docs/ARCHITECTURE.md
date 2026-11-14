@@ -61,13 +61,15 @@ Nest modules in `src/app.module.ts`:
 - `identity` — OIDC/fake adapter, sessions, capability resolution
 - `catalog` — read-only products and engagements
 - `tasks` — read-only assignments at `GET /api/v1/assignments`
+- `submissions` — runtime GitHub PR reconciliation and submission snapshots
 - `github` — webhook verification, delivery persistence, job enqueue
 - `health` — `healthz` and `readyz`
 - `jobs` — PostgreSQL queue in `src/infrastructure/jobs`
 
 Products, cohorts, and engagements are domain concepts inside `catalog`.
-Assignments are served by `src/modules/tasks`. Labels and submissions exist in
-the schema only. See [`MODULE_MAP.md`](MODULE_MAP.md).
+Assignments are served by `src/modules/tasks`. Submissions are reconciled
+synchronously by `src/modules/submissions` on page load; labels remain schema
+only. See [`MODULE_MAP.md`](MODULE_MAP.md).
 
 Cross-module rule: no internals. From identity, other modules may import only
 `AuthGuard` and `RequireCapability` from `src/modules/identity/auth.guard.ts`.
@@ -75,18 +77,19 @@ Cross-module rule: no internals. From identity, other modules may import only
 
 ## HTTP surface
 
-| Method | Path                      | Notes                         |
-| ------ | ------------------------- | ----------------------------- |
-| GET    | `/api/v1/auth/login`      | Redirect to identity provider |
-| GET    | `/api/v1/auth/callback`   | Sets HttpOnly session cookie  |
-| GET    | `/api/v1/auth/me`         | Session required              |
-| POST   | `/api/v1/auth/logout`     | Revokes session               |
-| GET    | `/api/v1/products`        | `products.read`               |
-| GET    | `/api/v1/engagements`     | `cohorts.read`                |
-| GET    | `/api/v1/assignments`     | `assignments.read`            |
-| POST   | `/api/v1/github/webhooks` | Signature required            |
-| GET    | `/healthz`                | Liveness                      |
-| GET    | `/readyz`                 | Database ping                 |
+| Method | Path                                                  | Notes                                   |
+| ------ | ----------------------------------------------------- | --------------------------------------- |
+| GET    | `/api/v1/auth/login`                                  | Redirect to identity provider           |
+| GET    | `/api/v1/auth/callback`                               | Sets HttpOnly session cookie            |
+| GET    | `/api/v1/auth/me`                                     | Session required                        |
+| POST   | `/api/v1/auth/logout`                                 | Revokes session                         |
+| GET    | `/api/v1/products`                                    | `products.read`                         |
+| GET    | `/api/v1/engagements`                                 | `cohorts.read`                          |
+| GET    | `/api/v1/assignments`                                 | `assignments.read`                      |
+| GET    | `/api/v1/cohorts/:slug/assignments/:week/submissions` | `submissions.read`; runtime GitHub sync |
+| POST   | `/api/v1/github/webhooks`                             | Signature required                      |
+| GET    | `/healthz`                                            | Liveness                                |
+| GET    | `/readyz`                                             | Database ping                           |
 
 Errors: `{ error: { code, message, requestId } }`.
 

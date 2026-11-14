@@ -67,6 +67,15 @@ describe("Foundation API (e2e)", () => {
       });
   });
 
+  it("/api/v1/cohorts/cohort-01/assignments/6/submissions without a session (GET)", () => {
+    return request(app.getHttpServer())
+      .get("/api/v1/cohorts/cohort-01/assignments/6/submissions")
+      .expect(401)
+      .expect((response) => {
+        expect(response.body.error.code).toBe("unauthorized");
+      });
+  });
+
   it("rejects an auth callback with mismatched state", async () => {
     const agent = request.agent(app.getHttpServer());
     await agent.get("/api/v1/auth/login").redirects(0).expect(302);
@@ -144,6 +153,34 @@ describe("Foundation API (e2e)", () => {
     });
 
     await agent.get("/api/v1/cohorts/cohort-01/weeks/99").expect(404);
+
+    const submissions = await agent
+      .get("/api/v1/cohorts/cohort-01/assignments/6/submissions")
+      .expect(200);
+    expect(submissions.body).toMatchObject({
+      assignmentId: expect.any(String),
+      weekNumber: 6,
+      submissions: expect.any(Array),
+    });
+    expect(submissions.body.submissions.length).toBeGreaterThanOrEqual(2);
+    expect(submissions.body.submissions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          githubOwner: "El-warsha",
+          githubRepo: "elwarsha-api",
+          status: "in_review",
+          pullRequest: expect.objectContaining({ number: 42, state: "open" }),
+        }),
+        expect.objectContaining({
+          githubOwner: "El-warsha",
+          githubRepo: "elwarsha-web",
+          status: "in_review",
+          pullRequest: expect.objectContaining({ number: 43, state: "open" }),
+        }),
+      ]),
+    );
+
+    await agent.get("/api/v1/cohorts/cohort-2/assignments/6/submissions").expect(403);
 
     await agent.post("/api/v1/auth/logout").expect(201).expect({ ok: true });
 
