@@ -18,26 +18,31 @@ export class SubmissionsRepository {
         return identity?.githubUserId ?? null;
     }
 
-    async getAssignmentWithRepositories(cohortSlug: string, weekNumber: number) {
-      return this.prisma.assignment.findFirst({
-        where: {
+  async getAssignmentWithRepositories(cohortSlug: string, weekNumber: number) {
+    const slugs = [cohortSlug];
+    const match = cohortSlug.match(/^cohort-0?(\d+)$/);
+    if (match) {
+      slugs.push(`cohort-${match[1]}`, `cohort-0${match[1]}`);
+    }
+
+    return this.prisma.assignment.findFirst({
+      where: {
         weekNumber,
         engagement: {
-            cohort: { slug: cohortSlug },
+          cohort: { slug: { in: Array.from(new Set(slugs)) } },
         },
-        },
-        include: {
+      },
+      include: {
         engagement: {
-            include: {
+          include: {
             product: {
-                include:
-                 { repositories: true },
+              include: { repositories: true },
             },
-            },
+          },
         },
-        },
+      },
     });
-    }
+  }
 
     async upsertSubmission(data: {
       assignmentId: string;
