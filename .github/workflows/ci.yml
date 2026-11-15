@@ -30,10 +30,10 @@ jobs:
       IDENTITY_PROVIDER: fake
     steps:
       - uses: actions/checkout@v4
+      - run: corepack enable
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: yarn
-      - run: corepack enable
       - run: yarn install --immutable
       - run: yarn validate:ci

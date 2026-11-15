@@ -40,7 +40,7 @@ import { SessionService } from "./session.service.js";
       useFactory: (env: AppEnv) =>
         env.IDENTITY_PROVIDER === "auth0"
           ? new Auth0IdentityProvider(env)
-          : new FakeIdentityProvider(),
+          : new FakeIdentityProvider(env),
       inject: [APP_ENV],
     },
   ],

@@ -50,6 +50,14 @@ export class PrismaUserRepository implements UserRepository {
     });
 
     if (existingIdentity) {
+      const newGithubUserId = profile.githubUserId ? BigInt(profile.githubUserId) : null;
+      if (existingIdentity.githubUserId !== newGithubUserId) {
+        await this.prisma.externalIdentity.update({
+          where: { id: existingIdentity.id },
+          data: { githubUserId: newGithubUserId },
+        });
+      }
+
       if (existingIdentity.user.displayName !== profile.displayName) {
         const updated = await this.prisma.user.update({
           where: { id: existingIdentity.user.id },

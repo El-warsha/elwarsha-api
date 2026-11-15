@@ -5,18 +5,52 @@ const prisma = new PrismaClient();
 async function main(): Promise<void> {
   const product = await prisma.product.upsert({
     where: { slug: "elwarsha-web" },
-    update: {},
+    update: {
+      name: "ElWarsha Web",
+      status: "active",
+    },
     create: {
       slug: "elwarsha-web",
       name: "ElWarsha Web",
       status: "active",
-      repository: {
-        create: {
-          githubOwner: "elwarsha",
-          githubRepo: "elwarsha-web",
-          installationId: 1,
-        },
+    },
+  });
+
+  await prisma.productRepository.upsert({
+    where: {
+      githubOwner_githubRepo: {
+        githubOwner: "El-warsha",
+        githubRepo: "elwarsha-api",
       },
+    },
+    update: {
+      productId: product.id,
+      installationId: 1,
+    },
+    create: {
+      productId: product.id,
+      githubOwner: "El-warsha",
+      githubRepo: "elwarsha-api",
+      installationId: 1,
+    },
+  });
+
+  await prisma.productRepository.upsert({
+    where: {
+      githubOwner_githubRepo: {
+        githubOwner: "El-warsha",
+        githubRepo: "elwarsha-web",
+      },
+    },
+    update: {
+      productId: product.id,
+      installationId: 1,
+    },
+    create: {
+      productId: product.id,
+      githubOwner: "El-warsha",
+      githubRepo: "elwarsha-web",
+      installationId: 1,
     },
   });
 
@@ -24,11 +58,13 @@ async function main(): Promise<void> {
     where: { slug: "cohort-01" },
     update: {
       nameAr: "الدفعة الأولى",
+      currentWeekNumber: 6,
     },
     create: {
       slug: "cohort-01",
       name: "Cohort 01",
       nameAr: "الدفعة الأولى",
+      currentWeekNumber: 6,
       startsOn: new Date("2026-10-01"),
       endsOn: new Date("2026-11-26"),
     },
@@ -49,6 +85,10 @@ async function main(): Promise<void> {
     },
   });
 
+  const fakeGithubUserId = process.env.FAKE_USER_GITHUB_ID
+    ? BigInt(process.env.FAKE_USER_GITHUB_ID)
+    : BigInt(1001);
+
   const user = await prisma.user.upsert({
     where: { email: "participant@elwarsha.dev" },
     update: { displayName: "Test Participant" },
@@ -60,9 +100,27 @@ async function main(): Promise<void> {
         create: {
           provider: "fake",
           providerSubject: "fake-user-1",
-          githubUserId: 1001,
+          githubUserId: fakeGithubUserId,
         },
       },
+    },
+  });
+
+  await prisma.externalIdentity.upsert({
+    where: {
+      provider_providerSubject: {
+        provider: "fake",
+        providerSubject: "fake-user-1",
+      },
+    },
+    update: {
+      githubUserId: fakeGithubUserId,
+    },
+    create: {
+      userId: user.id,
+      provider: "fake",
+      providerSubject: "fake-user-1",
+      githubUserId: fakeGithubUserId,
     },
   });
 
@@ -96,9 +154,9 @@ async function main(): Promise<void> {
     },
     {
       weekNumber: 3,
-      title: "Asynchronous flow: webhook verification and background queue",
+      title: "Database migrations, Zod runtime contracts & server state",
       status: "published" as const,
-      labels: ["backend", "worker"],
+      labels: ["database", "contract", "frontend"],
     },
     {
       weekNumber: 4,
@@ -108,15 +166,16 @@ async function main(): Promise<void> {
     },
     {
       weekNumber: 5,
-      title: "Validation and reliability: request schemas and error envelopes",
+      title:
+        "Testing, quality & evaluation loops: audit application tests and deliberate breaks",
       status: "draft" as const,
-      labels: ["backend", "frontend"],
+      labels: ["testing", "quality"],
     },
     {
       weekNumber: 6,
-      title: "Testing: unit tests and isolated regression coverage",
-      status: "draft" as const,
-      labels: ["testing", "quality"],
+      title: "GitHub integration: pull request synchronization and status tracking",
+      status: "published" as const,
+      labels: ["github", "backend", "frontend"],
     },
     {
       weekNumber: 7,
