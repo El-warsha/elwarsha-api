@@ -7,6 +7,17 @@ export type NormalizedPullRequest = {
   htmlUrl: string;
 };
 
+<<<<<<< HEAD
+export interface NormalizedPullRequestSummary {
+  id: string;
+  number: number;
+  title: string;
+  state: "open" | "closed";
+  mergedAt: string | null;
+  htmlUrl: string;
+  authorGithubId: bigint;
+}
+=======
 export type NormalizedPullRequestSummary = {
   githubPrId: string;
   number: number;
@@ -19,6 +30,7 @@ export type NormalizedPullRequestSummary = {
   createdAt: string;
   updatedAt: string;
 };
+>>>>>>> upstream/main
 
 export interface GithubAppClient {
   verifyWebhookSignature(rawBody: string, signature: string | undefined): boolean;

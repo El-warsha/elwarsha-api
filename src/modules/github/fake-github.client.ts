@@ -94,6 +94,21 @@ export class FakeGithubAppClient implements GithubAppClient {
     };
   }
 
+<<<<<<< HEAD
+  async listRepositoryPullRequests(_owner: string, _repo: string): Promise<any[]> {
+    // إرجاع مصفوفة وهمية للـ PRs لتناسب اختبارات الـ Fake Client
+    return [
+      {
+        id: "1",
+        number: 42,
+        title: "[week-06] test pull request",
+        state: "open",
+        mergedAt: null,
+        htmlUrl: "https://github.com/El-warsha/elwarsha-api/pull/42",
+        authorGithubId: BigInt(process.env.FAKE_USER_GITHUB_ID || "1001"),
+      },
+    ];
+=======
   async listRepositoryPullRequests(
     owner: string,
     repo: string,
@@ -104,5 +119,6 @@ export class FakeGithubAppClient implements GithubAppClient {
 
   setPullRequests(pullRequests: NormalizedPullRequestSummary[]): void {
     this.pullRequests = pullRequests;
+>>>>>>> upstream/main
   }
 }

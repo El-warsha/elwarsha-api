@@ -40,6 +40,11 @@ export class ApplicationsController {
     description: "Validation failed with structured invalidParams list",
   })
   async apply(@Param("slug") slug: string, @Body() dto: ApplyCohortDto) {
-    return this.applicationsService.apply(slug, dto);
+    return this.applicationsService.apply(
+      slug,
+      dto.fullName,
+      dto.email,
+      dto.githubHandle,
+    );
   }
 }
