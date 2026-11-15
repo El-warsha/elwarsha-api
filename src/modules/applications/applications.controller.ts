@@ -39,7 +39,7 @@ export class ApplicationsController {
     status: 422,
     description: "Validation failed with structured invalidParams list",
   })
- async apply(@Param("slug") slug: string, @Body() dto: ApplyCohortDto) {
+  async apply(@Param("slug") slug: string, @Body() dto: ApplyCohortDto) {
     return this.applicationsService.apply(
       slug,
       dto.fullName,
